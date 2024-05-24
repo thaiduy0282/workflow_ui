@@ -1,0 +1,7 @@
+.react-flow__node-group.add-new {
+  width: 50px !important;
+  height: 50px !important;
+}
+.action-nodes:hover {
+  background-color: #eef2f2;
+}

@@ -27,7 +27,6 @@ const DrawerLayout = ({ open, close, currentNode, onChangeNodeName }: any) => {
           onChange={(evt) => onChangeNodeName(evt.target.value)}
         />
       </Box>
-
       <Box display="flex" flexDirection="column" gap={2}>
         <Box display="flex" gap={2}>
           <Button variant="outlined" startIcon={<Close />} onClick={close}>

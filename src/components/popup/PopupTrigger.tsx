@@ -8,22 +8,18 @@ import {
   FormControlLabel,
   FormLabel,
   Grid,
-  InputLabel,
-  ListItem,
-  MenuItem,
   Radio,
   RadioGroup,
-  Select,
   SelectChangeEvent,
-  TextField,
 } from "@mui/material";
 
 import Button from "@mui/material/Button";
-import { CheckCircleOutline } from "@mui/icons-material";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Points } from "../../constant/Points";
+import SelectField from "../input/SelectField";
+import TextField from "../input/TextField";
 
 export default function PopupTrigger({ open, handleClose }: any) {
   const [folder, setFolder] = React.useState("");
@@ -43,34 +39,60 @@ export default function PopupTrigger({ open, handleClose }: any) {
         </DialogTitle>
         <DialogContent>
           <Box display="flex" flexDirection="column" gap={2} marginTop={1}>
-            <FormControl fullWidth>
-              <TextField id="outlined-basic" label="Name" variant="outlined" />
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">
-                Create in folder
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={folder}
-                label="Create in folder"
-                onChange={handleChange}
-              >
-                <MenuItem value="a">Home</MenuItem>
-                <MenuItem value="b">House</MenuItem>
-                <MenuItem value="c">Floor</MenuItem>
-              </Select>
-            </FormControl>
-
+            <TextField
+              id="name"
+              label="Name"
+              required
+              // label={allocateTranslate('license-plates')}
+              // error={!!getError('licensePlate')}
+              // helperText={getError('licensePlate')?.message}
+              // placeholder={allocateTranslate(
+              //   'license-plates-placeholder'
+              // )}
+              // {...register('licensePlate', {
+              //   required: generateValidationRule(
+              //     true,
+              //     allocateTranslate('license-plates-error-message')
+              //   ),
+              //   pattern: generateValidationRule(
+              //     EMPTY_STRING_REGEX,
+              //     allocateTranslate('license-plates-format-error')
+              //   ),
+              // })}
+            />
+            <SelectField
+              name="folder"
+              label="Folder"
+              value="Folder"
+              onChange={(event: SelectChangeEvent<string>) => {
+                // handleInputChange(event);
+                // setFormErrors((prev: any) => ({
+                //   ...(prev || {}),
+                //   [event.target.name]: event.target.value
+                //     ? undefined
+                //     : t('folder-placeholder'),
+                // }));
+              }}
+              options={[]}
+              placeholder="Folder"
+              // error={formErrors?.folder}
+            />
             <FormControl>
               <FormLabel id="demo-row-radio-buttons-group-label">
                 Pick a starting point
               </FormLabel>
               <RadioGroup row name="row-radio-buttons-group">
-                <Grid container columns={{ xs: 4, sm: 8, md: 12 }}>
+                <Grid container>
                   {Points.map((data, index) => (
-                    <Grid item xs={2} sm={4} md={6} key={index}>
+                    <Grid
+                      item
+                      mobile={12}
+                      tablet={12}
+                      miniLaptop={4}
+                      laptop={3}
+                      desktop={2.36}
+                      key={index}
+                    >
                       <FormControlLabel
                         value={data.key}
                         control={<Radio />}

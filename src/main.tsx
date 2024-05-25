@@ -1,12 +1,24 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
+import "./index.css";
+import "reactflow/dist/style.css";
 
-import './index.css';
-import 'reactflow/dist/style.css';
+import {
+  CssBaseline,
+  StyledEngineProvider,
+  ThemeProvider,
+} from "@mui/material";
 
-createRoot(document.getElementById('root') as HTMLElement).render(
+import App from "./App";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { theme } from "./themes/Theme";
+
+createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
-    <App />
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <App />
+      </ThemeProvider>
+    </StyledEngineProvider>
   </StrictMode>
 );

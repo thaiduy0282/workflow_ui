@@ -1,6 +1,4 @@
-import "../styles/style.css";
-
-import { MouseEvent, useCallback, useEffect, useState } from "react";
+import { MouseEvent, useCallback, useState } from "react";
 import ReactFlow, {
   Background,
   Connection,
@@ -21,7 +19,6 @@ import ReactFlow, {
 import ActionGroup from "../components/node/ActionGroup";
 import AddNewNode from "../components/node/AddNewNode";
 import DrawerLayout from "../components/layout/Drawer";
-import PopupTrigger from "../components/popup/PopupTrigger";
 import dagre from "dagre";
 
 const dagreGraph = new dagre.graphlib.Graph();
@@ -52,35 +49,10 @@ const UseZoomPanHelperFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [currentNode, setCurrentNode] = useState<Node | null>(null);
-  const [nodeName, setNodeName] = useState<string>("");
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const [openPopupTrigger, setOpenPopupTrigger] = useState(false);
-
-  useEffect(() => {
-    setNodes((nds) =>
-      nds.map((n) =>
-        n?.id === currentNode?.id
-          ? { ...n, data: { ...n.data, label: nodeName } }
-          : n
-      )
-    );
-  }, [nodeName]);
 
   const handleDrawerOpen = () => setDrawerOpen(true);
   const handleDrawerClose = () => setDrawerOpen(false);
-
-  const handleClickOpenPopupTrigger = () => {
-    setOpenPopupTrigger(true);
-  };
-
-  const handleClosePopupTrigger = () => {
-    if (currentNode) {
-      onAddNode(currentNode);
-      setTimeout(() => fitView({ duration: 1200, padding: 1 }), 100);
-    }
-    setOpenPopupTrigger(false);
-  };
 
   const handleChangeActionId = (data: any) => {
     if (data.id) {
@@ -104,19 +76,21 @@ const UseZoomPanHelperFlow = () => {
 
   const onNodeClick = useCallback(
     (_: MouseEvent, node: Node) => {
-      if (node.id === "add-trigger") handleClickOpenPopupTrigger();
-      else if (node.id.includes("action")) {
+      if (node.id === "add-trigger") {
+        onAddNode(node);
+        setTimeout(() => fitView({ duration: 1200, padding: 0.2 }), 100);
+      } else if (node.id.includes("action")) {
         onAddNode(node);
         setTimeout(() => {
-          fitView({ duration: 1200, padding: 1 });
+          fitView({ duration: 1200, padding: 0.2 });
         }, 100);
       } else if (!node.id.includes("add") && !node.id.includes("action")) {
         const { x, y } = node.position;
         setCenter(x + 75, y + 25, { zoom: 1.85, duration: 1200 });
         setTimeout(handleDrawerOpen, 200);
-      }
 
-      setCurrentNode(node);
+        setCurrentNode(node);
+      }
     },
     [setCenter]
   );
@@ -371,23 +345,16 @@ const UseZoomPanHelperFlow = () => {
         onNodeClick={onNodeClick}
         onConnect={onConnect}
         fitView
-        fitViewOptions={{ duration: 1200, padding: 1 }}
+        fitViewOptions={{ duration: 1200, padding: 0.2 }}
         maxZoom={Infinity}
       >
         <Panel position="top-right">
-          <PopupTrigger
-            open={openPopupTrigger}
-            handleClose={handleClosePopupTrigger}
-          />
-          {/* <button onClick={onResetNodes}>Reset Nodes</button>
-          <button onClick={deleteSelectedElements}>
-            Delete Selected Elements
-          </button> */}
+          <></>
         </Panel>
         <Background />
         <MiniMap />
         <Controls
-          onFitView={() => fitView({ duration: 1200, padding: 1 })}
+          onFitView={() => fitView({ duration: 1200, padding: 0.2 })}
           showInteractive={false}
           fitViewOptions={{ duration: 1200 }}
         />
@@ -396,7 +363,6 @@ const UseZoomPanHelperFlow = () => {
         open={drawerOpen}
         close={handleDrawerClose}
         currentNode={currentNode}
-        onChangeNodeName={setNodeName}
       />
     </>
   );

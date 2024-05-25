@@ -1,58 +1,50 @@
 import "./style.css";
 
-import { Box, Button, Divider, TextField, Typography } from "@mui/material";
-import { Close, Done } from "@mui/icons-material";
+import { Drawer, Select, Space } from "antd";
 
-import DeleteIcon from "@mui/icons-material/Delete";
-import Drawer from "@mui/material/Drawer";
-
-const DrawerLayout = ({ open, close, currentNode, onChangeNodeName }: any) => {
-  const DrawerContent = (
-    <Box
-      width="100%"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      gap={2}
-      p={2}
-    >
-      <Typography variant="h5" fontWeight={700}>
-        {currentNode?.id === "trigger" ? "TRIGGER" : "ACTION"}
-      </Typography>
-      <Divider sx={{ width: "100%" }} />
-      <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
-        <TextField
-          id="name"
-          label="Name"
-          variant="filled"
-          defaultValue={currentNode?.data?.label}
-          onChange={(evt) => onChangeNodeName(evt.target.value)}
-        />
-      </Box>
-      <Box display="flex" flexDirection="column" gap={2}>
-        <Box display="flex" gap={2}>
-          <Button variant="outlined" startIcon={<Close />} onClick={close}>
-            Cancel
-          </Button>
-          <Button variant="contained" startIcon={<Done />} onClick={close}>
-            Save
-          </Button>
-        </Box>
-        <Button
-          variant="outlined"
-          color="error"
-          startIcon={<DeleteIcon />}
-          onClick={close}
-        >
-          Delete
-        </Button>
-      </Box>
-    </Box>
-  );
+const DrawerLayout = ({ open, close, currentNode }: any) => {
   return (
-    <Drawer open={open} onClose={close} anchor="right">
-      {DrawerContent}
-    </Drawer>
+    <>
+      <Drawer
+        title={
+          <div style={{ textAlign: "center" }}>
+            {currentNode?.data?.label} Setup
+          </div>
+        }
+        placement="right"
+        width={500}
+        onClose={close}
+        open={open}
+        closeIcon={false}
+      >
+        {currentNode?.id === "trigger" ? (
+          <Space direction="vertical" style={{ width: "100%", gap: "10px" }}>
+            <Select
+              defaultValue="Category"
+              style={{ width: "100%", height: "40px" }}
+              // onChange={handleChange}
+              options={[
+                { value: "jack", label: "Jack" },
+                { value: "lucy", label: "Lucy" },
+                { value: "Yiminghe", label: "yiminghe" },
+              ]}
+            />
+            <Select
+              defaultValue="Folder"
+              style={{ width: "100%", height: "40px" }}
+              // onChange={handleChange}
+              options={[
+                { value: "jack", label: "Jack" },
+                { value: "lucy", label: "Lucy" },
+                { value: "Yiminghe", label: "yiminghe" },
+              ]}
+            />
+          </Space>
+        ) : (
+          <></>
+        )}
+      </Drawer>
+    </>
   );
 };
 

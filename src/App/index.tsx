@@ -2,22 +2,14 @@ import * as React from "react";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import AdbIcon from "@mui/icons-material/Adb";
-import AppBar from "@mui/material/AppBar";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
-import IconButton from "@mui/material/IconButton";
+import { Header } from "antd/es/layout/layout";
 import Main from "../pages";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Toolbar from "@mui/material/Toolbar";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
+import { Menu } from "antd";
 
-const pages = ["Home"];
+const items = new Array(3).fill(null).map((_, index) => ({
+  key: String(index + 1),
+  label: `Home ${index + 1}`,
+}));
 const settings = ["Profile", "Account", "Logout"];
 
 interface IRoute {
@@ -34,174 +26,32 @@ const routes: IRoute[] = [
   },
 ];
 
-const Header = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null
-  );
-
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
+const HeaderLayout = () => {
   return (
-    <AppBar position="static">
-      <Container maxWidth={false}>
-        <Toolbar disableGutters>
-          <AdbIcon
-            sx={{
-              display: { mobile: "none", tablet: "none", miniLaptop: "flex" },
-              mr: 1,
-            }}
-          />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { mobile: "none", tablet: "none", miniLaptop: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            LOGO
-          </Typography>
-
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { tablet: "flex", miniLaptop: "none" },
-            }}
-          >
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { tablet: "block", miniLaptop: "none" },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <AdbIcon
-            sx={{ display: { tablet: "flex", miniLaptop: "none" }, mr: 1 }}
-          />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { tablet: "flex", miniLaptop: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            LOGO
-          </Typography>
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { mobile: "none", tablet: "none", miniLaptop: "flex" },
-            }}
-          >
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-        </Toolbar>
-      </Container>
-    </AppBar>
+    <Header
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 1,
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      <Menu
+        theme="dark"
+        mode="horizontal"
+        defaultSelectedKeys={["2"]}
+        items={items}
+        style={{ flex: 1, minWidth: 0 }}
+      />
+    </Header>
   );
 };
 
 export default () => (
   <BrowserRouter>
-    <Header />
+    <HeaderLayout />
     <Routes>
       {routes.map((route) => (
         <Route

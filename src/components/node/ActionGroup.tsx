@@ -1,7 +1,9 @@
+import "./style.css";
+
 import { Handle, NodeProps, Position } from "reactflow";
 
 import { ActionList } from "../../constant/Nodes";
-import { Button } from "@mui/material";
+import { Button } from "antd";
 import { FC } from "react";
 
 const labelStyle = {
@@ -10,8 +12,8 @@ const labelStyle = {
   alignItems: "center",
   border: "2px dashed",
   borderRadius: "10px",
-  width: "420px",
-  height: "100px",
+  width: "350px",
+  height: "50px",
   gap: 4,
 };
 
@@ -23,8 +25,8 @@ const ActionGroup: FC<NodeProps> = ({ ...props }: any) => {
         {ActionList.map((node) => (
           <Button
             id={"action__" + node.id}
-            variant="contained"
             onClick={() => props?.data?.func(node)}
+            className="btn-action"
           >
             {node.data.label}
           </Button>

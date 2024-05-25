@@ -19,8 +19,6 @@ import ReactFlow, {
 } from "reactflow";
 
 import ActionGroup from "../components/node/ActionGroup";
-import { ActionList } from "../constant/Nodes";
-import ActionNode from "../components/node/ActionNode";
 import AddNewNode from "../components/node/AddNewNode";
 import DrawerLayout from "../components/layout/Drawer";
 import PopupTrigger from "../components/popup/PopupTrigger";
@@ -32,7 +30,6 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 const nodeTypes = {
   addNewNode: AddNewNode,
   actionGroup: ActionGroup,
-  actionNode: ActionNode,
 };
 
 const position: XYPosition = { x: 0, y: 0 };
@@ -76,12 +73,19 @@ const UseZoomPanHelperFlow = () => {
   const handleClickOpenPopupTrigger = () => {
     setOpenPopupTrigger(true);
   };
+
   const handleClosePopupTrigger = () => {
     if (currentNode) {
       onAddNode(currentNode);
       setTimeout(() => fitView({ duration: 1200, padding: 1 }), 100);
     }
     setOpenPopupTrigger(false);
+  };
+
+  const handleChangeActionId = (data: any) => {
+    if (data.id) {
+      onAddNode(data);
+    }
   };
 
   const onConnect = (params: Connection | Edge) =>
@@ -103,7 +107,9 @@ const UseZoomPanHelperFlow = () => {
       if (node.id === "add-trigger") handleClickOpenPopupTrigger();
       else if (node.id.includes("action")) {
         onAddNode(node);
-        setTimeout(() => fitView({ duration: 1200, padding: 1 }), 100);
+        setTimeout(() => {
+          fitView({ duration: 1200, padding: 1 });
+        }, 100);
       } else if (!node.id.includes("add") && !node.id.includes("action")) {
         const { x, y } = node.position;
         setCenter(x + 75, y + 25, { zoom: 1.85, duration: 1200 });
@@ -115,27 +121,18 @@ const UseZoomPanHelperFlow = () => {
     [setCenter]
   );
 
+  // Add action group
   const actionContinue = (newNode: Node) => {
     if (newNode.id !== "stop-job") {
       const newGroup = {
         id: "action__group",
         type: "actionGroup",
         position: { x: newNode?.position?.x, y: newNode?.position?.y + 100 },
-        data: { label: "Action Group" },
+        data: { label: "Action Group", func: handleChangeActionId },
       };
 
-      const anotherNode = ActionList.map((data, index) => ({
-        id: "action__" + data.id,
-        type: "actionNode",
-        dragHandle: "disable",
-        position: { x: position.x + (100 * index + 10), y: position.y + 12 },
-        data: { label: data.label },
-        parentId: newGroup.id,
-      }));
-
-      if (newNode.id === "trigger")
-        setNodesHook([newNode, newGroup, ...anotherNode]);
-      else addNodes([newGroup, ...anotherNode]);
+      if (newNode.id === "trigger") setNodesHook([newNode, newGroup]);
+      else addNodes([newGroup]);
 
       addEdges({
         id: "e-animation-action-group__" + getId(),
@@ -156,13 +153,11 @@ const UseZoomPanHelperFlow = () => {
           stroke: "#b1b1b1",
         },
       });
-    } else {
-      addNodes(newNode);
     }
   };
 
   const onAddNode = useCallback(
-    (node: Node) => {
+    (node: any) => {
       if (node.id === "add-trigger") {
         const newNode = {
           id: "trigger",
@@ -175,7 +170,7 @@ const UseZoomPanHelperFlow = () => {
         setTimeout(handleDrawerOpen, 200);
 
         actionContinue(newNode);
-      } else if (node.id.includes("action")) {
+      } else if (node.id.includes("action") && node.id !== "action__group") {
         deleteElements({
           nodes: getNodes().filter((n) => n.id.includes("action")),
           edges: getEdges().filter((e) => e.id.includes("animation")),
@@ -237,10 +232,14 @@ const UseZoomPanHelperFlow = () => {
               stroke: "#b1b1b1",
             },
           });
-        } else
+        } else {
+          const filteredNodes = getNodes().filter((n) =>
+            n.id.includes("act__")
+          );
+
           addEdges({
             id: "e-action-group__" + getId(),
-            source: getNodes()[0].id,
+            source: filteredNodes[0]?.id ? filteredNodes[0]?.id : "trigger",
             target: newNode.id,
             animated: false,
             type: "smoothstep",
@@ -256,11 +255,9 @@ const UseZoomPanHelperFlow = () => {
               stroke: "#b1b1b1",
             },
           });
+        }
 
-        if (
-          node.id === "action__if-condition" ||
-          node.id === "action__else-if-condition"
-        ) {
+        if (node.id === "action__if-condition") {
           const trueNode = {
             id: "true-case__" + getId(),
             type: "default",

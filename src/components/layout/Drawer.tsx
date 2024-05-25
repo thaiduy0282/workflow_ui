@@ -1,3 +1,5 @@
+import "./style.css";
+
 import { Box, Button, Divider, TextField, Typography } from "@mui/material";
 import { Close, Done } from "@mui/icons-material";
 
@@ -7,7 +9,7 @@ import Drawer from "@mui/material/Drawer";
 const DrawerLayout = ({ open, close, currentNode, onChangeNodeName }: any) => {
   const DrawerContent = (
     <Box
-      width={250}
+      width="100%"
       display="flex"
       flexDirection="column"
       alignItems="center"
@@ -48,7 +50,7 @@ const DrawerLayout = ({ open, close, currentNode, onChangeNodeName }: any) => {
     </Box>
   );
   return (
-    <Drawer open={open} onClose={close}>
+    <Drawer open={open} onClose={close} anchor="right">
       {DrawerContent}
     </Drawer>
   );

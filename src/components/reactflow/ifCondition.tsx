@@ -1,14 +1,8 @@
-import { MouseEvent, useCallback, useState } from "react";
 import ReactFlow, {
-  Background,
-  BackgroundVariant,
   Connection,
-  Controls,
   Edge,
   MarkerType,
-  MiniMap,
   Node,
-  Panel,
   ReactFlowProvider,
   XYPosition,
   addEdge,
@@ -16,41 +10,62 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
 } from "reactflow";
+import { useCallback, useState } from "react";
 
-import ActionGroup from "../components/node/ActionGroup";
-import AddNewNode from "../components/node/AddNewNode";
-import { Button } from "antd";
-import DrawerLayout from "../components/layout/Drawer";
+import AddNewCondition from "./node/AddNewCondition";
+import IfConditionNode from "./node/ifConditionNode";
+
+let id = 1;
+const getId = () => `${id++}`;
 
 const nodeTypes = {
-  addNewNode: AddNewNode,
-  actionGroup: ActionGroup,
+  IfConditionNode: IfConditionNode,
+  addNewCondition: AddNewCondition,
 };
 
 const position: XYPosition = { x: 0, y: 0 };
 
 const initialNodes: Node[] = [
   {
-    id: "add-trigger",
-    type: "addNewNode",
-    data: { label: "Add Trigger" },
+    id: "if-condition",
+    type: "IfConditionNode",
+    data: { label: "If" },
     position,
+  },
+  {
+    id: "add-new-condition",
+    type: "addNewCondition",
+    data: {},
+    position: { x: position.x - 7, y: position.y + 250 },
   },
 ];
 
-const initialEdges: Edge[] = [];
+const initialEdges: Edge[] = [
+  {
+    id: "e-animation-condition__" + getId(),
+    source: initialNodes[0].id,
+    target: initialNodes[1].id,
+    animated: true,
+    type: "smoothstep",
+    label: <></>,
+    labelStyle: { fill: "black", fontWeight: 700 },
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: "#b1b1b1",
+    },
+    style: {
+      strokeWidth: 2,
+      stroke: "#b1b1b1",
+    },
+  },
+];
 
-let id = 1;
-const getId = () => `${id++}`;
-
-const ReactFlowMain = () => {
+const ReactFlowChild = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [currentNode, setCurrentNode] = useState<Node | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const handleDrawerOpen = () => setDrawerOpen(true);
-  const handleDrawerClose = () => setDrawerOpen(false);
 
   const handleChangeActionId = (data: any) => {
     if (data.id) {
@@ -72,21 +87,20 @@ const ReactFlowMain = () => {
     deleteElements,
   } = useReactFlow();
 
-  const onNodeClick = useCallback(
+  const onNodeClick: any = useCallback(
     (_: MouseEvent, node: Node) => {
       if (node.id === "add-trigger") {
         onAddNode(node);
-        setTimeout(() => fitView({ duration: 1200, padding: 1 }), 100);
+        setTimeout(() => fitView({ duration: 1200, padding: 0.2 }), 100);
       } else if (node.id.includes("action")) {
         onAddNode(node);
         setTimeout(() => {
-          fitView({ duration: 1200, padding: 1 });
+          fitView({ duration: 1200, padding: 0.2 });
         }, 100);
       } else if (!node.id.includes("add") && !node.id.includes("action")) {
-        const { x, y } = node.position;
-        setCenter(x + 75, y + 25, { zoom: 1.85, duration: 1200 });
-        setTimeout(handleDrawerOpen, 200);
-
+        setTimeout(() => {
+          fitView({ duration: 1200, padding: 0.2 });
+        }, 100);
         setCurrentNode(node);
       }
     },
@@ -139,7 +153,6 @@ const ReactFlowMain = () => {
         };
 
         setCurrentNode(newNode);
-        setTimeout(handleDrawerOpen, 200);
 
         actionContinue(newNode);
       } else if (node.id.includes("action") && node.id !== "action__group") {
@@ -157,6 +170,7 @@ const ReactFlowMain = () => {
             ? {
                 id: "stop-job",
                 type: "output",
+                dragHandle: ".disable",
                 position: {
                   x: getNodes()[0]?.position?.x,
                   y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
@@ -166,6 +180,7 @@ const ReactFlowMain = () => {
             : {
                 id: "act__" + getId(),
                 type: "default",
+                dragHandle: ".disable",
                 position: {
                   x: getNodes()[0]?.position?.x,
                   y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
@@ -183,7 +198,6 @@ const ReactFlowMain = () => {
           target: newNode.id,
           animated: false,
           type: "smoothstep",
-          label: filteredNodes[0]?.id ? <></> : <>ACTIONS</>,
           labelStyle: { fill: "black", fontWeight: 700 },
           markerEnd: {
             type: MarkerType.ArrowClosed,
@@ -202,17 +216,6 @@ const ReactFlowMain = () => {
     [addNodes, deleteElements, setNodesHook, getNodes, getEdges, addEdges]
   );
 
-  const deleteSelectedElements = useCallback(() => {
-    const selectedNodes = nodes.filter((node) => node.selected);
-    const selectedEdges = edges.filter((edge) => edge.selected);
-    deleteElements({ nodes: selectedNodes, edges: selectedEdges });
-  }, [deleteElements, nodes, edges]);
-
-  const onResetNodes = useCallback(
-    () => setNodesHook(initialNodes),
-    [setNodesHook]
-  );
-
   return (
     <>
       <ReactFlow
@@ -224,40 +227,20 @@ const ReactFlowMain = () => {
         onNodeClick={onNodeClick}
         onConnect={onConnect}
         fitView
-        fitViewOptions={{ duration: 1200, padding: 2 }}
+        fitViewOptions={{ duration: 1200, padding: 0.3 }}
+        panOnDrag={false}
+        nodesDraggable={false}
+        zoomOnDoubleClick={false}
         maxZoom={Infinity}
-      >
-        <Background variant={BackgroundVariant.Lines} />
-        <MiniMap />
-        <Controls
-          onFitView={() => fitView({ duration: 1200, padding: 1 })}
-          showInteractive={false}
-          fitViewOptions={{ duration: 1200 }}
-        />
-      </ReactFlow>
-      <Button
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}
-      >
-        Save
-      </Button>
-      <DrawerLayout
-        open={drawerOpen}
-        close={handleDrawerClose}
-        currentNode={currentNode}
-      />
+      ></ReactFlow>
     </>
   );
 };
 
-const Main = () => (
+const ReactFlowIfCondition = () => (
   <ReactFlowProvider>
-    <ReactFlowMain />
+    <ReactFlowChild />
   </ReactFlowProvider>
 );
 
-export default Main;
+export default ReactFlowIfCondition;

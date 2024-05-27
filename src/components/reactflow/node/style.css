@@ -1,0 +1,8 @@
+.space__condition {
+    width: 100%;
+    height: 100%;
+}
+
+.space__condition > .ant-space-item {
+    width: 100%;
+}

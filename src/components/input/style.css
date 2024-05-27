@@ -1,0 +1,31 @@
+.drag-drop__items {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.drag-drop__items > .ant-space-item:has(.drag-drop__item) {
+    width: 80%;
+}
+
+.drag-drop__items > .ant-space-item:has(.drag-drop__item-type) {
+    width: 20%;
+}
+
+.drag-drop__items .drag-drop__item {
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+.drag-drop__items .drag-drop__item-type {
+    width: 30%;
+}
+
+.drag-drop__input, .drag-drop__input > input {
+    width: 100%;
+}
+
+.drag-drop__input > input {
+    padding: 8px;
+    height: 32px;
+}

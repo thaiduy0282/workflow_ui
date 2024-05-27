@@ -1,5 +1,6 @@
+import { Handle, NodeProps, Position } from "reactflow";
+
 import { FC } from "react";
-import { NodeProps } from "reactflow";
 import { PlusOutlined } from "@ant-design/icons";
 
 const labelStyle = {
@@ -12,9 +13,14 @@ const labelStyle = {
   height: 50,
 };
 
-const AddNewNode: FC<NodeProps> = () => {
+const AddNewCondition: FC<NodeProps> = () => {
   return (
     <>
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{ visibility: "hidden" }}
+      />
       <div style={labelStyle}>
         <PlusOutlined style={{ fontSize: "32px" }} />
       </div>
@@ -22,4 +28,4 @@ const AddNewNode: FC<NodeProps> = () => {
   );
 };
 
-export default AddNewNode;
+export default AddNewCondition;

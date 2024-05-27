@@ -14,6 +14,7 @@
     "test-e2e": "start-server-and-test 'pnpm serve' http-get://localhost:3000 'pnpm test-e2e-cypress'"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.3.7",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@reactflow/node-resizer": "^2.2.13",

@@ -15,4 +15,35 @@ export const MetadataList = [
     content: "Account Phone",
     type: "String",
   },
+  {
+    content: "Account Net A",
+    type: "Double",
+  },
+  {
+    content: "Account Net B",
+    type: "Double",
+  },
+  {
+    content: "Account Net C",
+    type: "Double",
+  },
+];
+
+export const Calculations = [
+  {
+    content: "+",
+    type: "Operation",
+  },
+  {
+    content: "-",
+    type: "Operation",
+  },
+  {
+    content: "*",
+    type: "Operation",
+  },
+  {
+    content: "/",
+    type: "Operation",
+  },
 ];

@@ -6,6 +6,8 @@ import Draggable from "../input/DragAndDropItem";
 import DroppableInput from "../input/DragAndDropInput";
 import { MetadataList } from "../../constant/Metadata";
 import { SearchProps } from "antd/es/input";
+import { handleGetMetadata } from "./handleAPI";
+import { useState } from "react";
 
 const { Search } = Input;
 
@@ -13,6 +15,10 @@ const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
   console.log(info?.source, value);
 
 const CollapseCustom = ({ show }: any) => {
+  const [metadate, setMetadata] = useState();
+
+  const { isLoading, status, data, error } = handleGetMetadata();
+
   return (
     <Collapse
       items={[

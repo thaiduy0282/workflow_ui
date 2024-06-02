@@ -1,5 +1,6 @@
 import ReactFlow, {
   Connection,
+  Controls,
   Edge,
   MarkerType,
   Node,
@@ -10,10 +11,11 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
 } from "reactflow";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import AddNewCondition from "./node/AddNewCondition";
 import IfConditionNode from "./node/ifConditionNode";
+import { v4 as uuidV4 } from "uuid";
 
 let id = 1;
 const getId = () => `${id++}`;
@@ -25,59 +27,86 @@ const nodeTypes = {
 
 const position: XYPosition = { x: 0, y: 0 };
 
-const initialNodes: Node[] = [
-  {
-    id: "if-condition",
-    type: "IfConditionNode",
-    data: { label: "If" },
-    position,
-  },
-  {
-    id: "add-new-condition",
-    type: "addNewCondition",
-    data: {},
-    position: { x: position.x - 7, y: position.y + 250 },
-  },
-];
-
-const initialEdges: Edge[] = [
-  {
-    id: "e-animation-condition__" + getId(),
-    source: initialNodes[0].id,
-    target: initialNodes[1].id,
-    animated: true,
-    type: "smoothstep",
-    label: <></>,
-    labelStyle: { fill: "black", fontWeight: 700 },
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 20,
-      height: 20,
-      color: "#b1b1b1",
+const ReactFlowChild = ({
+  curNode,
+  isOpenDrawer,
+  workflowNodes,
+  setWorkflowNodes,
+}: any) => {
+  const initialNodes: Node[] = [
+    {
+      id: uuidV4(),
+      type: "IfConditionNode",
+      data: {
+        typeNode: "if-condition",
+        label: "If",
+        order: 1,
+      },
+      position,
     },
-    style: {
-      strokeWidth: 2,
-      stroke: "#b1b1b1",
+    {
+      id: uuidV4(),
+      type: "addNewCondition",
+      data: { typeNode: "add-new-condition" },
+      position: { x: position.x - 7, y: position.y + 250 },
     },
-  },
-];
+  ];
 
-const ReactFlowChild = () => {
+  const initialEdges: Edge[] = [
+    {
+      id: uuidV4(),
+      source: initialNodes[0].id,
+      target: initialNodes[1].id,
+      animated: true,
+      type: "smoothstep",
+      label: <></>,
+      labelStyle: { fill: "black", fontWeight: 700 },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+        color: "#b1b1b1",
+      },
+      style: {
+        strokeWidth: 2,
+        stroke: "#b1b1b1",
+      },
+      data: {
+        typeEdge: "e-animation-condition__" + getId(),
+      },
+    },
+  ];
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [currentNode, setCurrentNode] = useState<Node | null>(null);
 
-  const handleChangeActionId = (data: any) => {
-    if (data.id) {
-      onAddNode(data);
+  useEffect(() => {
+    if (!isOpenDrawer) {
+      setWorkflowNodes(editWorkflowNode(workflowNodes));
     }
+
+    if (
+      curNode?.data?.nodes?.length !== 0 &&
+      curNode?.data?.edges?.length !== 0
+    ) {
+      setNodes(curNode?.data?.nodes);
+      setEdges(curNode?.data?.edges);
+    }
+  }, [isOpenDrawer, curNode]);
+
+  const editWorkflowNode = (workflow: any) => {
+    return workflow.map((nd: any) => {
+      if (nd.id === curNode.id) {
+        nd.data = { ...nd.data, nodes: getNodes(), edges: getEdges() };
+      }
+      return nd;
+    });
   };
 
   const onConnect = (params: Connection | Edge) =>
     setEdges((eds) => addEdge(params, eds));
 
   const {
-    setCenter,
     fitView,
     addNodes,
     setNodes: setNodesHook,
@@ -87,114 +116,94 @@ const ReactFlowChild = () => {
     deleteElements,
   } = useReactFlow();
 
-  const onNodeClick: any = useCallback(
-    (_: MouseEvent, node: Node) => {
-      if (node.id === "add-trigger") {
-        onAddNode(node);
-        setTimeout(() => fitView({ duration: 1200, padding: 0.2 }), 100);
-      } else if (node.id.includes("action")) {
-        onAddNode(node);
-        setTimeout(() => {
-          fitView({ duration: 1200, padding: 0.2 });
-        }, 100);
-      } else if (!node.id.includes("add") && !node.id.includes("action")) {
-        setTimeout(() => {
-          fitView({ duration: 1200, padding: 0.2 });
-        }, 100);
-        setCurrentNode(node);
-      }
-    },
-    [setCenter]
-  );
-
-  // Add action group
-  const actionContinue = (newNode: Node) => {
-    if (newNode.id !== "stop-job") {
-      const newGroup = {
-        id: "action__group",
-        type: "actionGroup",
-        position: { x: newNode?.position?.x, y: newNode?.position?.y + 100 },
-        data: { label: "Action Group", func: handleChangeActionId },
-      };
-
-      if (newNode.id === "trigger") setNodesHook([newNode, newGroup]);
-      else addNodes([newGroup]);
-
-      addEdges({
-        id: "e-animation-action-group__" + getId(),
-        source: newNode.id,
-        target: newGroup.id,
-        animated: true,
-        type: "smoothstep",
-        label: newNode.id === "trigger" ? <tspan>ACTIONS</tspan> : <></>,
-        labelStyle: { fill: "black", fontWeight: 700 },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-          color: "#b1b1b1",
-        },
-        style: {
-          strokeWidth: 2,
-          stroke: "#b1b1b1",
-        },
-      });
+  const onNodeClick: any = useCallback((_: MouseEvent, node: Node) => {
+    if (node.data.typeNode.includes("add")) {
+      onAddNode(node);
     }
+  }, []);
+
+  // Add new condition
+  const actionContinue = (newNode: Node) => {
+    const newCondition = {
+      id: uuidV4(),
+      type: "addNewCondition",
+      data: {
+        typeNode: "add-new-condition",
+      },
+      position: {
+        x: newNode?.position?.x - 7,
+        y: newNode?.position?.y + 250,
+      },
+    };
+    addNodes([newCondition]);
+
+    addEdges({
+      id: uuidV4(),
+      source: newNode.id,
+      target: newCondition.id,
+      animated: true,
+      type: "smoothstep",
+      label: <></>,
+      labelStyle: { fill: "black", fontWeight: 700 },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+        color: "#b1b1b1",
+      },
+      style: {
+        strokeWidth: 2,
+        stroke: "#b1b1b1",
+      },
+      data: {
+        typeEdge: "e-animation-action-group__" + getId(),
+      },
+    });
   };
 
   const onAddNode = useCallback(
     (node: any) => {
-      if (node.id === "add-trigger") {
-        const newNode = {
-          id: "trigger",
-          type: "input",
-          position,
-          data: { label: "Trigger" },
-        };
-
-        setCurrentNode(newNode);
-
-        actionContinue(newNode);
-      } else if (node.id.includes("action") && node.id !== "action__group") {
+      if (node.data.typeNode.includes("add")) {
         deleteElements({
-          nodes: getNodes().filter((n) => n.id.includes("action")),
-          edges: getEdges().filter((e) => e.id.includes("animation")),
+          nodes: getNodes().filter((n) => n.data.typeNode.includes("add")),
+          edges: getEdges().filter((e) =>
+            e.data.typeEdge.includes("animation")
+          ),
         });
 
         const countAction = getNodes().filter((n) =>
-          n.id.includes("act__")
+          n.data.typeNode.includes("if-condition")
         ).length;
 
-        const newNode =
-          node.id === "action__stop-job"
-            ? {
-                id: "stop-job",
-                type: "output",
-                dragHandle: ".disable",
-                position: {
-                  x: getNodes()[0]?.position?.x,
-                  y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
-                },
-                data: { label: node.data.label },
-              }
-            : {
-                id: "act__" + getId(),
-                type: "default",
-                dragHandle: ".disable",
-                position: {
-                  x: getNodes()[0]?.position?.x,
-                  y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
-                },
-                data: { label: node.data.label },
-              };
+        const highestOrder = getNodes()
+          .filter((i) => i.data.typeNode !== "add-new-condition")
+          .sort((a, b) => a?.data?.order - b?.data?.order)[
+          getNodes().length - 2
+        ];
+
+        const newNode = {
+          id: uuidV4(),
+          type: "IfConditionNode",
+          position: {
+            x: getNodes()[0]?.position?.x + (countAction === 1 ? 0 : 7),
+            y: getNodes()[0]?.position?.y + (countAction === 1 ? 250 : 0),
+          },
+          data: {
+            typeNode: "new-if-condition-" + getId(),
+            label: node.data.label,
+            order: getNodes().length === 2 ? 2 : highestOrder.data.order + 1,
+          },
+        };
 
         addNodes(newNode);
 
-        const filteredNodes = getNodes().filter((n) => n.id.includes("act__"));
+        const filteredNodes = getNodes().filter((n) =>
+          n.data.typeNode.includes("if-condition")
+        );
 
         addEdges({
-          id: "e-action-group__" + getId(),
-          source: filteredNodes[0]?.id ? filteredNodes[0]?.id : "trigger",
+          id: uuidV4(),
+          source: filteredNodes[0]?.id,
           target: newNode.id,
           animated: false,
           type: "smoothstep",
@@ -209,6 +218,9 @@ const ReactFlowChild = () => {
             strokeWidth: 2,
             stroke: "#b1b1b1",
           },
+          data: {
+            typeEdge: "e-action-group__" + getId(),
+          },
         });
         actionContinue(newNode);
       }
@@ -217,29 +229,46 @@ const ReactFlowChild = () => {
   );
 
   return (
-    <>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onNodeClick={onNodeClick}
-        onConnect={onConnect}
-        fitView
-        fitViewOptions={{ duration: 1200, padding: 0.3 }}
-        panOnDrag={false}
-        nodesDraggable={false}
-        zoomOnDoubleClick={false}
-        maxZoom={Infinity}
-      ></ReactFlow>
-    </>
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      nodeTypes={nodeTypes}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onNodeClick={onNodeClick}
+      onConnect={onConnect}
+      defaultViewport={{ x: 65, y: 0, zoom: 1.5 }}
+      panOnDrag={false}
+      nodesDraggable={false}
+      zoomOnDoubleClick={false}
+      elementsSelectable={false}
+      nodesConnectable={false}
+      selectNodesOnDrag={false}
+      panOnScroll={true}
+      maxZoom={1.5}
+      minZoom={1.5}
+    >
+      <Controls
+        onFitView={() => fitView({ duration: 1200, padding: 1 })}
+        showInteractive={false}
+      />
+    </ReactFlow>
   );
 };
 
-const ReactFlowIfCondition = () => (
+const ReactFlowIfCondition = ({
+  currentNode,
+  isOpenDrawer,
+  workflowNodes,
+  setWorkflowNodes,
+}: any) => (
   <ReactFlowProvider>
-    <ReactFlowChild />
+    <ReactFlowChild
+      curNode={currentNode}
+      isOpenDrawer={isOpenDrawer}
+      workflowNodes={workflowNodes}
+      setWorkflowNodes={setWorkflowNodes}
+    />
   </ReactFlowProvider>
 );
 

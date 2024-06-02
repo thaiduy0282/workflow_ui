@@ -1,10 +1,10 @@
 import "./style.css";
 
 import { Col, Input, Row, Select, Space } from "antd";
-import { Handle, NodeProps, Position } from "reactflow";
+import { FC, useEffect, useState } from "react";
+import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
 
 import DroppableInput from "../../input/DragAndDropInput";
-import { FC } from "react";
 
 const labelStyle = {
   display: "flex",
@@ -25,19 +25,53 @@ const conditionTypeStyle: any = {
 };
 
 const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
+  const { getNodes, setNodes } = useReactFlow();
+
+  const [expressionType, setExpressionType] = useState("");
+  const [expression, setExpression] = useState<string>("");
+  const [condition, setCondition] = useState("");
+  const [comparisionValue, setComparisionValue] = useState("");
+
+  useEffect(() => {
+    setNodes(editNode);
+  }, [expressionType, expression, condition, comparisionValue]);
+
+  const editNode = () => {
+    return getNodes().map((nd: any) => {
+      if (nd.id === props.id) {
+        nd.data = {
+          ...nd.data,
+          expression,
+          expressionType,
+          condition,
+          comparisionValue,
+        };
+      }
+      return nd;
+    });
+  };
+
   return (
     <>
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{ left: 20, visibility: "hidden" }}
+      />
       <div style={labelStyle}>
         <Row style={{ width: "100%", height: "100%" }}>
           <Col span={4} style={conditionTypeStyle}>
             IF
           </Col>
-          <Col span={20} style={{ padding: "10px" }}>
+          <Col
+            span={20}
+            style={{ padding: "10px", maxHeight: "170px", overflowY: "auto" }}
+          >
             <Space className="space__condition" direction="vertical">
               <Select
                 defaultValue="Expression Type"
                 style={{ width: "100%" }}
-                onChange={() => console.log("aaa")}
+                onChange={(value) => setExpressionType(value)}
                 options={[
                   {
                     value: "string",
@@ -49,20 +83,27 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                   },
                 ]}
               />
-              <DroppableInput />
+              <DroppableInput
+                expressionType={expressionType}
+                expression={expression}
+                setExpression={setExpression}
+              />
               <Select
                 defaultValue="Operator"
                 style={{ width: "100%" }}
-                // onChange={handleChange}
+                onChange={setCondition}
                 options={[
                   {
-                    value: "equals",
+                    value: "Equals",
                     label: "Equals",
                   },
-                  { value: "not-equals", label: "Not Equals" },
+                  { value: "Not Equals", label: "Not Equals" },
                 ]}
               />
-              <Input placeholder="Expected Value" />
+              <Input
+                placeholder="Expected Value"
+                onChange={(e) => setComparisionValue(e.target.value)}
+              />
             </Space>
           </Col>
         </Row>

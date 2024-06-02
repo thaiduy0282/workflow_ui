@@ -7,7 +7,13 @@ import CollapseCustom from "../collapse";
 import DroppableInput from "../input/DragAndDropInput";
 import ReactFlowIfCondition from "../reactflow/ifCondition";
 
-const DrawerLayout = ({ open, close, currentNode }: any) => {
+const DrawerLayout = ({
+  open,
+  close,
+  currentNode,
+  workflowNodes,
+  setWorkflowNodes,
+}: any) => {
   const [isOpenDrawer, setOpenDrawer] = useState(false);
   const [isShowMetadata, setShowMetadata] = useState(false);
 
@@ -35,7 +41,7 @@ const DrawerLayout = ({ open, close, currentNode }: any) => {
         onClose={close}
         closeIcon={false}
       >
-        {currentNode?.id === "trigger" ? (
+        {currentNode?.data?.typeNode === "trigger" ? (
           <Space direction="vertical" style={{ width: "100%", gap: "10px" }}>
             <Select
               placeholder="Category"
@@ -62,7 +68,12 @@ const DrawerLayout = ({ open, close, currentNode }: any) => {
             {/* <DroppableInput onShow={onShowMetadata} />
              */}
             <CollapseCustom show={isShowMetadata} />
-            <ReactFlowIfCondition />
+            <ReactFlowIfCondition
+              workflowNodes={workflowNodes}
+              setWorkflowNodes={setWorkflowNodes}
+              currentNode={currentNode}
+              isOpenDrawer={isOpenDrawer}
+            />
           </>
         )}
       </Drawer>

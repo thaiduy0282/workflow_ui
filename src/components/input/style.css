@@ -29,3 +29,8 @@
     padding: 8px;
     height: 32px;
 }
+
+.drag-drop__input .ant-input-disabled {
+    background-color: #fff;
+    color: #000;
+}

@@ -21,7 +21,7 @@ const Draggable: React.FC<DraggableProps> = ({ id, content, type }) => {
         draggable
         onDragStart={handleDragStart}
       >
-        <div id={id} className="drag-drop__item">
+        <div id={id} className="drag-drop__item" data-type={type}>
           {content}
         </div>
         <div className="drag-drop__item-type">({type})</div>

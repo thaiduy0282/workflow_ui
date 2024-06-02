@@ -48,13 +48,13 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
         position={Position.Top}
         style={{ visibility: "hidden" }}
       />
-      <div style={data.nodes.length === 0 ? defaultLabelStyle : labelStyle}>
-        {data.nodes.length === 0 ? (
-          "IF"
+      <div style={data.label === 'Handle error' || data.nodes.length === 0 ? defaultLabelStyle : labelStyle}>
+        {data.label === 'Handle error'|| data.nodes.length === 0 ? (
+          data.label
         ) : (
           <Row style={{ width: "100%", height: "100%" }}>
             <Col span={4} style={conditionTypeStyle}>
-              IF
+              {props.data.label}
             </Col>
             <Col
               span={20}
@@ -91,7 +91,7 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                 ))}
             </Col>
           </Row>
-        )}
+        ) }
       </div>
       <Handle
         type="source"

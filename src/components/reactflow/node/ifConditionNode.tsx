@@ -25,12 +25,32 @@ const conditionTypeStyle: any = {
 };
 
 const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
+  const { data } = props;
   const { getNodes, setNodes } = useReactFlow();
 
   const [expressionType, setExpressionType] = useState("");
-  const [expression, setExpression] = useState<string>("");
+  const [expression, setExpression] = useState("");
   const [condition, setCondition] = useState("");
   const [comparisionValue, setComparisionValue] = useState("");
+
+  // useEffect(() => {
+  //   if (
+  //     data.expressionType !== "" ||
+  //     data.expression !== "" ||
+  //     data.condition !== "" ||
+  //     data.comparisionValue !== ""
+  //   ) {
+  //     setExpressionType(data.expressionType);
+  //     setExpression(data.expression);
+  //     setCondition(data.condition);
+  //     setComparisionValue(data.comparisionValue);
+  //   } else {
+  //     setExpressionType("");
+  //     setExpression("");
+  //     setCondition("");
+  //     setComparisionValue("");
+  //   }
+  // }, [props]);
 
   useEffect(() => {
     setNodes(editNode);

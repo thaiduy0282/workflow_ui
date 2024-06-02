@@ -4,6 +4,7 @@ import { Layout, Menu } from "antd";
 import WorkflowSetup from "../pages/WorkflowSetup";
 import Main from "../pages/Main";
 import { WorkflowProvider } from "../components/context/WorkflowContext";
+import WorkflowList from "../pages/WorkflowList";
 
 const { Header } = Layout;
 
@@ -14,8 +15,13 @@ const items = new Array(3).fill(null).map((_, index) => ({
 
 const routes = [
     {
-        name: "Workflow Setup",
+        name: "Workflow List",
         path: "/",
+        component: WorkflowList
+    },
+    {
+        name: "Workflow Setup",
+        path: "/create",
         component: WorkflowSetup,
     },
     {

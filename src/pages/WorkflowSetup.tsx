@@ -1,18 +1,21 @@
-// src/pages/WorkflowSetup.tsx
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/WorkflowSetup.css';
 import { WorkflowContext } from '../components/context/WorkflowContext';
 
-const WorkflowSetup = () => {
-    const { workflowData, setWorkflowData } = useContext(WorkflowContext);
+const WorkflowSetup: React.FC = () => {
+    const context = useContext(WorkflowContext);
+    const { workflowData, setWorkflowData } = context!;
     const [workflowName, setWorkflowName] = useState(workflowData.workflowName);
     const [folder, setFolder] = useState(workflowData.folder);
     const [triggerType, setTriggerType] = useState(workflowData.triggerType);
-
     const navigate = useNavigate();
 
     const handleSubmit = () => {
+        if (!workflowName || !folder || !triggerType) {
+            alert('Please fill in all fields');
+            return;
+        }
         setWorkflowData({ workflowName, folder, triggerType });
         navigate('/main');
     };
@@ -47,7 +50,7 @@ const WorkflowSetup = () => {
                 </div>
             </div>
             <div className="form-actions">
-                <button className="button-secondary">Cancel</button>
+                <button className="button-secondary" onClick={() => navigate('/')}>Cancel</button>
                 <button className="button-primary" onClick={handleSubmit}>Create</button>
             </div>
         </div>

@@ -24,6 +24,7 @@ const ActionGroup: FC<NodeProps> = ({ ...props }: any) => {
       <div style={labelStyle}>
         {ActionList.map((node) => (
           <Button
+            key={"action__" + node.id}
             id={"action__" + node.id}
             onClick={() => props?.data?.func(node)}
             className="btn-action"

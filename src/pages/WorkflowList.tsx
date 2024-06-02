@@ -1,181 +1,112 @@
-import React, { useState, useEffect } from "react";
-import {
-    Table,
-    Button,
-    Tooltip,
-    Typography,
-    Spin,
-    Layout,
-    Switch,
-    Row,
-    Col,
-    Pagination,
-    Form
-} from "antd";
-import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { Link as RouterLink } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Layout, Row, Menu, Button, Tooltip } from "antd";
 import axios from "axios";
+import WorkflowTable from "./WorkflowTable";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 
-interface Data {
-    id: string;
-    name: string;
-    type: string;
-    createdDate: string;
-    lastModifiedDate: string;
-}
-
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
-    return 0;
-}
-
-function getComparator<Key extends keyof any>(
-    order: "asc" | "desc",
-    orderBy: Key
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
-    return order === "desc"
-        ? (a, b) => descendingComparator(a, b, orderBy)
-        : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
-    const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
-    stabilizedThis.sort((a, b) => {
-        const order = comparator(a[0], b[0]);
-        if (order !== 0) {
-            return order;
-        }
-        return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-}
-
-const headCells = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Type", dataIndex: "type", key: "type" },
-    { title: "Created Date", dataIndex: "createdDate", key: "createdDate" },
-    { title: "Last Modified", dataIndex: "lastModifiedDate", key: "lastModifiedDate" },
-    { title: "Action", key: "action", render: (text: any, record: Data) => <ActionCell record={record} /> },
-];
-
-interface ActionCellProps {
-    record: Data;
-}
-
-const ActionCell: React.FC<ActionCellProps> = ({ record }) => {
-    const deleteFunc = (event: React.MouseEvent<HTMLElement>) => {
-        event.stopPropagation();
-        axios
-            .delete(`http://20.191.97.36:8090/v1/workflow/${record.id}`)
-            .then((response) => {
-                console.log(response.data);
-                window.location.reload();
-            });
-    };
-
-    return (
-        <span>
-      <RouterLink to={`/detail/${record.id}`}>
-        <EditOutlined style={{ marginRight: 16 }} />
-      </RouterLink>
-      <Tooltip title="Delete">
-        <Button
-            type="text"
-            icon={<DeleteOutlined />}
-            onClick={(event) => deleteFunc(event)}
-        />
-      </Tooltip>
-    </span>
-    );
-};
-
-const EnhancedTableToolbar: React.FC<{ numSelected: number; onDeleteAllFunc: () => void }> = ({
-                                                                                                  numSelected,
-                                                                                                  onDeleteAllFunc,
-                                                                                              }) => {
+const EnhancedTableToolbar: React.FC<{ numSelected: number; onDeleteAllFunc: () => void; setCurrentTab: (key: string) => void; currentTab: string }> = ({
+                                                                                                                                                            numSelected,
+                                                                                                                                                            onDeleteAllFunc,
+                                                                                                                                                            setCurrentTab,
+                                                                                                                                                            currentTab,
+                                                                                                                                                        }) => {
     const deleteAllFunc = () => {
         onDeleteAllFunc();
     };
 
     return (
-        <Header style={{ display: "flex", justifyContent: "space-between", padding: 0 }}>
-            {numSelected > 0 ? (
-                <Typography.Text>{numSelected} selected</Typography.Text>
-            ) : (
-                <Typography.Title level={4}>Workflow List</Typography.Title>
-            )}
-            <div>
+        <div style={{ backgroundColor: "white" }}>
+            <Menu
+                theme="light"
+                mode="horizontal"
+                defaultSelectedKeys={["1"]}
+                onClick={(e) => setCurrentTab(e.key)}
+                items={[
+                    { key: "1", label: "Workflow" },
+                    { key: "2", label: "Process" },
+                ]}
+                style={{ marginBottom: "10px" }}
+            />
+            <Row justify="end" style={{ padding: "0 24px" }}>
                 {numSelected > 0 ? (
                     <Tooltip title="Delete">
-                        <Button
-                            type="primary"
-                            icon={<DeleteOutlined />}
-                            onClick={deleteAllFunc}
-                        />
+                        <Button type="primary" icon={<DeleteOutlined />} onClick={deleteAllFunc} />
                     </Tooltip>
                 ) : (
-                    <Row gutter={16}>
-                        <Col>
-                            <RouterLink to="/create">
-                                <Button type="primary" icon={<PlusOutlined />}>
-                                    Create
-                                </Button>
-                            </RouterLink>
-                        </Col>
-                        <Col>
-                            <Button icon={<UploadOutlined />}>Import XML File</Button>
-                        </Col>
-                    </Row>
+                    currentTab === "1" && (
+                        <Link to="/create">
+                            <Button type="primary" icon={<PlusOutlined />} style={{ marginBottom: "10px" }}>
+                                Create
+                            </Button>
+                        </Link>
+                    )
                 )}
-            </div>
-        </Header>
+            </Row>
+        </div>
     );
 };
 
 const WorkflowList: React.FC = () => {
     const [order, setOrder] = useState<"asc" | "desc">("asc");
-    const [orderBy, setOrderBy] = useState<keyof Data>("type");
-    const [selected, setSelected] = useState<readonly string[]>([]);
-    const [page, setPage] = useState(0);
-    const [dense, setDense] = useState(false);
+    const [orderBy, setOrderBy] = useState<keyof any>("type");
+    const [selectedWorkflow, setSelectedWorkflow] = useState<readonly string[]>([]);
+    const [selectedProcess, setSelectedProcess] = useState<readonly string[]>([]);
+    const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [rows, setRows] = useState<Data[]>([]);
+    const [rows, setRows] = useState<any[]>([]);
+    const [processRows, setProcessRows] = useState<any[]>([]);
+    const [totalWorkflows, setTotalWorkflows] = useState(0);
+    const [totalProcesses, setTotalProcesses] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [currentTab, setCurrentTab] = useState("1");
+
+    const fetchData = async (currentTab: string, page: number, size: number) => {
+        setLoading(true);
+        try {
+            if (currentTab === "1") {
+                const response = await axios.get(`http://20.191.97.36:8090/v1/workflow?page=${page - 1}&size=${size}`);
+                setRows(response.data.data);
+                setTotalWorkflows(response.data.metadata.totalCount);
+            } else {
+                const dummyProcessData: any[] = [
+                    { id: "1", name: "Process 1", type: "Type A", createdDate: "2024-01-01", lastModifiedDate: "2024-02-01", workflow: "Workflow A" },
+                    { id: "2", name: "Process 2", type: "Type B", createdDate: "2024-01-02", lastModifiedDate: "2024-02-02", workflow: "Workflow B" },
+                    { id: "3", name: "Process 3", type: "Type C", createdDate: "2024-01-03", lastModifiedDate: "2024-02-03", workflow: "Workflow C" },
+                    { id: "4", name: "Process 4", type: "Type D", createdDate: "2024-01-04", lastModifiedDate: "2024-02-04", workflow: "Workflow D" },
+                    { id: "5", name: "Process 5", type: "Type E", createdDate: "2024-01-05", lastModifiedDate: "2024-02-05", workflow: "Workflow E" },
+                ];
+                setProcessRows(dummyProcessData);
+                setTotalProcesses(dummyProcessData.length);
+            }
+        } catch (error) {
+            console.error("Failed to fetch data:", error);
+        }
+        setLoading(false);
+    };
 
     useEffect(() => {
-        axios.get("http://20.191.97.36:8090/v1/workflow").then((response) => {
-            console.log(response.data.data);
-            setRows(response.data.data);
-            setOrderBy("name");
-        });
-    }, [loading]);
+        fetchData(currentTab, page, rowsPerPage);
+    }, [currentTab, page, rowsPerPage]);
 
     const deleteAllFunc = () => {
         setLoading(true);
         axios
-            .delete(`http://20.191.97.36:8090/v1/workflow/all`, {
+            .delete(`http://20.191.97.36:8090/v1/${currentTab === "1" ? "workflow" : "process"}/all`, {
                 data: {
-                    ids: selected,
+                    ids: currentTab === "1" ? selectedWorkflow : selectedProcess,
                 },
             })
             .then((response) => {
                 console.log(response.data);
                 setLoading(false);
-                window.location.reload();
+                fetchData(currentTab, page, rowsPerPage);
             });
     };
 
-    const handleRequestSort = (
-        event: React.MouseEvent<HTMLElement>,
-        property: keyof Data
-    ) => {
+    const handleRequestSort = (event: React.MouseEvent<HTMLElement>, property: keyof any) => {
         const isAsc = orderBy === property && order === "asc";
         setOrder(isAsc ? "desc" : "asc");
         setOrderBy(property);
@@ -183,31 +114,43 @@ const WorkflowList: React.FC = () => {
 
     const handleSelectAllClick = (selected: boolean) => {
         if (selected) {
-            const newSelecteds = rows.map((n) => n.id);
-            setSelected([...newSelecteds]);  // Use spread operator to make the array mutable
+            const newSelecteds = (currentTab === "1" ? rows : processRows).map((n) => n.id);
+            if (currentTab === "1") {
+                setSelectedWorkflow([...newSelecteds]);
+            } else {
+                setSelectedProcess([...newSelecteds]);
+            }
             return;
         }
-        setSelected([]);
+        if (currentTab === "1") {
+            setSelectedWorkflow([]);
+        } else {
+            setSelectedProcess([]);
+        }
     };
 
     const handleClick = (event: React.MouseEvent<HTMLElement>, id: string) => {
         event.stopPropagation();
-        const selectedIndex = selected.indexOf(id);
+        const selectedIndex = currentTab === "1" ? selectedWorkflow.indexOf(id) : selectedProcess.indexOf(id);
         let newSelected: readonly string[] = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
+            newSelected = newSelected.concat(currentTab === "1" ? selectedWorkflow : selectedProcess, id);
         } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
+            newSelected = newSelected.concat(currentTab === "1" ? selectedWorkflow.slice(1) : selectedProcess.slice(1));
+        } else if (selectedIndex === (currentTab === "1" ? selectedWorkflow : selectedProcess).length - 1) {
+            newSelected = newSelected.concat(currentTab === "1" ? selectedWorkflow.slice(0, -1) : selectedProcess.slice(0, -1));
         } else if (selectedIndex > 0) {
             newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
+                currentTab === "1" ? selectedWorkflow.slice(0, selectedIndex) : selectedProcess.slice(0, selectedIndex),
+                currentTab === "1" ? selectedWorkflow.slice(selectedIndex + 1) : selectedProcess.slice(selectedIndex + 1)
             );
         }
-        setSelected([...newSelected]);  // Use spread operator to make the array mutable
+        if (currentTab === "1") {
+            setSelectedWorkflow(newSelected);
+        } else {
+            setSelectedProcess(newSelected);
+        }
     };
 
     const handleChangePage = (newPage: number) => {
@@ -216,62 +159,28 @@ const WorkflowList: React.FC = () => {
 
     const handleChangeRowsPerPage = (newRowsPerPage: number) => {
         setRowsPerPage(newRowsPerPage);
-        setPage(0);
+        setPage(1);
     };
-
-    const handleChangeDense = (checked: boolean) => {
-        setDense(checked);
-    };
-
-    const isSelected = (id: string) => selected.indexOf(id) !== -1;
-
-    const visibleRows = React.useMemo(
-        () =>
-            stableSort(rows, getComparator(order, orderBy)).slice(
-                page * rowsPerPage,
-                page * rowsPerPage + rowsPerPage
-            ),
-        [order, orderBy, page, rowsPerPage, rows]
-    );
 
     return (
         <Layout style={{ width: "100%" }}>
             <EnhancedTableToolbar
-                numSelected={selected.length}
+                numSelected={currentTab === "1" ? selectedWorkflow.length : selectedProcess.length}
                 onDeleteAllFunc={deleteAllFunc}
+                setCurrentTab={setCurrentTab}
+                currentTab={currentTab}
             />
-            <Content style={{ padding: "24px", minHeight: "100%" }}>
-                {loading ? (
-                    <Spin size="large" />
-                ) : (
-                    <Table
-                        rowSelection={{
-                            selectedRowKeys: [...selected],  // Use spread operator to make the array mutable
-                            onChange: (selectedRowKeys) => setSelected([...selectedRowKeys as string[]]),
-                            onSelectAll: (selected, selectedRows, changeRows) => handleSelectAllClick(selected),
-                        }}
-                        columns={headCells}
-                        dataSource={visibleRows}
-                        pagination={false}
-                        onChange={(pagination, filters, sorter) => {
-                            if (!Array.isArray(sorter)) {
-                                handleRequestSort(null as any, sorter.field as keyof Data);
-                            }
-                        }}
-                    />
-                )}
-                <Pagination
-                    total={rows.length}
-                    pageSize={rowsPerPage}
-                    current={page + 1}
-                    onChange={(page, pageSize) => {
-                        handleChangePage(page - 1);
-                        handleChangeRowsPerPage(pageSize);
-                    }}
+            <Content style={{ padding: "24px", minHeight: "100%", backgroundColor: "white" }}>
+                <WorkflowTable
+                    currentTab={currentTab}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    setPage={setPage}
+                    setRowsPerPage={setRowsPerPage}
+                    rows={currentTab === "1" ? rows : processRows}
+                    total={currentTab === "1" ? totalWorkflows : totalProcesses}
+                    loading={loading}
                 />
-                <Form.Item label="Dense padding" valuePropName="checked">
-                    <Switch checked={dense} onChange={(checked) => handleChangeDense(checked)} />
-                </Form.Item>
             </Content>
         </Layout>
     );

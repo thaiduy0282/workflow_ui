@@ -95,7 +95,7 @@ const ReactFlowChild = ({
   }, [isOpenDrawer, curNode]);
 
   const editWorkflowNode = (workflow: any) => {
-    return workflow.map((nd: any) => {
+    return workflow?.map((nd: any) => {
       if (nd.id === curNode.id) {
         nd.data = { ...nd.data, nodes: getNodes(), edges: getEdges() };
       }

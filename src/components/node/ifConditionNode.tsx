@@ -65,9 +65,16 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                 .filter((i: any) => i.data.typeNode !== "add-new-condition")
                 .sort((a: any, b: any) => a?.data?.order - b?.data?.order)
                 .map((nd: any) => (
-                  <Flex gap="4px 0">
+                  <Flex style={{ marginBottom: "4px" }} gap="2px 2px">
+                    {nd.data.order !== 1 ? (
+                      <Tag bordered={false}>OR</Tag>
+                    ) : (
+                      <></>
+                    )}
                     <Tag bordered={false}>{nd.data.expression}</Tag>
-                    {nd.data.condition}
+                    <Tag style={{ background: "white" }} bordered={false}>
+                      {nd.data.condition}
+                    </Tag>
                     <Tag bordered={false}>{nd.data.comparisionValue}</Tag>
                   </Flex>
                 ))}

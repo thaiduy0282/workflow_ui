@@ -1,3 +1,8 @@
 .btn-action {
     border: 1px dotted;
 }
+
+.ant-tag-borderless {
+    border-color: transparent;
+    background: #babebe;
+}

@@ -1,27 +1,34 @@
 import * as React from "react";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Layout, Menu } from "antd";
 
-import { Header } from "antd/es/layout/layout";
 import Main from "../pages";
-import { Menu } from "antd";
+import WorkflowList from "../pages/WorkflowList";
+import { WorkflowProvider } from "../components/context/WorkflowContext";
+import WorkflowSetup from "../pages/WorkflowSetup";
+
+const { Header } = Layout;
 
 const items = new Array(3).fill(null).map((_, index) => ({
   key: String(index + 1),
   label: `Home ${index + 1}`,
 }));
-const settings = ["Profile", "Account", "Logout"];
 
-interface IRoute {
-  name: string;
-  path: string;
-  component: React.ComponentType;
-}
-
-const routes: IRoute[] = [
+const routes = [
+  {
+    name: "Workflow List",
+    path: "/",
+    component: WorkflowList,
+  },
+  {
+    name: "Workflow Setup",
+    path: "/create",
+    component: WorkflowSetup,
+  },
   {
     name: "Main",
-    path: "/",
+    path: "/main",
     component: Main,
   },
 ];
@@ -49,17 +56,21 @@ const HeaderLayout = () => {
   );
 };
 
-export default () => (
-  <BrowserRouter>
-    <HeaderLayout />
-    <Routes>
-      {routes.map((route) => (
-        <Route
-          path={route.path}
-          key={route.path}
-          element={<route.component />}
-        />
-      ))}
-    </Routes>
-  </BrowserRouter>
+const App = () => (
+  <WorkflowProvider>
+    <BrowserRouter>
+      <HeaderLayout />
+      <Routes>
+        {routes.map((route) => (
+          <Route
+            path={route.path}
+            key={route.path}
+            element={<route.component />}
+          />
+        ))}
+      </Routes>
+    </BrowserRouter>
+  </WorkflowProvider>
 );
+
+export default App;

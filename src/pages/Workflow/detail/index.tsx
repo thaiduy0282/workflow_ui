@@ -1,4 +1,4 @@
-import { Button, Spin } from "antd";
+import { Button, Space, Spin } from "antd";
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
@@ -19,6 +19,7 @@ import ReactFlow, {
 } from "reactflow";
 import {
   handleGetWorkflowById,
+  handlePublishWorkflow,
   handleUpdateWorkflow,
 } from "../../Home/handleApi";
 
@@ -26,6 +27,8 @@ import ActionGroup from "../../../components/node/ActionGroup";
 import AddNewNode from "../../../components/node/AddNewNode";
 import ConditionNode from "../../../components/node/ConditionNode";
 import DrawerLayout from "../../../components/layout/Drawer";
+import StartEventNode from "../../../components/node/StartEventNode";
+import handleNotificationMessege from "../../../utils/notification";
 import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
@@ -52,8 +55,19 @@ const ReactFlowMain = () => {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  useEffect(() => {
+    if (data?.nodes && data?.edges) {
+      setNodes(data?.nodes);
+      setEdges(data?.edges);
+    }
+
+    setDisablePublish(!data?.nodes?.some((nd: any) => nd.type === "output"));
+  }, [data]);
+
   const [currentNode, setCurrentNode] = useState<Node | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isDisablePublish, setDisablePublish] = useState(true);
 
   const handleDrawerOpen = () => setDrawerOpen(true);
   const handleDrawerClose = () => setDrawerOpen(false);
@@ -66,6 +80,7 @@ const ReactFlowMain = () => {
 
   const nodeTypes = useMemo(
     () => ({
+      startEventNode: StartEventNode,
       addNewNode: AddNewNode,
       actionGroup: (props: any) => (
         <ActionGroup func={handleChangeActionId} {...props} />
@@ -86,12 +101,6 @@ const ReactFlowMain = () => {
     deleteElements,
   } = useReactFlow();
 
-  useEffect(() => {
-    if (data?.nodes && data?.edges) {
-      setNodes(data?.nodes);
-      setEdges(data?.edges);
-    }
-  }, [data]);
   const onNodeClick = useCallback(
     (_: MouseEvent, node: Node) => {
       if (node.data.typeNode === "add-trigger") {
@@ -120,7 +129,7 @@ const ReactFlowMain = () => {
 
   // Add action group
   const actionContinue = (newNode: Node) => {
-    if (newNode.data.typeNode !== "stop-job") {
+    if (newNode.data.typeNode !== "EndEvent") {
       const newGroup = {
         id: uuidv4(),
         type: "actionGroup",
@@ -131,11 +140,11 @@ const ReactFlowMain = () => {
         },
       };
 
-      if (newNode.data.typeNode === "trigger")
+      if (newNode.data.typeNode === "StartEvent")
         setNodesHook([newNode, newGroup]);
       else addNodes([newGroup]);
 
-      const label = newNode.data.typeNode === "trigger" ? "ACTIONS" : "";
+      const label = newNode.data.typeNode === "StartEvent" ? "ACTIONS" : "";
 
       addEdges({
         id: uuidv4(),
@@ -164,22 +173,37 @@ const ReactFlowMain = () => {
 
   const onAddNode = useCallback(
     (node: any) => {
-      if (node.data.typeNode === "add-trigger") {
+      const typeNode = node.data.typeNode;
+
+      const getTypeNode = () => {
+        switch (typeNode) {
+          case "action__Condition":
+            return "Condition";
+
+          case "action__Action":
+            return "Action";
+
+          case "action__Loop":
+            return "Loop";
+
+          default:
+            return "EndEvent";
+        }
+      };
+
+      if (typeNode === "add-trigger") {
         const newNode = {
           id: uuidv4(),
-          type: "input",
+          type: "startEventNode",
           position,
-          data: { typeNode: "trigger", label: "Trigger" },
+          data: { typeNode: "StartEvent", label: "Trigger" },
         };
 
         setCurrentNode(newNode);
         setTimeout(handleDrawerOpen, 200);
 
         actionContinue(newNode);
-      } else if (
-        node.data.typeNode.includes("action") &&
-        node.data.typeNode !== "action__group"
-      ) {
+      } else if (typeNode.includes("action") && typeNode !== "action__group") {
         deleteElements({
           nodes: getNodes().filter((n) => n.data.typeNode.includes("action")),
           edges: getEdges().filter((e) =>
@@ -187,12 +211,14 @@ const ReactFlowMain = () => {
           ),
         });
 
-        const countAction = getNodes().filter((n) =>
-          n.data.typeNode.includes("act__")
+        const countAction = getNodes().filter(
+          (n) =>
+            !n.data.typeNode.includes("StartEvent") &&
+            !n.data.typeNode.includes("action__group")
         ).length;
 
         const newNode =
-          node.data.typeNode === "action__stop-job"
+          getTypeNode() === "EndEvent"
             ? {
                 id: uuidv4(),
                 type: "output",
@@ -200,7 +226,7 @@ const ReactFlowMain = () => {
                   x: getNodes()[0]?.position?.x,
                   y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
                 },
-                data: { typeNode: "stop-job", label: node.data.label },
+                data: { typeNode: "EndEvent", label: node.data.label },
               }
             : {
                 id: uuidv4(),
@@ -210,7 +236,7 @@ const ReactFlowMain = () => {
                   y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
                 },
                 data: {
-                  typeNode: "act__" + getId(),
+                  typeNode: getTypeNode(),
                   label: node.data.label,
                   nodes: [],
                   edges: [],
@@ -220,13 +246,15 @@ const ReactFlowMain = () => {
         addNodes(newNode);
 
         const triggerNode = getNodes().filter(
-          (n) => n.data.typeNode === "trigger"
+          (n) => n.data.typeNode === "StartEvent"
         );
-        const filteredNodes = getNodes().filter((n) =>
-          n.data.typeNode.includes("act__")
+        const filteredNodes = getNodes().filter(
+          (n) =>
+            !n.data.typeNode.includes("StartEvent") &&
+            !n.data.typeNode.includes("action__group")
         );
 
-        const label = newNode.data.typeNode === "trigger" ? "ACTIONS" : "";
+        const label = typeNode === "StartEvent" ? "ACTIONS" : "";
 
         addEdges({
           id: uuidv4(),
@@ -258,10 +286,7 @@ const ReactFlowMain = () => {
     [addNodes, deleteElements, setNodesHook, getNodes, getEdges, addEdges]
   );
 
-  const onSuccess = () => {
-    console.log("Save successfully!");
-  };
-
+  const onSuccess = () => handleNotificationMessege("Save successfully!");
   const { isPending, mutate, isSuccess } = handleUpdateWorkflow(onSuccess);
 
   const onSave = () => {
@@ -271,6 +296,18 @@ const ReactFlowMain = () => {
       edges: getEdges(),
     };
     mutate(data);
+  };
+
+  const onPublishSuccess = () =>
+    handleNotificationMessege("Publish successfully!");
+  const { isPendingPublish, mutatePublish, isSuccessPublish } =
+    handlePublishWorkflow(onPublishSuccess);
+  const onPublish = () => {
+    const data = {
+      id: workflowId,
+      isPublished: true,
+    };
+    mutatePublish(data);
   };
 
   return isLoading ? (
@@ -285,7 +322,11 @@ const ReactFlowMain = () => {
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
         fitView
-        fitViewOptions={{ duration: 1200, padding: 1, nodes: data?.nodes }}
+        fitViewOptions={{
+          duration: 1200,
+          padding: !data?.nodes || data?.nodes?.length === 0 ? 3 : 0.5,
+          nodes: data?.nodes,
+        }}
         maxZoom={Infinity}
       >
         <Background variant={BackgroundVariant.Lines} />
@@ -296,17 +337,27 @@ const ReactFlowMain = () => {
           fitViewOptions={{ duration: 1200 }}
         />
       </ReactFlow>
-      <Button
+      <Space
+        direction="horizontal"
         style={{
           position: "absolute",
           bottom: "20px",
           left: "50%",
           transform: "translateX(-50%)",
         }}
-        onClick={onSave}
       >
-        Save
-      </Button>
+        <Button type="primary" size="large" onClick={onSave}>
+          Save as draft
+        </Button>
+        <Button
+          type="primary"
+          size="large"
+          onClick={onPublish}
+          disabled={isDisablePublish}
+        >
+          Publish
+        </Button>
+      </Space>
       <DrawerLayout
         open={drawerOpen}
         close={handleDrawerClose}

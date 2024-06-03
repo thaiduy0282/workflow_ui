@@ -24,7 +24,7 @@ const conditionTypeStyle: any = {
   borderRight: "2px solid",
 };
 
-const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
+const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
   const { data } = props;
   const { getNodes, setNodes } = useReactFlow();
 
@@ -58,11 +58,7 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
 
   return (
     <>
-      <Handle
-        type="target"
-        position={Position.Top}
-        style={{ left: 20, visibility: "hidden" }}
-      />
+      <Handle type="target" position={Position.Top} />
       <div style={labelStyle}>
         <Row style={{ width: "100%", height: "100%" }}>
           <Col span={4} style={conditionTypeStyle}>
@@ -120,13 +116,9 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
           </Col>
         </Row>
       </div>
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        style={{ left: 20, visibility: "hidden" }}
-      />
+      <Handle type="source" position={Position.Bottom} />
     </>
   );
 };
 
-export default IfConditionNode;
+export default ConditionNode;

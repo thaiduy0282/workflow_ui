@@ -188,8 +188,8 @@ header select {
   text-align: center;
 }
 
-.react-flow__node-selectorNode .react-flow__handle {
-  border-color: #f0f2f3;
+.react-flow__handle {
+  visibility: hidden;
 }
 
 .ant-layout-header {

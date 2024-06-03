@@ -5,6 +5,8 @@ import { Button, Modal, Radio, RadioChangeEvent, Typography } from "antd";
 import CustomInput from "../../../../components/input/CustomInput";
 import { PlusOutlined } from "@ant-design/icons";
 import { handleCreateWorkflow } from "../../handleApi";
+import handleNotificationMessege from "../../../../utils/notification";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const options = [
@@ -21,6 +23,8 @@ const ModalCreateWorkflow = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   const showModalCreateWorkflow = () => {
     setIsModalOpen(true);
   };
@@ -34,7 +38,14 @@ const ModalCreateWorkflow = () => {
     setValue(value);
   };
 
-  const { isPending, mutate, isSuccess } = handleCreateWorkflow(handleCancel);
+  const onSuccess = (workflowId: string) => {
+    handleNotificationMessege("Create workflow successfully!");
+    clearInput();
+    setIsModalOpen(false);
+    navigate(`/workflow/${workflowId}/detail`);
+  };
+
+  const { isPending, mutate, isSuccess } = handleCreateWorkflow(onSuccess);
 
   const handleOk = () => {
     const data = {

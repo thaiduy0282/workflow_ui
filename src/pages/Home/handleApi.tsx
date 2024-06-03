@@ -20,7 +20,9 @@ export const handleGetWorkflowById = (id: string) => {
   return { isLoading, status, data, error };
 };
 
-export const handleCreateWorkflow = (onSuccess: () => void) => {
+export const handleCreateWorkflow = (
+  onSuccess: (workflowId: string) => void
+) => {
   const queryClient = useQueryClient();
   const { mutate, isPending, isSuccess } = useMutation({
     mutationKey: ["createWorkflow"],
@@ -32,9 +34,9 @@ export const handleCreateWorkflow = (onSuccess: () => void) => {
       //   handleNotificationMessege(error.message)
       // }
     },
-    onSuccess: () => {
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ["getWorkflow"] });
-      onSuccess();
+      onSuccess(response.id);
     },
   });
   return { mutate, isPending, isSuccess };
@@ -52,8 +54,12 @@ export const handleUpdateWorkflow = (onSuccess: () => void) => {
       //   handleNotificationMessege(error.message)
       // }
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["getWorkflow"] });
+      queryClient.invalidateQueries({
+        queryKey: ["getWorkflowById", { id: data.id }],
+      });
+
       onSuccess();
     },
   });
@@ -77,4 +83,28 @@ export const handleDeleteWorkflow = (id: string) => {
     },
   });
   return { mutate, isPending, isSuccess };
+};
+
+export const handlePublishWorkflow = (onSuccess: () => void) => {
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isSuccess } = useMutation({
+    mutationKey: ["publishWorkflow"],
+    mutationFn: (data: any) => workflowService.publishWorkflow(data),
+    onError: (error: any) => {
+      // if (error.response && error.response.data.data) {
+      //   handleNotificationMessege(error?.response?.data?.data)
+      // } else {
+      //   handleNotificationMessege(error.message)
+      // }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getWorkflow"] });
+      onSuccess();
+    },
+  });
+  return {
+    mutatePublish: mutate,
+    isPendingPublish: isPending,
+    isSuccessPublish: isSuccess,
+  };
 };

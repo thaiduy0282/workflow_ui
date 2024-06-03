@@ -27,6 +27,8 @@ const DroppableInput = ({
       const content = document.getElementById(id)?.textContent || "";
       const dataType =
         document.getElementById(id)?.getAttribute("data-type") || "";
+      const dataField =
+        document.getElementById(id)?.getAttribute("data-field") || "";
       setValueField(content, dataType);
     }
   };

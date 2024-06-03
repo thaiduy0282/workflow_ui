@@ -7,13 +7,18 @@ interface DraggableProps {
   id: string;
   content: string;
   type: string;
+  data: any;
 }
 
-const DraggableItem: React.FC<DraggableProps> = ({ id, content, type }) => {
+const DraggableItem: React.FC<DraggableProps> = ({
+  id,
+  content,
+  type,
+  data,
+}) => {
   const handleDragStart = (e: any) => {
     e.dataTransfer.setData("text/plain", id);
   };
-
   return (
     <>
       <Space
@@ -21,7 +26,12 @@ const DraggableItem: React.FC<DraggableProps> = ({ id, content, type }) => {
         draggable
         onDragStart={handleDragStart}
       >
-        <div id={id} className="drag-drop__item" data-type={type}>
+        <div
+          id={id}
+          className="drag-drop__item"
+          data-type={type}
+          data-field={JSON.stringify(data)}
+        >
           {content}
         </div>
         <div className="drag-drop__item-type">({type})</div>

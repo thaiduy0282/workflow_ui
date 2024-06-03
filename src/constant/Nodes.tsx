@@ -1,18 +1,18 @@
 export const ActionList = [
   {
-    id: "action__if-condition",
-    data: { typeNode: "action__if-condition", label: "IF" },
+    id: "action__condition",
+    data: { typeNode: "action__Condition", label: "IF" },
   },
   {
     id: "action__action",
-    data: { typeNode: "action__action", label: "Action" },
+    data: { typeNode: "action__Action", label: "Action" },
   },
   {
     id: "action__loop",
-    data: { typeNode: "action__loop", label: "Loop" },
+    data: { typeNode: "action__Loop", label: "Loop" },
   },
   {
-    id: "action__stop-job",
-    data: { typeNode: "action__stop-job", label: "Stop job" },
+    id: "action__endEvent",
+    data: { typeNode: "action__EndEvent", label: "End" },
   },
 ];

@@ -30,6 +30,11 @@ const workflowService = {
     const url = `/workflow/${id}`;
     return axiosWorkflow.delete(url, {});
   },
+
+  publishWorkflow(data: any) {
+    const url = `/workflow/${data.id}/publish?isPublished=${data.isPublished}`;
+    return axiosWorkflow.post(url);
+  },
 };
 
 export default workflowService;

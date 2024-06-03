@@ -47,33 +47,52 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
     .sort((a: any, b: any) => a?.data?.order - b?.data?.order);
 
   const checkCondition = () => {
-    return (
-      filteredNodes.length === 0 ||
-      (filteredNodes.length < 2 &&
-        !(
-          filteredNodes[0].data.expression &&
-          filteredNodes[0].data.condition &&
-          filteredNodes[0].data.comparisionValue
-        ))
-    );
+    if (filteredNodes[0]?.data?.typeNode === "ConditionSetup") {
+      return (
+        filteredNodes.length === 0 ||
+        (filteredNodes.length < 2 &&
+          !(
+            filteredNodes[0].data.expression &&
+            filteredNodes[0].data.condition &&
+            filteredNodes[0].data.comparisionValue
+          ))
+      );
+    } else {
+      return (
+        filteredNodes.length === 0 ||
+        (filteredNodes.length < 2 &&
+          !(
+            filteredNodes[0].data.action &&
+            filteredNodes[0].data.field &&
+            filteredNodes[0].data.value
+          ))
+      );
+    }
   };
 
   const checkConditionChild = (node: any) => {
-    return (
-      node.data.expressionType !== undefined &&
-      node.data.expression !== undefined &&
-      node.data.condition !== undefined &&
-      node.data.comparisionValue !== undefined
-    );
+    if (filteredNodes[0]?.data?.typeNode === "ConditionSetup") {
+      return (
+        node.data.expressionType !== undefined &&
+        node.data.expression !== undefined &&
+        node.data.expression !== "" &&
+        node.data.condition !== undefined &&
+        node.data.comparisionValue !== undefined &&
+        node.data.comparisionValue !== ""
+      );
+    } else {
+      return (
+        node.data.action !== undefined &&
+        node.data.field !== undefined &&
+        node.data.value !== undefined &&
+        node.data.value !== ""
+      );
+    }
   };
 
   return (
     <>
-      <Handle
-        type="target"
-        position={Position.Top}
-        // style={{ visibility: "hidden" }}
-      />
+      <Handle type="target" position={Position.Top} />
       <div style={checkCondition() ? defaultLabelStyle : labelStyle}>
         {checkCondition() ? (
           data.label
@@ -95,27 +114,53 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                       gap="2px 2px"
                     >
                       {nd.data.order !== 1 ? (
-                        <Tag bordered={false}>OR</Tag>
+                        <Tag bordered={false}>
+                          {nd.data.typeNode === "ConditionSetup" ? "OR" : "AND"}
+                        </Tag>
                       ) : (
                         <></>
                       )}
-                      <Tag
-                        bordered={false}
-                        style={{ maxWidth: "100px" }}
-                        className="truncate"
-                      >
-                        {nd.data.expression}
-                      </Tag>
-                      <Tag style={{ background: "white" }} bordered={false}>
-                        {nd.data.condition}
-                      </Tag>
-                      <Tag
-                        bordered={false}
-                        style={{ maxWidth: "100px" }}
-                        className="truncate"
-                      >
-                        {nd.data.comparisionValue}
-                      </Tag>
+                      {nd.data.typeNode === "ConditionSetup" ? (
+                        <>
+                          <Tag
+                            bordered={false}
+                            style={{ maxWidth: "100px" }}
+                            className="truncate"
+                          >
+                            {nd.data.expression}
+                          </Tag>
+                          <Tag style={{ background: "white" }} bordered={false}>
+                            {nd.data.condition}
+                          </Tag>
+                          <Tag
+                            bordered={false}
+                            style={{ maxWidth: "100px" }}
+                            className="truncate"
+                          >
+                            {nd.data.comparisionValue}
+                          </Tag>
+                        </>
+                      ) : (
+                        <>
+                          <Tag
+                            bordered={false}
+                            style={{ maxWidth: "100px" }}
+                            className="truncate"
+                          >
+                            {nd.data.action}
+                          </Tag>
+                          <Tag style={{ background: "white" }} bordered={false}>
+                            {nd.data.field}
+                          </Tag>
+                          <Tag
+                            bordered={false}
+                            style={{ maxWidth: "100px" }}
+                            className="truncate"
+                          >
+                            {nd.data.value}
+                          </Tag>
+                        </>
+                      )}
                     </Flex>
                   )
               )}
@@ -123,11 +168,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
           </Row>
         )}
       </div>
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        // style={{ visibility: "hidden" }}
-      />
+      <Handle type="source" position={Position.Bottom} />
     </>
   );
 };

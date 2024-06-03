@@ -32,6 +32,7 @@ const CollapseCustom = ({ show }: any) => {
                   id={field.apiName}
                   content={field.label}
                   type={field.fieldDataType}
+                  data={field}
                 />
               ))}
             </>

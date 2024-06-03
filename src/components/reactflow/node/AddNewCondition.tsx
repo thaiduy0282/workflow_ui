@@ -16,11 +16,7 @@ const labelStyle = {
 const AddNewCondition: FC<NodeProps> = () => {
   return (
     <>
-      <Handle
-        type="target"
-        position={Position.Top}
-        style={{ visibility: "hidden" }}
-      />
+      <Handle type="target" position={Position.Top} />
       <div style={labelStyle}>
         <PlusOutlined style={{ fontSize: "32px" }} />
       </div>

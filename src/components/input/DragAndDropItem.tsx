@@ -9,8 +9,8 @@ interface DraggableProps {
   type: string;
 }
 
-const Draggable: React.FC<DraggableProps> = ({ id, content, type }) => {
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+const DraggableItem: React.FC<DraggableProps> = ({ id, content, type }) => {
+  const handleDragStart = (e: any) => {
     e.dataTransfer.setData("text/plain", id);
   };
 
@@ -30,4 +30,4 @@ const Draggable: React.FC<DraggableProps> = ({ id, content, type }) => {
   );
 };
 
-export default Draggable;
+export default DraggableItem;

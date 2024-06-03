@@ -11,7 +11,7 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
 } from "reactflow";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AddNewCondition from "./node/AddNewCondition";
 import IfConditionNode from "./node/ifConditionNode";
@@ -27,84 +27,62 @@ const nodeTypes = {
 
 const position: XYPosition = { x: 0, y: 0 };
 
+const initialChildNodes: Node[] = [
+  {
+    id: uuidV4(),
+    type: "IfConditionNode",
+    data: {
+      typeNode: "if-condition",
+      label: "If",
+      order: 1,
+    },
+    position,
+  },
+  {
+    id: uuidV4(),
+    type: "addNewCondition",
+    data: { typeNode: "add-new-condition" },
+    position: { x: position.x - 7, y: position.y + 300 },
+  },
+];
+
+const initialChildEdges: Edge[] = [
+  {
+    id: uuidV4(),
+    source: initialChildNodes[0].id,
+    target: initialChildNodes[1].id,
+    animated: true,
+    type: "smoothstep",
+    label: "",
+    labelStyle: { fill: "black", fontWeight: 700 },
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: "#b1b1b1",
+    },
+    style: {
+      strokeWidth: 2,
+      stroke: "#b1b1b1",
+    },
+    data: {
+      typeEdge: "e-animation-condition__" + getId(),
+    },
+  },
+];
+
 const ReactFlowChild = ({
   curNode,
   isOpenDrawer,
   workflowNodes,
   setWorkflowNodes,
 }: any) => {
-  const initialNodes: Node[] = [
-    {
-      id: uuidV4(),
-      type: "IfConditionNode",
-      data: {
-        typeNode: "if-condition",
-        label: "If",
-        order: 1,
-      },
-      position,
-    },
-    {
-      id: uuidV4(),
-      type: "addNewCondition",
-      data: { typeNode: "add-new-condition" },
-      position: { x: position.x - 7, y: position.y + 250 },
-    },
-  ];
-
-  const initialEdges: Edge[] = [
-    {
-      id: uuidV4(),
-      source: initialNodes[0].id,
-      target: initialNodes[1].id,
-      animated: true,
-      type: "smoothstep",
-      label: <></>,
-      labelStyle: { fill: "black", fontWeight: 700 },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
-        color: "#b1b1b1",
-      },
-      style: {
-        strokeWidth: 2,
-        stroke: "#b1b1b1",
-      },
-      data: {
-        typeEdge: "e-animation-condition__" + getId(),
-      },
-    },
-  ];
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  useEffect(() => {
-    if (!isOpenDrawer) {
-      setWorkflowNodes(editWorkflowNode(workflowNodes));
-    }
-
-    if (
-      curNode?.data?.nodes?.length !== 0 &&
-      curNode?.data?.edges?.length !== 0
-    ) {
-      setNodes(curNode?.data?.nodes);
-      setEdges(curNode?.data?.edges);
-    }
-  }, [isOpenDrawer, curNode]);
-
-  const editWorkflowNode = (workflow: any) => {
-    return workflow?.map((nd: any) => {
-      if (nd.id === curNode.id) {
-        nd.data = { ...nd.data, nodes: getNodes(), edges: getEdges() };
-      }
-      return nd;
-    });
-  };
-
-  const onConnect = (params: Connection | Edge) =>
-    setEdges((eds) => addEdge(params, eds));
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    curNode?.data?.nodes.length !== 0 ? curNode?.data?.nodes : initialChildNodes
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    curNode?.data?.edges.length !== 0 ? curNode?.data?.edges : initialChildEdges
+  );
 
   const {
     fitView,
@@ -115,6 +93,32 @@ const ReactFlowChild = ({
     getEdges,
     deleteElements,
   } = useReactFlow();
+
+  useEffect(() => {
+    if (
+      curNode?.data?.nodes.length !== 0 &&
+      curNode?.data?.edges.length !== 0
+    ) {
+      setNodes(curNode?.data?.nodes);
+      setEdges(curNode?.data?.edges);
+    } else {
+      setNodes(initialChildNodes);
+      setEdges(initialChildEdges);
+    }
+  }, [curNode?.id]);
+
+  const editWorkflowNode = () => {
+    return workflowNodes?.map((nd: any) => {
+      if (nd.id === curNode.id) {
+        nd.data = { ...nd.data, nodes, edges };
+      }
+      return nd;
+    });
+  };
+
+  useEffect(() => {
+    if (!isOpenDrawer) setWorkflowNodes(editWorkflowNode());
+  }, [isOpenDrawer]);
 
   const onNodeClick: any = useCallback((_: MouseEvent, node: Node) => {
     if (node.data.typeNode.includes("add")) {
@@ -132,7 +136,7 @@ const ReactFlowChild = ({
       },
       position: {
         x: newNode?.position?.x - 7,
-        y: newNode?.position?.y + 250,
+        y: newNode?.position?.y + 300,
       },
     };
     addNodes([newCondition]);
@@ -143,7 +147,7 @@ const ReactFlowChild = ({
       target: newCondition.id,
       animated: true,
       type: "smoothstep",
-      label: <></>,
+      label: "",
       labelStyle: { fill: "black", fontWeight: 700 },
       markerEnd: {
         type: MarkerType.ArrowClosed,
@@ -186,7 +190,7 @@ const ReactFlowChild = ({
           type: "IfConditionNode",
           position: {
             x: getNodes()[0]?.position?.x + (countAction === 1 ? 0 : 7),
-            y: getNodes()[0]?.position?.y + (countAction === 1 ? 250 : 0),
+            y: getNodes()[0]?.position?.y + (countAction === 1 ? 300 : 0),
           },
           data: {
             typeNode: "new-if-condition-" + getId(),
@@ -228,15 +232,17 @@ const ReactFlowChild = ({
     [addNodes, deleteElements, setNodesHook, getNodes, getEdges, addEdges]
   );
 
+  const [rfInstance, setRfInstance] = useState<any>(null);
+
   return (
     <ReactFlow
+      onInit={setRfInstance}
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={onNodeClick}
-      onConnect={onConnect}
       defaultViewport={{ x: 65, y: 0, zoom: 1.5 }}
       panOnDrag={false}
       nodesDraggable={false}

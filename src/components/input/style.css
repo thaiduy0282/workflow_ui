@@ -34,3 +34,7 @@
     background-color: #fff;
     color: #000;
 }
+
+.is-required {
+    color: var(--semantic-alert)
+}

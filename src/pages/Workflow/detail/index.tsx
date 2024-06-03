@@ -1,4 +1,5 @@
-import { MouseEvent, useCallback, useState } from "react";
+import { Button, Spin } from "antd";
+import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -8,27 +9,25 @@ import ReactFlow, {
   MarkerType,
   MiniMap,
   Node,
-  Panel,
   ReactFlowProvider,
   XYPosition,
   addEdge,
+  updateEdge,
   useEdgesState,
   useNodesState,
   useReactFlow,
 } from "reactflow";
+import {
+  handleGetWorkflowById,
+  handleUpdateWorkflow,
+} from "../../Home/handleApi";
 
-import ActionGroup from "../components/node/ActionGroup";
-import AddNewNode from "../components/node/AddNewNode";
-import { Button } from "antd";
-import DrawerLayout from "../components/layout/Drawer";
-import IfConditionNode from "../components/node/ifConditionNode";
+import ActionGroup from "../../../components/node/ActionGroup";
+import AddNewNode from "../../../components/node/AddNewNode";
+import ConditionNode from "../../../components/node/ConditionNode";
+import DrawerLayout from "../../../components/layout/Drawer";
+import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-
-const nodeTypes = {
-  addNewNode: AddNewNode,
-  actionGroup: ActionGroup,
-  ifConditionNode: IfConditionNode,
-};
 
 const position: XYPosition = { x: 0, y: 0 };
 
@@ -47,6 +46,10 @@ let id = 1;
 const getId = () => `${id++}`;
 
 const ReactFlowMain = () => {
+  const { workflowId } = useParams();
+
+  const { isLoading, data }: any = handleGetWorkflowById(workflowId || "");
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [currentNode, setCurrentNode] = useState<Node | null>(null);
@@ -61,8 +64,16 @@ const ReactFlowMain = () => {
     }
   };
 
-  const onConnect = (params: Connection | Edge) =>
-    setEdges((eds) => addEdge(params, eds));
+  const nodeTypes = useMemo(
+    () => ({
+      addNewNode: AddNewNode,
+      actionGroup: (props: any) => (
+        <ActionGroup func={handleChangeActionId} {...props} />
+      ),
+      conditionNode: ConditionNode,
+    }),
+    []
+  );
 
   const {
     setCenter,
@@ -75,6 +86,12 @@ const ReactFlowMain = () => {
     deleteElements,
   } = useReactFlow();
 
+  useEffect(() => {
+    if (data?.nodes && data?.edges) {
+      setNodes(data?.nodes);
+      setEdges(data?.edges);
+    }
+  }, [data]);
   const onNodeClick = useCallback(
     (_: MouseEvent, node: Node) => {
       if (node.data.typeNode === "add-trigger") {
@@ -98,7 +115,7 @@ const ReactFlowMain = () => {
         setCurrentNode(node);
       }
     },
-    [setCenter, nodes.length]
+    [setCenter, nodes, edges]
   );
 
   // Add action group
@@ -111,7 +128,6 @@ const ReactFlowMain = () => {
         data: {
           typeNode: "action__group",
           label: "Action Group",
-          func: handleChangeActionId,
         },
       };
 
@@ -119,14 +135,15 @@ const ReactFlowMain = () => {
         setNodesHook([newNode, newGroup]);
       else addNodes([newGroup]);
 
+      const label = newNode.data.typeNode === "trigger" ? "ACTIONS" : "";
+
       addEdges({
         id: uuidv4(),
         source: newNode.id,
         target: newGroup.id,
         animated: true,
         type: "smoothstep",
-        label:
-          newNode.data.typeNode === "trigger" ? <tspan>ACTIONS</tspan> : <></>,
+        label,
         labelStyle: { fill: "black", fontWeight: 700 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
@@ -187,7 +204,7 @@ const ReactFlowMain = () => {
               }
             : {
                 id: uuidv4(),
-                type: "ifConditionNode",
+                type: "conditionNode",
                 position: {
                   x: getNodes()[0]?.position?.x,
                   y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
@@ -209,6 +226,8 @@ const ReactFlowMain = () => {
           n.data.typeNode.includes("act__")
         );
 
+        const label = newNode.data.typeNode === "trigger" ? "ACTIONS" : "";
+
         addEdges({
           id: uuidv4(),
           source: filteredNodes[0]?.id
@@ -217,7 +236,7 @@ const ReactFlowMain = () => {
           target: newNode.id,
           animated: false,
           type: "smoothstep",
-          label: filteredNodes[0]?.id ? <></> : <>ACTIONS</>,
+          label,
           labelStyle: { fill: "black", fontWeight: 700 },
           markerEnd: {
             type: MarkerType.ArrowClosed,
@@ -239,18 +258,24 @@ const ReactFlowMain = () => {
     [addNodes, deleteElements, setNodesHook, getNodes, getEdges, addEdges]
   );
 
-  const deleteSelectedElements = useCallback(() => {
-    const selectedNodes = nodes.filter((node) => node.selected);
-    const selectedEdges = edges.filter((edge) => edge.selected);
-    deleteElements({ nodes: selectedNodes, edges: selectedEdges });
-  }, [deleteElements, nodes, edges]);
+  const onSuccess = () => {
+    console.log("Save successfully!");
+  };
 
-  const onResetNodes = useCallback(
-    () => setNodesHook(initialNodes),
-    [setNodesHook]
-  );
+  const { isPending, mutate, isSuccess } = handleUpdateWorkflow(onSuccess);
 
-  return (
+  const onSave = () => {
+    const data = {
+      id: workflowId,
+      nodes: getNodes(),
+      edges: getEdges(),
+    };
+    mutate(data);
+  };
+
+  return isLoading ? (
+    <Spin spinning={isLoading} fullscreen />
+  ) : (
     <>
       <ReactFlow
         nodes={nodes}
@@ -259,15 +284,14 @@ const ReactFlowMain = () => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
-        onConnect={onConnect}
         fitView
-        fitViewOptions={{ duration: 1200, padding: 2 }}
+        fitViewOptions={{ duration: 1200, padding: 1, nodes: data?.nodes }}
         maxZoom={Infinity}
       >
         <Background variant={BackgroundVariant.Lines} />
         <MiniMap />
         <Controls
-          onFitView={() => fitView({ duration: 1200, padding: 1 })}
+          onFitView={() => fitView({ duration: 0, padding: 1 })}
           showInteractive={false}
           fitViewOptions={{ duration: 1200 }}
         />
@@ -279,9 +303,7 @@ const ReactFlowMain = () => {
           left: "50%",
           transform: "translateX(-50%)",
         }}
-        onClick={() =>
-          console.log("nodes: ", getNodes(), "edges: ", getEdges())
-        }
+        onClick={onSave}
       >
         Save
       </Button>
@@ -296,10 +318,10 @@ const ReactFlowMain = () => {
   );
 };
 
-const Main = () => (
+const WorkflowDetail = () => (
   <ReactFlowProvider>
     <ReactFlowMain />
   </ReactFlowProvider>
 );
 
-export default Main;
+export default WorkflowDetail;

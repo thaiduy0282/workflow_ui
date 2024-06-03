@@ -28,29 +28,14 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
   const { data } = props;
   const { getNodes, setNodes } = useReactFlow();
 
-  const [expressionType, setExpressionType] = useState("");
-  const [expression, setExpression] = useState("");
-  const [condition, setCondition] = useState("");
-  const [comparisionValue, setComparisionValue] = useState("");
-
-  // useEffect(() => {
-  //   if (
-  //     data.expressionType !== "" ||
-  //     data.expression !== "" ||
-  //     data.condition !== "" ||
-  //     data.comparisionValue !== ""
-  //   ) {
-  //     setExpressionType(data.expressionType);
-  //     setExpression(data.expression);
-  //     setCondition(data.condition);
-  //     setComparisionValue(data.comparisionValue);
-  //   } else {
-  //     setExpressionType("");
-  //     setExpression("");
-  //     setCondition("");
-  //     setComparisionValue("");
-  //   }
-  // }, [props]);
+  const [expressionType, setExpressionType] = useState(
+    data?.expressionType || undefined
+  );
+  const [expression, setExpression] = useState(data?.expression || undefined);
+  const [condition, setCondition] = useState(data?.condition || undefined);
+  const [comparisionValue, setComparisionValue] = useState(
+    data?.comparisionValue || undefined
+  );
 
   useEffect(() => {
     setNodes(editNode);
@@ -85,13 +70,17 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
           </Col>
           <Col
             span={20}
-            style={{ padding: "10px", maxHeight: "170px", overflowY: "auto" }}
+            style={{ padding: "10px", maxHeight: "350px", overflowY: "auto" }}
           >
             <Space className="space__condition" direction="vertical">
               <Select
-                defaultValue="Expression Type"
+                placeholder="Expression Type"
                 style={{ width: "100%" }}
-                onChange={(value) => setExpressionType(value)}
+                value={expressionType}
+                onChange={(value) => {
+                  setExpression("");
+                  setExpressionType(value);
+                }}
                 options={[
                   {
                     value: "string",
@@ -109,7 +98,8 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                 setExpression={setExpression}
               />
               <Select
-                defaultValue="Operator"
+                value={condition}
+                placeholder="Operator"
                 style={{ width: "100%" }}
                 onChange={setCondition}
                 options={[
@@ -121,6 +111,8 @@ const IfConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                 ]}
               />
               <Input
+                value={comparisionValue}
+                onDrop={(e) => e.preventDefault()}
                 placeholder="Expected Value"
                 onChange={(e) => setComparisionValue(e.target.value)}
               />

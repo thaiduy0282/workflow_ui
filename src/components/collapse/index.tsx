@@ -2,12 +2,9 @@ import "./style.css";
 
 import { Collapse, Input } from "antd";
 
-import Draggable from "../input/DragAndDropItem";
-import DroppableInput from "../input/DragAndDropInput";
-import { MetadataList } from "../../constant/Metadata";
+import DraggableItem from "../input/DragAndDropItem";
 import { SearchProps } from "antd/es/input";
 import { handleGetMetadata } from "./handleAPI";
-import { useState } from "react";
 
 const { Search } = Input;
 
@@ -15,9 +12,7 @@ const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
   console.log(info?.source, value);
 
 const CollapseCustom = ({ show }: any) => {
-  const [metadate, setMetadata] = useState();
-
-  const { isLoading, status, data, error } = handleGetMetadata();
+  const { isLoading, status, data, error }: any = handleGetMetadata();
 
   return (
     <Collapse
@@ -32,11 +27,11 @@ const CollapseCustom = ({ show }: any) => {
                 onSearch={onSearch}
                 style={{ width: "100%" }}
               />
-              {MetadataList.map((data, index) => (
-                <Draggable
-                  id={`draggable-${index + 1}`}
-                  content={data.content}
-                  type={data.type}
+              {data?.data?.fieldDefinitions.map((field: any) => (
+                <DraggableItem
+                  id={field.apiName}
+                  content={field.label}
+                  type={field.fieldDataType}
                 />
               ))}
             </>

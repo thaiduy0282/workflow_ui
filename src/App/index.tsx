@@ -1,10 +1,9 @@
-import * as React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Layout, Menu } from "antd";
-import WorkflowSetup from "../pages/WorkflowSetup";
-import Main from "../pages";
+
+import Home from "../pages/Home";
+import { Layout } from "antd";
+import WorkflowDetail from "../pages/Workflow/detail";
 import { WorkflowProvider } from "../components/context/WorkflowContext";
-import WorkflowList from "../pages/WorkflowList";
 
 const { Header } = Layout;
 
@@ -12,17 +11,12 @@ const routes = [
   {
     name: "Workflow List",
     path: "/",
-    component: WorkflowList,
+    component: Home,
   },
   {
-    name: "Workflow Setup",
-    path: "/create",
-    component: WorkflowSetup,
-  },
-  {
-    name: "Main",
-    path: "/main",
-    component: Main,
+    name: "Workflow Detail",
+    path: "/workflow/:workflowId/detail",
+    component: WorkflowDetail,
   },
 ];
 

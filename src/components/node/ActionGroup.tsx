@@ -12,12 +12,12 @@ const labelStyle = {
   alignItems: "center",
   border: "2px dashed",
   borderRadius: "10px",
-  width: "350px",
+  width: "300px",
   height: "50px",
   gap: 4,
 };
 
-const ActionGroup: FC<NodeProps> = ({ ...props }: any) => {
+const ActionGroup: FC<NodeProps> = ({ func }: any) => {
   return (
     <>
       <Handle type="target" position={Position.Top} style={{ left: 75 }} />
@@ -26,7 +26,7 @@ const ActionGroup: FC<NodeProps> = ({ ...props }: any) => {
           <Button
             key={"action__" + node.id}
             id={"action__" + node.id}
-            onClick={() => props?.data?.func(node)}
+            onClick={() => func(node)}
             className="btn-action"
           >
             {node.data.label}

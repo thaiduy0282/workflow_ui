@@ -8,8 +8,8 @@ export const ActionList = [
     data: { typeNode: "action__action", label: "Action" },
   },
   {
-    id: "action__handle-error",
-    data: { typeNode: "action__handle-error", label: "Handle error" },
+    id: "action__loop",
+    data: { typeNode: "action__loop", label: "Loop" },
   },
   {
     id: "action__stop-job",

@@ -33,3 +33,7 @@
 	overflow-y: auto;
 	border-radius: 0px !important;
 }
+
+[draggable=true] {
+	cursor: move;
+  }

@@ -17,7 +17,6 @@ const DroppableInput = ({
   const { fitView } = useReactFlow();
 
   useEffect(() => {
-    setExpression("");
     setTimeout(() => fitView({ duration: 1200, padding: 0.1 }), 100);
   }, [expressionType]);
 
@@ -33,9 +32,9 @@ const DroppableInput = ({
   };
 
   const setValueField = (content: string, dataType: string) => {
-    if (dataType === "String" && expressionType === "string") {
+    if (dataType === "varchar" && expressionType === "string") {
       setExpression(content);
-    } else if (dataType !== "String") {
+    } else if (dataType !== "varchar" && expressionType !== "string") {
       if (expression === "") {
         setExpression(content);
       } else {

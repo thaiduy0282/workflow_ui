@@ -30,6 +30,7 @@ import DrawerLayout from "../../../components/layout/Drawer";
 import { LayoutOutlined } from "@ant-design/icons";
 import StartEventNode from "../../../components/node/StartEventNode";
 import handleNotificationMessege from "../../../utils/notification";
+import { handleSaveNodeConfigurationById } from "./handleApi";
 import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
@@ -60,7 +61,6 @@ const ReactFlowMain = () => {
   const autoLayout = () => {
     if (nodes.length > 2) {
       const cloneNodes: any = getNodes().reverse();
-      console.log("cloneNodes", cloneNodes);
       let yPos = 0;
 
       const sortNewWorkFlowNodes = cloneNodes.map((nd: any, index: any) => {
@@ -305,6 +305,11 @@ const ReactFlowMain = () => {
 
   const onSuccess = () => handleNotificationMessege("Save successfully!");
   const { isPending, mutate, isSuccess } = handleUpdateWorkflow(onSuccess);
+  const {
+    isPendingSaveNodeConfig,
+    mutateSaveNodeConfig,
+    isSuccessSaveNodeConfig,
+  } = handleSaveNodeConfigurationById(onSuccess);
 
   const onSave = () => {
     const data = {
@@ -312,7 +317,115 @@ const ReactFlowMain = () => {
       nodes: getNodes(),
       edges: getEdges(),
     };
+    const dataNodeConfigurations = {
+      id: workflowId,
+      data: {
+        nodeConfigurations: mapToNodeConfigurations(),
+      },
+    };
+    mutateSaveNodeConfig(dataNodeConfigurations);
     mutate(data);
+  };
+
+  const mapToNodeConfigurations = () => {
+    const filteredTriggerNode = getNodes().filter(
+      (nd: any) => nd.data.typeNode === "StartEvent"
+    )[0];
+
+    const triggerConfiguration = {
+      category: filteredTriggerNode.data.category,
+      provider: filteredTriggerNode.data.provider,
+      eventTopic: filteredTriggerNode.data.eventTopic,
+    };
+
+    const handleReplaceExpression = (
+      expression: string,
+      referenceObjects: any
+    ) => {
+      let clonedExpression: any = expression;
+      referenceObjects.forEach((obj: any) => {
+        if (clonedExpression.includes(obj.label)) {
+          clonedExpression = clonedExpression.replace(obj.label, obj.apiName);
+        }
+      });
+      return clonedExpression;
+    };
+
+    const collectConditionChild = (nodes: any) =>
+      nodes
+        .filter((nd: any) => nd.data.typeNode === "ConditionSetup")
+        .map((item: any) => ({
+          expression: handleReplaceExpression(
+            item.data.expression,
+            item.data.referenceObjects
+          ),
+          condition: item.data.condition,
+          expressionType: item.data.expressionType,
+          comparisonValue: item.data.comparisonValue,
+          referenceObjects: item.data.referenceObjects,
+        }));
+
+    const collectActionChild = (nodes: any) =>
+      nodes
+        .filter((nd: any) => nd.data.typeNode === "ActionSetup")
+        .map((item: any) => ({
+          actionType: item.data.action,
+          key: item.data.field,
+          value: item.data.value,
+          referenceObjects: item.data.referenceObjects,
+        }));
+    return getNodes()
+      .filter((nd: any) => nd.data.typeNode !== "action__group")
+      .map((node) => {
+        switch (node.data.typeNode) {
+          case "StartEvent":
+            return {
+              workflowId: "",
+              nodeId: node.id,
+              triggerConfiguration,
+              conditions: [],
+              actions: [],
+              errorConfiguration: {
+                customMessage: "[Trigger]: It's a custom error",
+              },
+            };
+          case "Condition":
+            return {
+              workflowId: "",
+              nodeId: node.id,
+              triggerConfiguration,
+              conditions: collectConditionChild(node.data.nodes),
+              actions: [],
+              errorConfiguration: {
+                customMessage: "[Condition]: It's a custom error",
+              },
+            };
+          case "Action":
+            return {
+              workflowId: "",
+              nodeId: node.id,
+              triggerConfiguration,
+              conditions: [],
+              actions: collectActionChild(node.data.nodes),
+              errorConfiguration: {
+                customMessage: "[Action]: It's a custom error",
+              },
+            };
+          case "EndEvent":
+            return {
+              workflowId: "",
+              nodeId: node.id,
+              triggerConfiguration,
+              conditions: [],
+              actions: [],
+              errorConfiguration: {
+                customMessage: "[End]: It's a custom error",
+              },
+            };
+          default:
+            break;
+        }
+      });
   };
 
   const onPublishSuccess = () =>

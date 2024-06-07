@@ -21,7 +21,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
         !(isConditionSetup
           ? filteredNodes[0].data.expression &&
             filteredNodes[0].data.condition &&
-            filteredNodes[0].data.comparisionValue
+            filteredNodes[0].data.comparisonValue
           : filteredNodes[0].data.action &&
             filteredNodes[0].data.field &&
             filteredNodes[0].data.value));
@@ -36,8 +36,8 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
         node.data.expression !== undefined &&
         node.data.expression !== "" &&
         node.data.condition !== undefined &&
-        node.data.comparisionValue !== undefined &&
-        node.data.comparisionValue !== ""
+        node.data.comparisonValue !== undefined &&
+        node.data.comparisonValue !== ""
       : node.data.action !== undefined &&
         node.data.field !== undefined &&
         node.data.value !== undefined &&
@@ -94,7 +94,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                               {nd.data.condition}
                             </Tag>
                             <Tag color="default" className="truncate">
-                              {nd.data.comparisionValue}
+                              {nd.data.comparisonValue}
                             </Tag>
                           </>
                         ) : (

@@ -6,9 +6,9 @@ const nodeConfigurationService = {
     return axiosWorkflow.get(url);
   },
 
-  saveNodeConfigurationById(id: string) {
+  saveNodeConfigurationById(id: string, data: any) {
     const url = "/node-configuration/" + id;
-    return axiosWorkflow.post(url);
+    return axiosWorkflow.post(url, data);
   },
 };
 

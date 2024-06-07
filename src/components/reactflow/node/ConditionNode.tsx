@@ -32,14 +32,23 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
     data?.expressionType || undefined
   );
   const [expression, setExpression] = useState(data?.expression || undefined);
+  const [referenceObjects, setReferenceObjects] = useState(
+    data?.referenceObjects || []
+  );
   const [condition, setCondition] = useState(data?.condition || undefined);
-  const [comparisionValue, setComparisionValue] = useState(
-    data?.comparisionValue || undefined
+  const [comparisonValue, setcomparisonValue] = useState(
+    data?.comparisonValue || undefined
   );
 
   useEffect(() => {
     setNodes(editNode);
-  }, [expressionType, expression, condition, comparisionValue]);
+  }, [
+    expressionType,
+    expression,
+    condition,
+    comparisonValue,
+    referenceObjects,
+  ]);
 
   const editNode = () => {
     return getNodes().map((nd: any) => {
@@ -49,7 +58,8 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
           expression,
           expressionType,
           condition,
-          comparisionValue,
+          comparisonValue,
+          referenceObjects,
         };
       }
       return nd;
@@ -92,6 +102,8 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                 expressionType={expressionType}
                 expression={expression}
                 setExpression={setExpression}
+                referenceObjects={referenceObjects}
+                setReferenceObjects={setReferenceObjects}
               />
               <Select
                 value={condition}
@@ -107,10 +119,10 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                 ]}
               />
               <Input
-                value={comparisionValue}
+                value={comparisonValue}
                 onDrop={(e) => e.preventDefault()}
                 placeholder="Expected Value"
-                onChange={(e) => setComparisionValue(e.target.value)}
+                onChange={(e) => setcomparisonValue(e.target.value)}
               />
             </Space>
           </Col>

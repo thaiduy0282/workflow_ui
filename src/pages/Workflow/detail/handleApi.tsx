@@ -10,3 +10,27 @@ export const handleGetNodeConfigurationById = (id: string) => {
   });
   return { isLoading, status, data, error };
 };
+
+export const handleSaveNodeConfigurationById = (onSuccess: () => void) => {
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isSuccess } = useMutation({
+    mutationKey: ["saveNodeConfigurationById"],
+    mutationFn: ({ id, data }: any) =>
+      nodeConfigurationService.saveNodeConfigurationById(id, data),
+    onError: (error: any) => {
+      // if (error.response && error.response.data.data) {
+      //   handleNotificationMessege(error?.response?.data?.data)
+      // } else {
+      //   handleNotificationMessege(error.message)
+      // }
+    },
+    onSuccess: (data: any) => {
+      onSuccess();
+    },
+  });
+  return {
+    mutateSaveNodeConfig: mutate,
+    isPendingSaveNodeConfig: isPending,
+    isSuccessSaveNodeConfig: isSuccess,
+  };
+};

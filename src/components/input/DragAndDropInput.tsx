@@ -10,6 +10,8 @@ const DroppableInput = ({
   expressionType,
   expression,
   setExpression,
+  referenceObjects,
+  setReferenceObjects,
   onShow,
 }: any) => {
   const inputRef = useRef<any>(null);
@@ -29,20 +31,30 @@ const DroppableInput = ({
         document.getElementById(id)?.getAttribute("data-type") || "";
       const dataField =
         document.getElementById(id)?.getAttribute("data-field") || "";
-      setValueField(content, dataType);
+      setValueField(content, dataType, dataField);
     }
   };
 
-  const setValueField = (content: string, dataType: string) => {
+  const setValueField = (
+    content: string,
+    dataType: string,
+    dataField: string
+  ) => {
+    const jsonDataField = JSON.parse(dataField);
     if (dataType === "varchar" && expressionType === "string") {
       setExpression(content);
+      setReferenceObjects([jsonDataField]);
     } else if (dataType !== "varchar" && expressionType !== "string") {
       if (expression === "") {
         setExpression(content);
+        setReferenceObjects([jsonDataField]);
       } else {
+        // Thêm expression sau toán tử
         const operator = expression.trim().slice(-1);
-        if (validateCalculationChar(operator))
+        if (validateCalculationChar(operator)) {
           setExpression(expression + `${content}`);
+          setReferenceObjects([...referenceObjects, jsonDataField]);
+        }
       }
 
       if (inputRef.current) {
@@ -75,6 +87,7 @@ const DroppableInput = ({
         if (!hasOperator) {
           // xóa value đầu tiên
           setExpression("");
+          setReferenceObjects([]);
         } else {
           // xóa value sau toán tử cuối cùng
           const operators = expression.match(/[+\-*\/]/g);
@@ -84,15 +97,19 @@ const DroppableInput = ({
 
             if (operatorIndex !== -1) {
               const result = expression.slice(0, operatorIndex + 2);
+              const newReferenceObjects = referenceObjects;
+              newReferenceObjects.pop();
               setExpression(result);
+              setReferenceObjects(newReferenceObjects);
             }
           }
         }
       }
     } else if (!validateCalculationChar(operator)) {
       // thêm toán tử vào chuỗi
-      if (expression !== "" && validateCalculationChar(char))
+      if (expression !== "" && validateCalculationChar(char)) {
         setExpression(expression + ` ${char} `);
+      }
     }
   };
 

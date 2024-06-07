@@ -32,6 +32,9 @@ const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
   const [action, setAction] = useState(actionData?.action || undefined);
   const [field, setField] = useState(actionData?.field || undefined);
   const [value, setValue] = useState(actionData?.value || undefined);
+  const [referenceObjects, setReferenceObjects] = useState(
+    data?.referenceObjects || []
+  );
 
   useEffect(() => {
     setNodes(editNode);
@@ -45,6 +48,7 @@ const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
           action,
           field,
           value,
+          referenceObjects,
         };
       }
       return nd;
@@ -77,13 +81,17 @@ const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
                 ]}
               />
               <Select
-                value={field}
+                value={referenceObjects.label}
                 placeholder="Field"
                 style={{ width: "100%" }}
-                onChange={setField}
+                onChange={(value) => {
+                  const jsonValue = JSON.parse(value);
+                  setField(jsonValue.apiName);
+                  setReferenceObjects(jsonValue);
+                }}
                 options={data?.data?.fieldDefinitions.map((field: any) => {
                   return {
-                    value: field.label,
+                    value: JSON.stringify(field),
                     label: field.label,
                   };
                 })}

@@ -1,43 +1,10 @@
 import "./style.css";
 
-import { Col, Flex, Row, Space, Tag } from "antd";
+import { Col, Row, Typography } from "antd";
 import { Handle, NodeProps, Position } from "reactflow";
 
 import { FC } from "react";
-
-const labelStyle = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  border: "1px solid",
-  borderRadius: "3px",
-  width: "100%",
-  minWidth: "300px",
-  minHeight: "35px",
-  fontSize: "12px",
-  gap: 4,
-};
-
-const defaultLabelStyle = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  border: "1px solid",
-  borderRadius: "3px",
-  width: "150px",
-  height: "35px",
-  fontSize: "12px",
-  gap: 4,
-};
-
-const conditionTypeStyle: any = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  textAlign: "center",
-  borderRight: "1px solid",
-  minHeight: "35px",
-};
+import { images } from "../../assets";
 
 const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
   const { data } = props;
@@ -52,20 +19,23 @@ const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
 
   return (
     <>
-      <Handle type="target" position={Position.Top} />
-      <div style={!checkStartEventData() ? defaultLabelStyle : labelStyle}>
+      {checkStartEventData() && <div className="trigger-title">TRIGGER</div>}
+      <div
+        className={`node__container${
+          checkStartEventData() ? " trigger-has-data" : ""
+        }`}
+      >
         {!checkStartEventData() ? (
           props.data.label
         ) : (
           <Row style={{ width: "100%", height: "100%" }}>
-            <Col span={4} style={conditionTypeStyle}>
-              {props.data.label}
+            <Col span={4} className="image__container">
+              <img src={images.QWORKS} className="image-app" />
             </Col>
-            <Col
-              span={20}
-              style={{ padding: "10px", maxHeight: "170px", overflowY: "auto" }}
-            >
-              {data.eventTopic + " in " + data.category}
+            <Col span={20}>
+              <div className="node__text">
+                {data.eventTopic + " in " + data.category}
+              </div>
             </Col>
           </Row>
         )}

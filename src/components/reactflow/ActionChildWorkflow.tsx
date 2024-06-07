@@ -11,7 +11,7 @@ import ReactFlow, {
 } from "reactflow";
 import { useCallback, useEffect, useState } from "react";
 
-import ActionNode from "./node/actionNode";
+import ActionNode from "./node/ActionNode";
 import AddNewCondition from "./node/AddNewCondition";
 import { v4 as uuidV4 } from "uuid";
 
@@ -110,12 +110,14 @@ const ReactFlowChild = ({
   }, [curNode?.id]);
 
   const editWorkflowNode = () => {
-    return workflowNodes?.map((nd: any) => {
+    const newWorkflowNodes = workflowNodes?.map((nd: any, index: number) => {
       if (nd.id === curNode.id) {
+        nd.position = { ...nd.position, x: 0 };
         nd.data = { ...nd.data, nodes, edges };
       }
       return nd;
     });
+    return newWorkflowNodes;
   };
 
   useEffect(() => {

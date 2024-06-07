@@ -188,10 +188,6 @@ header select {
   text-align: center;
 }
 
-.react-flow__handle {
-  visibility: hidden;
-}
-
 .ant-layout-header {
   padding: 0px;
 }

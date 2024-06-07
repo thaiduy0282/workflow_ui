@@ -108,12 +108,14 @@ const ReactFlowChild = ({
   }, [curNode?.id]);
 
   const editWorkflowNode = () => {
-    return workflowNodes?.map((nd: any) => {
+    const newWorkflowNodes = workflowNodes?.map((nd: any, index: number) => {
       if (nd.id === curNode.id) {
+        nd.position = { ...nd.position, x: 0 };
         nd.data = { ...nd.data, nodes, edges };
       }
       return nd;
     });
+    return newWorkflowNodes;
   };
 
   useEffect(() => {

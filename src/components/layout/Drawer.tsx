@@ -81,11 +81,7 @@ const DrawerLayout = ({
               style={{ width: "100%", height: "40px" }}
               value={category}
               onChange={setCategory}
-              options={[
-                { value: "QWORKS", label: "QWORKS" },
-                { value: "Safeforce", label: "Safeforce" },
-                { value: "Jira", label: "Jira" },
-              ]}
+              options={[{ value: "QWORKS", label: "QWORKS" }]}
             />
             <Select
               placeholder="Event"
@@ -94,7 +90,6 @@ const DrawerLayout = ({
               onChange={setEventTopic}
               options={[
                 { value: "New/update account", label: "New/update account" },
-                { value: "New ticket", label: "New ticket" },
               ]}
             />
           </Space>

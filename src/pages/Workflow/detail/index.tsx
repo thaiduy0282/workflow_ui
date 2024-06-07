@@ -1,9 +1,11 @@
+import "./style.css";
+
 import { Button, Space, Spin } from "antd";
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
-  Connection,
+  ControlButton,
   Controls,
   Edge,
   MarkerType,
@@ -11,8 +13,6 @@ import ReactFlow, {
   Node,
   ReactFlowProvider,
   XYPosition,
-  addEdge,
-  updateEdge,
   useEdgesState,
   useNodesState,
   useReactFlow,
@@ -27,6 +27,7 @@ import ActionGroup from "../../../components/node/ActionGroup";
 import AddNewNode from "../../../components/node/AddNewNode";
 import ConditionNode from "../../../components/node/ConditionNode";
 import DrawerLayout from "../../../components/layout/Drawer";
+import { LayoutOutlined } from "@ant-design/icons";
 import StartEventNode from "../../../components/node/StartEventNode";
 import handleNotificationMessege from "../../../utils/notification";
 import { useParams } from "react-router-dom";
@@ -55,6 +56,22 @@ const ReactFlowMain = () => {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const autoLayout = () => {
+    if (nodes.length > 2) {
+      const cloneNodes: any = getNodes().reverse();
+      console.log("cloneNodes", cloneNodes);
+      let yPos = 0;
+
+      const sortNewWorkFlowNodes = cloneNodes.map((nd: any, index: any) => {
+        yPos = index === 0 ? 0 : yPos + 60 + cloneNodes[index - 1].height;
+        nd.position = { x: 0, y: yPos };
+        nd.positionAbsolute = { x: 0, y: yPos };
+        return nd;
+      });
+      setNodes(sortNewWorkFlowNodes.reverse());
+    }
+  };
 
   useEffect(() => {
     if (data?.nodes && data?.edges) {
@@ -329,13 +346,18 @@ const ReactFlowMain = () => {
         }}
         maxZoom={Infinity}
       >
-        <Background variant={BackgroundVariant.Lines} />
+        <Background variant={BackgroundVariant.Dots} />
         <MiniMap />
         <Controls
+          position="top-right"
           onFitView={() => fitView({ duration: 0, padding: 1 })}
           showInteractive={false}
           fitViewOptions={{ duration: 1200 }}
-        />
+        >
+          <ControlButton onClick={() => autoLayout()}>
+            <LayoutOutlined />
+          </ControlButton>
+        </Controls>
       </ReactFlow>
       <Space
         direction="horizontal"
@@ -346,7 +368,7 @@ const ReactFlowMain = () => {
           transform: "translateX(-50%)",
         }}
       >
-        <Button type="primary" size="large" onClick={onSave}>
+        <Button className="btn-actions" size="large" onClick={onSave}>
           Save as draft
         </Button>
         <Button

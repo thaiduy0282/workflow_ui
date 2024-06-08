@@ -33,13 +33,13 @@ import StartEventNode from "../../../components/node/StartEventNode";
 import handleNotificationMessege from "../../../utils/notification";
 import { handleSaveNodeConfigurationById } from "./handleApi";
 import { useParams } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
 
 const position: XYPosition = { x: 0, y: 0 };
 
 const initialNodes: Node[] = [
   {
-    id: uuidv4(),
+    id: "id_" + uuidV4(),
     type: "addNewNode",
     data: { typeNode: "add-trigger", label: "Add Trigger" },
     position,
@@ -158,7 +158,7 @@ const ReactFlowMain = () => {
   const actionContinue = (newNode: Node) => {
     if (newNode.data.typeNode !== "EndEvent") {
       const newGroup = {
-        id: uuidv4(),
+        id: "id_" + uuidV4(),
         type: "actionGroup",
         position: { x: newNode?.position?.x, y: newNode?.position?.y + 100 },
         data: {
@@ -174,7 +174,7 @@ const ReactFlowMain = () => {
       const label = newNode.data.typeNode === "StartEvent" ? "ACTIONS" : "";
 
       addEdges({
-        id: uuidv4(),
+        id: "id_" + uuidV4(),
         source: newNode.id,
         target: newGroup.id,
         animated: true,
@@ -223,7 +223,7 @@ const ReactFlowMain = () => {
 
       if (typeNode === "add-trigger") {
         const newNode = {
-          id: uuidv4(),
+          id: "id_" + uuidV4(),
           type: "startEventNode",
           position,
           data: { typeNode: "StartEvent", label: "Trigger" },
@@ -250,7 +250,7 @@ const ReactFlowMain = () => {
         const newNode =
           getTypeNode() === "EndEvent"
             ? {
-                id: uuidv4(),
+                id: "id_" + uuidV4(),
                 type: "output",
                 position: {
                   x: getNodes()[0]?.position?.x,
@@ -259,7 +259,7 @@ const ReactFlowMain = () => {
                 data: { typeNode: "EndEvent", label: node.data.label },
               }
             : {
-                id: uuidv4(),
+                id: "id_" + uuidV4(),
                 type: "conditionNode",
                 position: {
                   x: getNodes()[0]?.position?.x,
@@ -292,7 +292,7 @@ const ReactFlowMain = () => {
         const label = typeNode === "StartEvent" ? "ACTIONS" : "";
 
         const newEdges = {
-          id: uuidv4(),
+          id: "id_" + uuidV4(),
           source: filteredNodes[0]?.id
             ? filteredNodes[0]?.id
             : triggerNode[0].id,
@@ -321,7 +321,7 @@ const ReactFlowMain = () => {
           addEdges([
             newEdges,
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: filteredNodes[1]?.id,
               target: newNode.id,
               animated: false,
@@ -346,7 +346,7 @@ const ReactFlowMain = () => {
 
         if (getTypeNode() === "If-Else-Condition") {
           const elseTrueNode = {
-            id: uuidv4(),
+            id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
               x: newNode?.position?.x + 150,
@@ -361,7 +361,7 @@ const ReactFlowMain = () => {
             },
           };
           const elseNode = {
-            id: uuidv4(),
+            id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
               x: elseTrueNode?.position?.x - 150,
@@ -375,7 +375,7 @@ const ReactFlowMain = () => {
             },
           };
           const trueNode = {
-            id: uuidv4(),
+            id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
               x: elseNode?.position?.x + 150,
@@ -391,7 +391,7 @@ const ReactFlowMain = () => {
           };
 
           const falseNode = {
-            id: uuidv4(),
+            id: "id_" + uuidV4(),
             type: "actionGroup",
             position: {
               x: trueNode.position.x - 150,
@@ -407,7 +407,7 @@ const ReactFlowMain = () => {
 
           addEdges([
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: newNode.id,
               target: elseTrueNode.id,
               type: "smoothstep",
@@ -426,7 +426,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: newNode.id,
               target: elseNode.id,
               animated: false,
@@ -448,7 +448,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: elseTrueNode.id,
               target: elseNode.id,
               animated: false,
@@ -469,7 +469,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: elseNode.id,
               target: trueNode.id,
               type: "smoothstep",
@@ -487,7 +487,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: elseNode.id,
               target: falseNode.id,
               animated: false,
@@ -508,7 +508,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: trueNode.id,
               target: falseNode.id,
               animated: false,

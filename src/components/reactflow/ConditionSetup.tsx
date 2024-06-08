@@ -27,7 +27,7 @@ const position: XYPosition = { x: 0, y: 0 };
 
 const initialChildNodes: Node[] = [
   {
-    id: uuidV4(),
+    id: "id_" + uuidV4(),
     type: "conditionNode",
     data: {
       typeNode: "ConditionSetup",
@@ -37,7 +37,7 @@ const initialChildNodes: Node[] = [
     position,
   },
   {
-    id: uuidV4(),
+    id: "id_" + uuidV4(),
     type: "addNewCondition",
     data: { typeNode: "add-new-condition" },
     position: { x: position.x, y: position.y + 300 },
@@ -46,7 +46,7 @@ const initialChildNodes: Node[] = [
 
 const initialChildEdges: Edge[] = [
   {
-    id: uuidV4(),
+    id: "id_" + uuidV4(),
     source: initialChildNodes[0].id,
     target: initialChildNodes[1].id,
     animated: true,
@@ -129,7 +129,7 @@ const ReactFlowChild = ({
   // Add new condition
   const actionContinue = (newNode: Node) => {
     const newCondition = {
-      id: uuidV4(),
+      id: "id_" + uuidV4(),
       type: "addNewCondition",
       data: {
         typeNode: "add-new-condition",
@@ -142,7 +142,7 @@ const ReactFlowChild = ({
     addNodes([newCondition]);
 
     addEdges({
-      id: uuidV4(),
+      id: "id_" + uuidV4(),
       source: newNode.id,
       target: newCondition.id,
       animated: true,
@@ -186,7 +186,7 @@ const ReactFlowChild = ({
         ];
 
         const newNode = {
-          id: uuidV4(),
+          id: "id_" + uuidV4(),
           type: "conditionNode",
           position: {
             x: getNodes()[0]?.position?.x,
@@ -206,7 +206,7 @@ const ReactFlowChild = ({
         );
 
         addEdges({
-          id: uuidV4(),
+          id: "id_" + uuidV4(),
           source: filteredNodes[0]?.id,
           target: newNode.id,
           animated: false,

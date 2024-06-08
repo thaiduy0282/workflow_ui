@@ -48,6 +48,8 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
     });
   };
 
+  console.log("baaaaaaaaaaaaaa", data);
+
   return (
     <>
       <Handle type="target" position={Position.Top} />
@@ -56,7 +58,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
           level={5}
           style={{ margin: 0, textAlign: "center", lineHeight: 1 }}
         >
-          IF
+          {data?.label}
         </Typography.Title>
         <Divider style={{ margin: 0 }} />
         <Space className="space__condition" direction="vertical">

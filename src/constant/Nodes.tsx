@@ -4,6 +4,10 @@ export const ActionList = [
     data: { typeNode: "action__Condition", label: "IF" },
   },
   {
+    id: "action__if-else-condition",
+    data: { typeNode: "action__If-Else-Condtion", label: "IF/ELSE" },
+  },
+  {
     id: "action__action",
     data: { typeNode: "action__Action", label: "Action" },
   },

@@ -145,7 +145,7 @@ const ReactFlowMain = () => {
       ) {
         const { x, y } = node.position;
         setCenter(x + 75, y + 25, { zoom: 1.85, duration: 1200 });
-        if (node.data.typeNode !== "EndEvent")
+        if (node.data.typeNode !== "EndEvent" && node.data.label !== "ELSE")
           setTimeout(handleDrawerOpen, 200);
 
         setCurrentNode(node);
@@ -207,6 +207,9 @@ const ReactFlowMain = () => {
           case "action__Condition":
             return "Condition";
 
+          case "action__If-Else-Condtion":
+            return "If-Else-Condition";
+
           case "action__Action":
             return "Action";
 
@@ -234,7 +237,7 @@ const ReactFlowMain = () => {
         deleteElements({
           nodes: getNodes().filter((n) => n.data.typeNode.includes("action")),
           edges: getEdges().filter((e) =>
-            e.data.typeEdge.includes("animation")
+            e.data?.typeEdge?.includes("animation")
           ),
         });
 
@@ -263,8 +266,11 @@ const ReactFlowMain = () => {
                   y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
                 },
                 data: {
-                  typeNode: getTypeNode(),
-                  label: node.data.label,
+                  typeNode:
+                    getTypeNode() === "If-Else-Condition"
+                      ? "Condition"
+                      : getTypeNode(),
+                  label: node.data.label !== "IF/ELSE" ? node.data.label : "IF",
                   nodes: [],
                   edges: [],
                 },
@@ -281,9 +287,11 @@ const ReactFlowMain = () => {
             !n.data.typeNode.includes("action__group")
         );
 
+        const isTrueNode = filteredNodes[0]?.data?.isTrueNode;
+
         const label = typeNode === "StartEvent" ? "ACTIONS" : "";
 
-        addEdges({
+        const newEdges = {
           id: uuidv4(),
           source: filteredNodes[0]?.id
             ? filteredNodes[0]?.id
@@ -306,8 +314,223 @@ const ReactFlowMain = () => {
           data: {
             typeEdge: "e-action-group__" + getId(),
           },
-        });
-        actionContinue(newNode);
+        };
+
+        if (!isTrueNode) addEdges(newEdges);
+        else
+          addEdges([
+            newEdges,
+            {
+              id: uuidv4(),
+              source: filteredNodes[1]?.id,
+              target: newNode.id,
+              animated: false,
+              type: "smoothstep",
+              label,
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+              data: {
+                typeEdge: "e-action-group__" + getId(),
+              },
+            },
+          ]);
+
+        if (getTypeNode() === "If-Else-Condition") {
+          const elseTrueNode = {
+            id: uuidv4(),
+            type: "conditionNode",
+            position: {
+              x: newNode?.position?.x + 150,
+              y: newNode?.position?.y + 100,
+            },
+            data: {
+              isTrueNode: true,
+              typeNode: "Action",
+              label: "Action",
+              nodes: [],
+              edges: [],
+            },
+          };
+          const elseNode = {
+            id: uuidv4(),
+            type: "conditionNode",
+            position: {
+              x: elseTrueNode?.position?.x - 150,
+              y: elseTrueNode?.position?.y + 100,
+            },
+            data: {
+              typeNode: "Condition",
+              label: "ELSE",
+              nodes: [],
+              edges: [],
+            },
+          };
+          const trueNode = {
+            id: uuidv4(),
+            type: "conditionNode",
+            position: {
+              x: elseNode?.position?.x + 150,
+              y: elseNode?.position?.y + 100,
+            },
+            data: {
+              isTrueNode: true,
+              typeNode: "Action",
+              label: "Action",
+              nodes: [],
+              edges: [],
+            },
+          };
+
+          const falseNode = {
+            id: uuidv4(),
+            type: "actionGroup",
+            position: {
+              x: trueNode.position.x - 150,
+              y: trueNode.position.y + 100,
+            },
+            data: {
+              typeNode: "action__group",
+              label: "Action Group",
+            },
+          };
+
+          addNodes([falseNode, trueNode, elseNode, elseTrueNode]);
+
+          addEdges([
+            {
+              id: uuidv4(),
+              source: newNode.id,
+              target: elseTrueNode.id,
+              type: "smoothstep",
+              animated: false,
+              label: "Yes",
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+            },
+            {
+              id: uuidv4(),
+              source: newNode.id,
+              target: elseNode.id,
+              animated: false,
+              type: "smoothstep",
+              label: "No",
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+              data: {
+                typeEdge: "e-action-group__" + getId(),
+              },
+            },
+            {
+              id: uuidv4(),
+              source: elseTrueNode.id,
+              target: elseNode.id,
+              animated: false,
+              type: "smoothstep",
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+              data: {
+                typeEdge: "e-action-group__" + getId(),
+              },
+            },
+            {
+              id: uuidv4(),
+              source: elseNode.id,
+              target: trueNode.id,
+              type: "smoothstep",
+              animated: false,
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+            },
+            {
+              id: uuidv4(),
+              source: elseNode.id,
+              target: falseNode.id,
+              animated: false,
+              type: "smoothstep",
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+              data: {
+                typeEdge: "e-action-group__" + getId(),
+              },
+            },
+            {
+              id: uuidv4(),
+              source: trueNode.id,
+              target: falseNode.id,
+              animated: false,
+              type: "smoothstep",
+              label,
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+              data: {
+                typeEdge: "e-action-group__" + getId(),
+              },
+            },
+          ]);
+        } else actionContinue(newNode);
       }
     },
     [addNodes, deleteElements, setNodesHook, getNodes, getEdges, addEdges]

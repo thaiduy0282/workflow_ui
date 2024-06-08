@@ -68,7 +68,7 @@ const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
             onChange={(value) => {
               const jsonValue = JSON.parse(value);
               setField(jsonValue.apiName);
-              setReferenceObjects(jsonValue);
+              setReferenceObjects([jsonValue]);
             }}
             options={data?.data?.fieldDefinitions.map((field: any) => {
               return {

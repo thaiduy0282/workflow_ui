@@ -9,7 +9,7 @@ import { FC } from "react";
 const ActionGroup: FC<NodeProps> = ({ isDisableAddAction, func }: any) => {
   return (
     <>
-      <Handle type="target" position={Position.Top} style={{ left: 75 }} />
+      <Handle type="target" position={Position.Top} />
       <div className="node-group__container">
         {ActionList.map((node) => (
           <Button
@@ -23,6 +23,7 @@ const ActionGroup: FC<NodeProps> = ({ isDisableAddAction, func }: any) => {
           </Button>
         ))}
       </div>
+      <Handle type="source" position={Position.Bottom} />
     </>
   );
 };

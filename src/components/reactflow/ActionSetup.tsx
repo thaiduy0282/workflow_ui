@@ -40,7 +40,7 @@ const initialChildNodes: Node[] = [
     id: uuidV4(),
     type: "addNewCondition",
     data: { typeNode: "add-new-condition" },
-    position: { x: position.x - 7, y: position.y + 200 },
+    position: { x: position.x, y: position.y + 250 },
   },
 ];
 
@@ -139,8 +139,8 @@ const ReactFlowChild = ({
         typeNode: "add-new-condition",
       },
       position: {
-        x: newNode?.position?.x - 7,
-        y: newNode?.position?.y + 200,
+        x: newNode?.position?.x,
+        y: newNode?.position?.y + 250,
       },
     };
     addNodes([newCondition]);
@@ -193,8 +193,8 @@ const ReactFlowChild = ({
           id: uuidV4(),
           type: "actionNode",
           position: {
-            x: getNodes()[0]?.position?.x + (countAction === 1 ? 0 : 7),
-            y: getNodes()[0]?.position?.y + (countAction === 1 ? 200 : 0),
+            x: getNodes()[0]?.position?.x,
+            y: getNodes()[0]?.position?.y + (countAction === 1 ? 250 : 0),
           },
           data: {
             typeNode: "ActionSetup",
@@ -236,18 +236,15 @@ const ReactFlowChild = ({
     [addNodes, deleteElements, setNodesHook, getNodes, getEdges, addEdges]
   );
 
-  const [rfInstance, setRfInstance] = useState<any>(null);
-
   return (
     <ReactFlow
-      onInit={setRfInstance}
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={onNodeClick}
-      defaultViewport={{ x: 40, y: 0, zoom: 1.5 }}
+      defaultViewport={{ x: 65, y: 0, zoom: 1.5 }}
       panOnDrag={false}
       nodesDraggable={false}
       zoomOnDoubleClick={false}
@@ -257,6 +254,7 @@ const ReactFlowChild = ({
       panOnScroll={true}
       maxZoom={1.5}
       minZoom={1.5}
+      className="reactflow__setup-container"
     >
       <Controls
         onFitView={() => fitView({ duration: 1200, padding: 1 })}
@@ -266,7 +264,7 @@ const ReactFlowChild = ({
   );
 };
 
-const ActionChildWorkflow = ({
+const ActionSetup = ({
   currentNode,
   isOpenDrawer,
   workflowNodes,
@@ -282,4 +280,4 @@ const ActionChildWorkflow = ({
   </ReactFlowProvider>
 );
 
-export default ActionChildWorkflow;
+export default ActionSetup;

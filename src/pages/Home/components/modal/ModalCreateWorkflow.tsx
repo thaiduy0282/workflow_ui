@@ -65,7 +65,7 @@ const ModalCreateWorkflow = () => {
   return (
     <>
       <Button
-        type="primary"
+        className="btn-actions"
         icon={<PlusOutlined />}
         style={{ marginBottom: "10px" }}
         onClick={() => showModalCreateWorkflow()}

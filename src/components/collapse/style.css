@@ -34,6 +34,13 @@
 	border-radius: 0px !important;
 }
 
+.ant-collapse-header {
+    background: #6dc8ce !important;
+    color: rgba(0, 0, 0, 0.88);
+    font-weight: 600;
+    font-size: 20px;
+}
+
 [draggable=true] {
 	cursor: move;
-  }
+}

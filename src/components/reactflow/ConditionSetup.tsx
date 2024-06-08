@@ -1,17 +1,15 @@
 import ReactFlow, {
-  Connection,
   Controls,
   Edge,
   MarkerType,
   Node,
   ReactFlowProvider,
   XYPosition,
-  addEdge,
   useEdgesState,
   useNodesState,
   useReactFlow,
 } from "reactflow";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
 
 import AddNewCondition from "./node/AddNewCondition";
 import ConditionNode from "./node/ConditionNode";
@@ -42,7 +40,7 @@ const initialChildNodes: Node[] = [
     id: uuidV4(),
     type: "addNewCondition",
     data: { typeNode: "add-new-condition" },
-    position: { x: position.x - 7, y: position.y + 300 },
+    position: { x: position.x, y: position.y + 300 },
   },
 ];
 
@@ -137,7 +135,7 @@ const ReactFlowChild = ({
         typeNode: "add-new-condition",
       },
       position: {
-        x: newNode?.position?.x - 7,
+        x: newNode?.position?.x,
         y: newNode?.position?.y + 300,
       },
     };
@@ -191,7 +189,7 @@ const ReactFlowChild = ({
           id: uuidV4(),
           type: "conditionNode",
           position: {
-            x: getNodes()[0]?.position?.x + (countAction === 1 ? 0 : 7),
+            x: getNodes()[0]?.position?.x,
             y: getNodes()[0]?.position?.y + (countAction === 1 ? 300 : 0),
           },
           data: {
@@ -234,11 +232,8 @@ const ReactFlowChild = ({
     [addNodes, deleteElements, setNodesHook, getNodes, getEdges, addEdges]
   );
 
-  const [rfInstance, setRfInstance] = useState<any>(null);
-
   return (
     <ReactFlow
-      onInit={setRfInstance}
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
@@ -255,6 +250,7 @@ const ReactFlowChild = ({
       panOnScroll={true}
       maxZoom={1.5}
       minZoom={1.5}
+      className="reactflow__setup-container"
     >
       <Controls
         onFitView={() => fitView({ duration: 1200, padding: 1 })}
@@ -264,7 +260,7 @@ const ReactFlowChild = ({
   );
 };
 
-const ReactFlowCondition = ({
+const ConditionSetup = ({
   currentNode,
   isOpenDrawer,
   workflowNodes,
@@ -280,4 +276,4 @@ const ReactFlowCondition = ({
   </ReactFlowProvider>
 );
 
-export default ReactFlowCondition;
+export default ConditionSetup;

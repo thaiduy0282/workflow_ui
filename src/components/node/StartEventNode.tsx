@@ -1,9 +1,9 @@
 import "./style.css";
 
 import { Col, Row, Typography } from "antd";
+import { FC, useEffect } from "react";
 import { Handle, NodeProps, Position } from "reactflow";
 
-import { FC } from "react";
 import { images } from "../../assets";
 
 const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
@@ -16,6 +16,10 @@ const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
       data.eventTopic !== undefined
     );
   };
+
+  useEffect(() => {
+    props.setDisableAddAction(!checkStartEventData());
+  }, [data]);
 
   return (
     <>
@@ -34,7 +38,7 @@ const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
             </Col>
             <Col span={20}>
               <div className="node__text">
-                {data.eventTopic + " in " + data.category}
+                {data.eventTopic + " event from " + data.category}
               </div>
             </Col>
           </Row>

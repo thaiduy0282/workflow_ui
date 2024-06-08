@@ -36,11 +36,7 @@ const EnhancedTableToolbar: React.FC<{
       <Row justify="end" style={{ padding: "0 24px" }}>
         {numSelected > 0 ? (
           <Tooltip title="Delete">
-            <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              onClick={deleteAllFunc}
-            />
+            <Button icon={<DeleteOutlined />} onClick={deleteAllFunc} />
           </Tooltip>
         ) : (
           currentTab === "1" && <ModalCreateWorkflow />

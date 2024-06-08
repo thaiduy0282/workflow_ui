@@ -1,11 +1,11 @@
 import "./style.css";
 
-import { Drawer, Select, Space } from "antd";
+import { Drawer, Select, Space, Typography } from "antd";
 import { useEffect, useState } from "react";
 
-import ActionChildWorkflow from "../reactflow/ActionChildWorkflow";
+import ActionSetup from "../reactflow/ActionSetup";
 import CollapseCustom from "../collapse";
-import ReactFlowIfCondition from "../reactflow/Condition";
+import ConditionSetup from "../reactflow/ConditionSetup";
 import { useReactFlow } from "reactflow";
 
 const DrawerLayout = ({
@@ -64,9 +64,12 @@ const DrawerLayout = ({
     <>
       <Drawer
         title={
-          <div style={{ textAlign: "center" }}>
+          <Typography.Title
+            level={3}
+            style={{ margin: 0, textAlign: "center", lineHeight: 1 }}
+          >
             {currentNode?.data?.label} Setup
-          </div>
+          </Typography.Title>
         }
         placement="right"
         width={500}
@@ -95,18 +98,16 @@ const DrawerLayout = ({
           </Space>
         ) : (
           <>
-            {/* <DroppableInput onShow={onShowMetadata} />
-             */}
             <CollapseCustom show={isShowMetadata} />
             {currentNode?.data?.typeNode === "Condition" ? (
-              <ReactFlowIfCondition
+              <ConditionSetup
                 workflowNodes={workflowNodes}
                 setWorkflowNodes={setWorkflowNodes}
                 currentNode={currentNode}
                 isOpenDrawer={isOpenDrawer}
               />
             ) : (
-              <ActionChildWorkflow
+              <ActionSetup
                 workflowNodes={workflowNodes}
                 setWorkflowNodes={setWorkflowNodes}
                 currentNode={currentNode}

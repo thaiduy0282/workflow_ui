@@ -6,3 +6,17 @@
 .space__condition > .ant-space-item {
     width: 100%;
 }
+
+.space__setup-container {
+    padding: 12px;
+    align-items: center;
+    width: fit-content;
+}
+
+.space__setup-container .ant-space-item {
+    width: 100%;
+}
+
+.react-flow__node-output {
+    width: 60px;
+}

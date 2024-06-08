@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ConfigProvider, Layout } from "antd";
 
 import Home from "../pages/Home";
-import { Layout } from "antd";
 import WorkflowDetail from "../pages/Workflow/detail";
 import { WorkflowProvider } from "../components/context/WorkflowContext";
 
@@ -44,16 +44,24 @@ const HeaderLayout = () => {
 const App = () => (
   <WorkflowProvider>
     <BrowserRouter>
-      <HeaderLayout />
-      <Routes>
-        {routes.map((route) => (
-          <Route
-            path={route.path}
-            key={route.path}
-            element={<route.component />}
-          />
-        ))}
-      </Routes>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: "#6dc8ce",
+          },
+        }}
+      >
+        <HeaderLayout />
+        <Routes>
+          {routes.map((route) => (
+            <Route
+              path={route.path}
+              key={route.path}
+              element={<route.component />}
+            />
+          ))}
+        </Routes>
+      </ConfigProvider>
     </BrowserRouter>
   </WorkflowProvider>
 );

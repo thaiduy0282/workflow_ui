@@ -1,6 +1,7 @@
 import "./style.css";
 
-import { Button, Space, Spin } from "antd";
+import { Button, Space, Spin, Tooltip } from "antd";
+import { LayoutOutlined, LoadingOutlined } from "@ant-design/icons";
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
@@ -11,6 +12,7 @@ import ReactFlow, {
   MarkerType,
   MiniMap,
   Node,
+  Panel,
   ReactFlowProvider,
   XYPosition,
   useEdgesState,
@@ -27,7 +29,6 @@ import ActionGroup from "../../../components/node/ActionGroup";
 import AddNewNode from "../../../components/node/AddNewNode";
 import ConditionNode from "../../../components/node/ConditionNode";
 import DrawerLayout from "../../../components/layout/Drawer";
-import { LayoutOutlined } from "@ant-design/icons";
 import StartEventNode from "../../../components/node/StartEventNode";
 import handleNotificationMessege from "../../../utils/notification";
 import { handleSaveNodeConfigurationById } from "./handleApi";
@@ -57,6 +58,8 @@ const ReactFlowMain = () => {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const [isDisableAddAction, setDisableAddAction] = useState(false);
 
   const autoLayout = () => {
     if (nodes.length > 2) {
@@ -97,14 +100,20 @@ const ReactFlowMain = () => {
 
   const nodeTypes = useMemo(
     () => ({
-      startEventNode: StartEventNode,
+      startEventNode: (props: any) => (
+        <StartEventNode setDisableAddAction={setDisableAddAction} {...props} />
+      ),
       addNewNode: AddNewNode,
       actionGroup: (props: any) => (
-        <ActionGroup func={handleChangeActionId} {...props} />
+        <ActionGroup
+          isDisableAddAction={isDisableAddAction}
+          func={handleChangeActionId}
+          {...props}
+        />
       ),
       conditionNode: ConditionNode,
     }),
-    []
+    [isDisableAddAction]
   );
 
   const {
@@ -136,7 +145,8 @@ const ReactFlowMain = () => {
       ) {
         const { x, y } = node.position;
         setCenter(x + 75, y + 25, { zoom: 1.85, duration: 1200 });
-        setTimeout(handleDrawerOpen, 200);
+        if (node.data.typeNode !== "EndEvent")
+          setTimeout(handleDrawerOpen, 200);
 
         setCurrentNode(node);
       }
@@ -459,6 +469,15 @@ const ReactFlowMain = () => {
         }}
         maxZoom={Infinity}
       >
+        <Panel position="top-left">
+          <div style={{ width: "100%", padding: "0 24px" }}>
+            <div
+              style={{ color: "black", fontSize: "20px", fontWeight: "bold" }}
+            >
+              {data?.name}
+            </div>
+          </div>
+        </Panel>
         <Background variant={BackgroundVariant.Dots} />
         <MiniMap />
         <Controls
@@ -467,9 +486,11 @@ const ReactFlowMain = () => {
           showInteractive={false}
           fitViewOptions={{ duration: 1200 }}
         >
-          <ControlButton onClick={() => autoLayout()}>
-            <LayoutOutlined />
-          </ControlButton>
+          <Tooltip title="Auto Layout" placement="left">
+            <ControlButton onClick={() => autoLayout()}>
+              <LayoutOutlined />
+            </ControlButton>
+          </Tooltip>
         </Controls>
       </ReactFlow>
       <Space
@@ -481,16 +502,43 @@ const ReactFlowMain = () => {
           transform: "translateX(-50%)",
         }}
       >
-        <Button className="btn-actions" size="large" onClick={onSave}>
-          Save as draft
+        <Button
+          className="btn-actions"
+          size="large"
+          onClick={onSave}
+          disabled={isPending}
+        >
+          {isPending ? (
+            <Spin
+              indicator={
+                <LoadingOutlined
+                  style={{ fontSize: 24, color: "#000" }}
+                  spin={isPending}
+                />
+              }
+            />
+          ) : (
+            "Save as draft"
+          )}
         </Button>
         <Button
-          type="primary"
+          className="btn-actions"
           size="large"
           onClick={onPublish}
-          disabled={isDisablePublish}
+          disabled={isDisablePublish || isPendingPublish}
         >
-          Publish
+          {isPendingPublish ? (
+            <Spin
+              indicator={
+                <LoadingOutlined
+                  style={{ fontSize: 24, color: "#000" }}
+                  spin={isPendingPublish}
+                />
+              }
+            />
+          ) : (
+            "Publish"
+          )}
         </Button>
       </Space>
       <DrawerLayout

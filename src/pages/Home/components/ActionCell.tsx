@@ -7,7 +7,6 @@ import {
 
 import { Link } from "react-router-dom";
 import React from "react";
-import axios from "axios";
 import { handleDeleteWorkflow } from "../handleApi";
 
 interface ActionCellProps {
@@ -31,7 +30,9 @@ const ActionCell: React.FC<ActionCellProps> = ({ record, currentTab }) => {
       {currentTab === "1" ? (
         <>
           <Link to={`/workflow/${record.id}/detail`}>
-            <EditOutlined style={{ marginRight: 16 }} />
+            <Tooltip title="Edit">
+              <EditOutlined style={{ marginRight: 16 }} />
+            </Tooltip>
           </Link>
           <Tooltip title="Delete">
             <Button

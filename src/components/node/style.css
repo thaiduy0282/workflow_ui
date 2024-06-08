@@ -46,7 +46,7 @@
 
 .node__container.trigger-has-data {
   width: 100%;
-  min-width: 300px;
+  min-width: 350px;
   min-height: 45px;
 }
 
@@ -68,7 +68,7 @@
     background: #dcdbba;
     border-radius: 2px;
     color: #555224;
-    font-size: 16px;
+    font-size: 8px;
     font-weight: 700;
     padding: 3px 5px 4px;
     text-transform: uppercase;
@@ -79,11 +79,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
 }
 
 .node__condition-container {
-    padding: 8px;
     height: 100%;
 }
 

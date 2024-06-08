@@ -5,7 +5,6 @@ const handleNotificationMessege = (
   variant?: VariantType,
   anchorOrigin?: SnackbarOrigin
 ) => {
-  console.log("🚀 ~ messege:", messege);
   enqueueSnackbar(messege, { variant, anchorOrigin });
 };
 export default handleNotificationMessege;

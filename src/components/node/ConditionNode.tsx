@@ -1,6 +1,6 @@
 import "./style.css";
 
-import { Col, Flex, Row, Space, Tag } from "antd";
+import { Col, Flex, Row, Space, Tag, Tooltip } from "antd";
 import { Handle, NodeProps, Position } from "reactflow";
 
 import { FC } from "react";
@@ -59,19 +59,20 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
           <Row
             justify="space-around"
             align="middle"
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "100%", padding: "8px" }}
+            gutter={4}
           >
             <Col
-              span={props.data.label.length > 4 ? 6 : 4}
+              span={props.data.label.length > 4 ? 4 : 2}
               className="node__condition-label"
             >
               <span className="node__label">{props.data.label}</span>
             </Col>
             <Col
-              span={props.data.label.length > 4 ? 18 : 20}
+              span={props.data.label.length > 4 ? 20 : 22}
               className="node__condition-container"
             >
-              <Space direction="vertical" style={{ width: "100%" }}>
+              <Space direction="vertical" style={{ width: "100%", gap: 4 }}>
                 {filteredNodes.map(
                   (nd: any) =>
                     checkConditionChild(nd) && (
@@ -87,30 +88,40 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                         )}
                         {nd.data.typeNode === "ConditionSetup" ? (
                           <>
-                            <Tag color="default" className="truncate">
-                              {nd.data.expression}
-                            </Tag>
+                            <Tooltip title={nd.data.expression}>
+                              <Tag color="default" className="truncate">
+                                {nd.data.expression}
+                              </Tag>
+                            </Tooltip>
                             <Tag color="default" bordered={false}>
                               {nd.data.condition}
                             </Tag>
-                            <Tag color="default" className="truncate">
-                              {nd.data.comparisonValue}
-                            </Tag>
+                            <Tooltip title={nd.data.comparisonValue}>
+                              <Tag color="default" className="truncate">
+                                {nd.data.comparisonValue}
+                              </Tag>
+                            </Tooltip>
                           </>
                         ) : (
                           <>
-                            <Tag color="default" className="truncate">
-                              {nd.data.action}
-                            </Tag>
-                            <Tag
-                              style={{ background: "white" }}
-                              color="default"
-                            >
-                              {nd.data.field}
-                            </Tag>
-                            <Tag color="default" className="truncate">
-                              {nd.data.value}
-                            </Tag>
+                            <Tooltip title={nd.data.action}>
+                              <Tag color="default" className="truncate">
+                                {nd.data.action}
+                              </Tag>
+                            </Tooltip>
+                            <Tooltip title={nd.data.field}>
+                              <Tag
+                                style={{ background: "white" }}
+                                color="default"
+                              >
+                                {nd.data.field}
+                              </Tag>
+                            </Tooltip>
+                            <Tooltip title={nd.data.value}>
+                              <Tag color="default" className="truncate">
+                                {nd.data.value}
+                              </Tag>
+                            </Tooltip>
                           </>
                         )}
                       </Flex>

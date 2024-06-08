@@ -6,16 +6,7 @@ import { ActionList } from "../../constant/Nodes";
 import { Button } from "antd";
 import { FC } from "react";
 
-const labelStyle = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "10px",
-  padding: "12px",
-  gap: 4,
-};
-
-const ActionGroup: FC<NodeProps> = ({ func }: any) => {
+const ActionGroup: FC<NodeProps> = ({ isDisableAddAction, func }: any) => {
   return (
     <>
       <Handle type="target" position={Position.Top} style={{ left: 75 }} />
@@ -26,6 +17,7 @@ const ActionGroup: FC<NodeProps> = ({ func }: any) => {
             id={"action__" + node.id}
             onClick={() => func(node)}
             className="btn-action"
+            disabled={isDisableAddAction}
           >
             {node.data.label}
           </Button>

@@ -1,18 +1,23 @@
+# Multi-stage
+# 1) Node image for building frontend assets
+# 2) nginx stage to serve frontend assets
+
+# Name the node stage "builder"
 FROM node:18.16-alpine3.17 as builder
-
-# Create app directory
-RUN mkdir /app
+# Set working directory
 WORKDIR /app
-
-# Install app dependencies
-COPY ./package.json /app
-
-RUN npm install --force
-
+# Copy all files from current directory to working dir in image
 COPY . .
+# install node modules and build assets
+RUN yarn install && yarn build
 
-RUN npm run build
-
-EXPOSE 3000
-
-CMD ["npm", "run", "serve"]
+# nginx state for serving content
+FROM nginx:alpine
+# Set working directory to nginx asset directory
+WORKDIR /usr/share/nginx/html
+# Remove default nginx static assets
+RUN rm -rf ./*
+# Copy static assets from builder stage
+COPY --from=builder /app/dist .
+# Containers run nginx with global directives and daemon off
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

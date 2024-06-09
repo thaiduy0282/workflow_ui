@@ -29,17 +29,22 @@ import ActionGroup from "../../../components/node/ActionGroup";
 import AddNewNode from "../../../components/node/AddNewNode";
 import ConditionNode from "../../../components/node/ConditionNode";
 import DrawerLayout from "../../../components/layout/Drawer";
+import { SmartSmoothEdge } from "../../../components/reactflow/edges/SmartStepSmoothEdges";
 import StartEventNode from "../../../components/node/StartEventNode";
 import handleNotificationMessege from "../../../utils/notification";
 import { handleSaveNodeConfigurationById } from "./handleApi";
 import { useParams } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
+
+const edgeTypes = {
+  smart: SmartSmoothEdge,
+};
 
 const position: XYPosition = { x: 0, y: 0 };
 
 const initialNodes: Node[] = [
   {
-    id: uuidv4(),
+    id: "id_" + uuidV4(),
     type: "addNewNode",
     data: { typeNode: "add-trigger", label: "Add Trigger" },
     position,
@@ -67,13 +72,20 @@ const ReactFlowMain = () => {
       let yPos = 0;
 
       const sortNewWorkFlowNodes = cloneNodes.map((nd: any, index: any) => {
-        yPos = index === 0 ? 0 : yPos + 60 + cloneNodes[index - 1].height;
+        yPos =
+          index === 0
+            ? 0
+            : yPos +
+              60 +
+              (nd.data.typeNode === "Loop" || nd.data.isLoopNode
+                ? 40
+                : cloneNodes[index - 1].height);
         nd.position = {
-          x: nd.data.isTrueNode ? 150 : 0,
+          x: nd.data.isTrueNode ? 150 : nd.data.isLoopNode ? 50 : 0,
           y: yPos,
         };
         nd.positionAbsolute = {
-          x: nd.data.isTrueNode ? 150 : 0,
+          x: nd.data.isTrueNode ? 150 : nd.data.isLoopNode ? 50 : 0,
           y: yPos,
         };
         return nd;
@@ -151,10 +163,9 @@ const ReactFlowMain = () => {
       ) {
         const { x, y } = node.position;
         setCenter(x + 75, y + 25, { zoom: 1.85, duration: 1200 });
+        setCurrentNode(node);
         if (node.data.typeNode !== "EndEvent" && node.data.label !== "ELSE")
           setTimeout(handleDrawerOpen, 200);
-
-        setCurrentNode(node);
       }
     },
     [setCenter, nodes, edges]
@@ -164,7 +175,7 @@ const ReactFlowMain = () => {
   const actionContinue = (newNode: Node) => {
     if (newNode.data.typeNode !== "EndEvent") {
       const newGroup = {
-        id: uuidv4(),
+        id: "id_" + uuidV4(),
         type: "actionGroup",
         position: { x: newNode?.position?.x, y: newNode?.position?.y + 100 },
         data: {
@@ -180,7 +191,7 @@ const ReactFlowMain = () => {
       const label = newNode.data.typeNode === "StartEvent" ? "ACTIONS" : "";
 
       addEdges({
-        id: uuidv4(),
+        id: "id_" + uuidV4(),
         source: newNode.id,
         target: newGroup.id,
         animated: true,
@@ -229,7 +240,7 @@ const ReactFlowMain = () => {
 
       if (typeNode === "add-trigger") {
         const newNode = {
-          id: uuidv4(),
+          id: "id_" + uuidV4(),
           type: "startEventNode",
           position,
           data: { typeNode: "StartEvent", label: "Trigger" },
@@ -256,7 +267,7 @@ const ReactFlowMain = () => {
         const newNode =
           getTypeNode() === "EndEvent"
             ? {
-                id: uuidv4(),
+                id: "id_" + uuidV4(),
                 type: "output",
                 position: {
                   x: getNodes()[0]?.position?.x,
@@ -265,7 +276,7 @@ const ReactFlowMain = () => {
                 data: { typeNode: "EndEvent", label: node.data.label },
               }
             : {
-                id: uuidv4(),
+                id: "id_" + uuidV4(),
                 type: "conditionNode",
                 position: {
                   x: getNodes()[0]?.position?.x,
@@ -298,7 +309,7 @@ const ReactFlowMain = () => {
         const label = typeNode === "StartEvent" ? "ACTIONS" : "";
 
         const newEdges = {
-          id: uuidv4(),
+          id: "id_" + uuidV4(),
           source: filteredNodes[0]?.id
             ? filteredNodes[0]?.id
             : triggerNode[0].id,
@@ -327,7 +338,7 @@ const ReactFlowMain = () => {
           addEdges([
             newEdges,
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: filteredNodes[1]?.id,
               target: newNode.id,
               animated: false,
@@ -352,7 +363,7 @@ const ReactFlowMain = () => {
 
         if (getTypeNode() === "If-Else-Condition") {
           const elseTrueNode = {
-            id: uuidv4(),
+            id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
               x: newNode?.position?.x + 150,
@@ -367,7 +378,7 @@ const ReactFlowMain = () => {
             },
           };
           const elseNode = {
-            id: uuidv4(),
+            id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
               x: elseTrueNode?.position?.x - 150,
@@ -381,7 +392,7 @@ const ReactFlowMain = () => {
             },
           };
           const trueNode = {
-            id: uuidv4(),
+            id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
               x: elseNode?.position?.x + 150,
@@ -397,7 +408,7 @@ const ReactFlowMain = () => {
           };
 
           const falseNode = {
-            id: uuidv4(),
+            id: "id_" + uuidV4(),
             type: "actionGroup",
             position: {
               x: trueNode.position.x - 150,
@@ -413,7 +424,7 @@ const ReactFlowMain = () => {
 
           addEdges([
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: newNode.id,
               target: elseTrueNode.id,
               type: "smoothstep",
@@ -432,7 +443,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: newNode.id,
               target: elseNode.id,
               animated: false,
@@ -454,7 +465,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: elseTrueNode.id,
               target: elseNode.id,
               animated: false,
@@ -475,7 +486,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: elseNode.id,
               target: trueNode.id,
               type: "smoothstep",
@@ -493,7 +504,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: elseNode.id,
               target: falseNode.id,
               animated: false,
@@ -514,7 +525,7 @@ const ReactFlowMain = () => {
               },
             },
             {
-              id: uuidv4(),
+              id: "id_" + uuidV4(),
               source: trueNode.id,
               target: falseNode.id,
               animated: false,
@@ -533,6 +544,95 @@ const ReactFlowMain = () => {
               },
               data: {
                 typeEdge: "e-action-group__" + getId(),
+              },
+            },
+          ]);
+        } else if (getTypeNode() === "Loop") {
+          const actionNode = {
+            id: "id_" + uuidV4(),
+            type: "conditionNode",
+            position: {
+              x: newNode?.position?.x + 50,
+              y: newNode?.position?.y + 100,
+            },
+            data: {
+              isLoopNode: true,
+              typeNode: "Action",
+              label: "Action",
+              nodes: [],
+              edges: [],
+            },
+          };
+
+          const actionGroupNode = {
+            id: "id_" + uuidV4(),
+            type: "actionGroup",
+            position: {
+              x: actionNode.position.x - 50,
+              y: actionNode.position.y + 100,
+            },
+            data: {
+              typeNode: "action__group",
+              label: "Action Group",
+            },
+          };
+
+          addNodes([actionGroupNode, actionNode]);
+
+          addEdges([
+            {
+              id: "id_" + uuidV4(),
+              source: newNode.id,
+              target: actionNode.id,
+              type: "smoothstep",
+              animated: false,
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+            },
+            {
+              id: "id_" + uuidV4(),
+              source: actionNode.id,
+              target: actionGroupNode.id,
+              type: "smoothstep",
+              animated: false,
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
+              },
+            },
+            {
+              id: "id_" + uuidV4(),
+              source: actionNode.id,
+              target: actionNode.id,
+              targetHandle: "loop",
+              type: "smart",
+              animated: false,
+              labelStyle: { fill: "black", fontWeight: 700 },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: "#b1b1b1",
+              },
+              style: {
+                strokeWidth: 2,
+                stroke: "#b1b1b1",
               },
             },
           ]);
@@ -687,6 +787,7 @@ const ReactFlowMain = () => {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}

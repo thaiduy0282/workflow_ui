@@ -37,6 +37,11 @@
     visibility: hidden;
 }
 
+.node__loop-handle.node__loop-handle {
+    visibility: hidden;
+    left: 9px !important;
+}
+
 .reactflow__setup-container .react-flow__handle {
     left: 24px !important;
 }

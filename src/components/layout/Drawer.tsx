@@ -25,6 +25,9 @@ const DrawerLayout = ({
   const [eventTopic, setEventTopic] = useState(
     currentNode?.data?.eventTopic || undefined
   );
+  const [inputList, setInputList] = useState(
+    currentNode?.data?.inputList || undefined
+  );
 
   useEffect(() => {
     if (currentNode?.data?.typeNode !== "EndEvent") {
@@ -38,22 +41,42 @@ const DrawerLayout = ({
         setCategory(currentNode?.data?.category);
         setEventTopic(currentNode?.data?.eventTopic);
         setOpenDrawer(open);
+      } else if (currentNode?.data?.typeNode === "Loop") {
+        setInputList(currentNode?.data?.inputList);
+        setOpenDrawer(open);
       } else setOpenDrawer(open);
     }
   }, [open]);
-
   useEffect(() => {
-    if (open && currentNode.data.typeNode === "StartEvent") setNodes(editNode);
-  }, [category, eventTopic, open]);
+    if (
+      open &&
+      (currentNode.data.typeNode === "StartEvent" ||
+        currentNode.data.typeNode === "Loop")
+    )
+      setNodes(editNode);
+  }, [category, eventTopic, inputList, open]);
 
   const editNode = () => {
     return getNodes().map((nd: any) => {
-      if (nd.data.typeNode === "StartEvent") {
+      if (
+        nd.data.typeNode === "StartEvent" &&
+        nd.id === currentNode.id &&
+        currentNode.data.typeNode === "StartEvent"
+      ) {
         nd.data = {
           ...nd.data,
           category,
           provider: "AKKA",
           eventTopic,
+        };
+      } else if (
+        nd.data.typeNode === "Loop" &&
+        nd.id === currentNode.id &&
+        currentNode.data.typeNode === "Loop"
+      ) {
+        nd.data = {
+          ...nd.data,
+          inputList,
         };
       }
       return nd;
@@ -94,6 +117,16 @@ const DrawerLayout = ({
               options={[
                 { value: "New/update account", label: "New/update account" },
               ]}
+            />
+          </Space>
+        ) : currentNode?.data?.typeNode === "Loop" ? (
+          <Space direction="vertical" style={{ width: "100%", gap: "10px" }}>
+            <Select
+              placeholder="Input list"
+              style={{ width: "100%", height: "40px" }}
+              value={inputList}
+              onChange={setInputList}
+              options={[{ value: "Elements", label: "Elements" }]}
             />
           </Space>
         ) : (

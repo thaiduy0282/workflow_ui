@@ -11,6 +11,7 @@ const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
 
   const checkStartEventData = () => {
     return (
+      data.typeNode === "StartEvent" &&
       data.category !== undefined &&
       data.provider !== undefined &&
       data.eventTopic !== undefined

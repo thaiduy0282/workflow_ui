@@ -63,6 +63,13 @@
     text-wrap: nowrap;
 }
 
+.node__loop-text {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    text-wrap: nowrap;
+}
+
 .node__label {
     background: #dcdbba;
     border-radius: 2px;
@@ -72,17 +79,6 @@
     padding: 3px 5px 4px;
     text-transform: uppercase;
 }
-
-/* .node__condition-label {
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.node__condition-container {
-    height: 100%;
-} */
 
 .node__space-container {
     width: 100%;

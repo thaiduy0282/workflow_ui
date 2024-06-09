@@ -19,55 +19,11 @@ let id = 1;
 const getId = () => `${id++}`;
 
 const nodeTypes = {
-  conditionNode: ConditionNode,
+  conditioNode: ConditionNode,
   addNewCondition: AddNewCondition,
 };
 
 const position: XYPosition = { x: 0, y: 0 };
-
-const initialChildNodes: Node[] = [
-  {
-    id: uuidV4(),
-    type: "conditionNode",
-    data: {
-      typeNode: "ConditionSetup",
-      label: "IF",
-      order: 1,
-    },
-    position,
-  },
-  {
-    id: uuidV4(),
-    type: "addNewCondition",
-    data: { typeNode: "add-new-condition" },
-    position: { x: position.x, y: position.y + 300 },
-  },
-];
-
-const initialChildEdges: Edge[] = [
-  {
-    id: uuidV4(),
-    source: initialChildNodes[0].id,
-    target: initialChildNodes[1].id,
-    animated: true,
-    type: "smoothstep",
-    label: "",
-    labelStyle: { fill: "black", fontWeight: 700 },
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 20,
-      height: 20,
-      color: "#b1b1b1",
-    },
-    style: {
-      strokeWidth: 2,
-      stroke: "#b1b1b1",
-    },
-    data: {
-      typeEdge: "e-animation-condition__" + getId(),
-    },
-  },
-];
 
 const ReactFlowChild = ({
   curNode,
@@ -75,6 +31,50 @@ const ReactFlowChild = ({
   workflowNodes,
   setWorkflowNodes,
 }: any) => {
+  const initialChildNodes: Node[] = [
+    {
+      id: "id_" + uuidV4(),
+      type: "conditioNode",
+      data: {
+        typeNode: "ConditionSetup",
+        label: "IF",
+        order: 1,
+      },
+      position,
+    },
+    {
+      id: "id_" + uuidV4(),
+      type: "addNewCondition",
+      data: { typeNode: "add-new-condition" },
+      position: { x: position.x, y: position.y + 300 },
+    },
+  ];
+
+  const initialChildEdges: Edge[] = [
+    {
+      id: "id_" + uuidV4(),
+      source: initialChildNodes[0].id,
+      target: initialChildNodes[1].id,
+      animated: true,
+      type: "smoothstep",
+      label: "",
+      labelStyle: { fill: "black", fontWeight: 700 },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20,
+        color: "#b1b1b1",
+      },
+      style: {
+        strokeWidth: 2,
+        stroke: "#b1b1b1",
+      },
+      data: {
+        typeEdge: "e-animation-condition__" + getId(),
+      },
+    },
+  ];
+
   const [nodes, setNodes, onNodesChange] = useNodesState(
     curNode?.data?.nodes.length !== 0 ? curNode?.data?.nodes : initialChildNodes
   );
@@ -83,7 +83,6 @@ const ReactFlowChild = ({
   );
 
   const {
-    fitView,
     addNodes,
     setNodes: setNodesHook,
     addEdges,
@@ -129,7 +128,7 @@ const ReactFlowChild = ({
   // Add new condition
   const actionContinue = (newNode: Node) => {
     const newCondition = {
-      id: uuidV4(),
+      id: "id_" + uuidV4(),
       type: "addNewCondition",
       data: {
         typeNode: "add-new-condition",
@@ -142,7 +141,7 @@ const ReactFlowChild = ({
     addNodes([newCondition]);
 
     addEdges({
-      id: uuidV4(),
+      id: "id_" + uuidV4(),
       source: newNode.id,
       target: newCondition.id,
       animated: true,
@@ -186,8 +185,8 @@ const ReactFlowChild = ({
         ];
 
         const newNode = {
-          id: uuidV4(),
-          type: "conditionNode",
+          id: "id_" + uuidV4(),
+          type: "conditioNode",
           position: {
             x: getNodes()[0]?.position?.x,
             y: getNodes()[0]?.position?.y + (countAction === 1 ? 300 : 0),
@@ -206,7 +205,7 @@ const ReactFlowChild = ({
         );
 
         addEdges({
-          id: uuidV4(),
+          id: "id_" + uuidV4(),
           source: filteredNodes[0]?.id,
           target: newNode.id,
           animated: false,
@@ -251,12 +250,7 @@ const ReactFlowChild = ({
       maxZoom={1.5}
       minZoom={1.5}
       className="reactflow__setup-container"
-    >
-      <Controls
-        onFitView={() => fitView({ duration: 1200, padding: 1 })}
-        showInteractive={false}
-      />
-    </ReactFlow>
+    ></ReactFlow>
   );
 };
 

@@ -27,7 +27,7 @@ createRoot(document.getElementById("root") as HTMLElement).render(
         maxSnack={1}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "right",
+          horizontal: "left",
         }}
         preventDuplicate
         style={{

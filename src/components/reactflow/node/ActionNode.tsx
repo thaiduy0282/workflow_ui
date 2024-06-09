@@ -62,7 +62,7 @@ const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
             ]}
           />
           <Select
-            value={referenceObjects.label}
+            value={referenceObjects[0]?.label}
             placeholder="Field"
             style={{ width: "100%" }}
             onChange={(value) => {

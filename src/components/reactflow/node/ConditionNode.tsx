@@ -48,8 +48,6 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
     });
   };
 
-  console.log("baaaaaaaaaaaaaa", props);
-
   return (
     <>
       <Handle type="target" position={Position.Top} />

@@ -9,7 +9,10 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
   const { data } = props;
 
   const filteredNodes = data.nodes
-    .filter((i: any) => i.data.typeNode !== "add-new-condition")
+    .filter(
+      (i: any) =>
+        i.data.typeNode !== "add-new-condition" && i.data.typeNode !== "Loop"
+    )
     .sort((a: any, b: any) => a?.data?.order - b?.data?.order);
 
   const checkCondition = () => {
@@ -48,6 +51,14 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
   return (
     <>
       <Handle type="target" position={Position.Top} />
+      {data.isLoopNode && (
+        <Handle
+          type="target"
+          position={Position.Top}
+          className="node__loop-handle"
+          id="loop"
+        />
+      )}
       <div
         className={`node__container${
           !checkCondition() ? " condition-has-data" : ""
@@ -57,6 +68,13 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
           <Space className="node__space-container">
             <span className="node__label">{props.data.label}</span>
             <span className="node__text">do the following steps</span>
+          </Space>
+        ) : data.typeNode === "Loop" && data.inputList ? (
+          <Space className="node__space-container">
+            <span className="node__label">{props.data.label}</span>
+            <span className="node__loop-text">item in</span>
+            <span className="node__label">{data.inputList}</span>
+            <span className="node__loop-text">the following steps</span>
           </Space>
         ) : checkCondition() ? (
           data.label

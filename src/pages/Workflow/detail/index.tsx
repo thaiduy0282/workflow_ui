@@ -68,8 +68,14 @@ const ReactFlowMain = () => {
 
       const sortNewWorkFlowNodes = cloneNodes.map((nd: any, index: any) => {
         yPos = index === 0 ? 0 : yPos + 60 + cloneNodes[index - 1].height;
-        nd.position = { x: 0, y: yPos };
-        nd.positionAbsolute = { x: 0, y: yPos };
+        nd.position = {
+          x: nd.data.isTrueNode ? 150 : 0,
+          y: yPos,
+        };
+        nd.positionAbsolute = {
+          x: nd.data.isTrueNode ? 150 : 0,
+          y: yPos,
+        };
         return nd;
       });
       setNodes(sortNewWorkFlowNodes.reverse());

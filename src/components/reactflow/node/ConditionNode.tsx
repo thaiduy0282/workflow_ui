@@ -48,7 +48,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
     });
   };
 
-  console.log("baaaaaaaaaaaaaa", data);
+  console.log("baaaaaaaaaaaaaa", props);
 
   return (
     <>

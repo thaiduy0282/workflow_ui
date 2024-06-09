@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { ConfigProvider, Layout } from "antd";
 
 import Home from "../pages/Home";
@@ -33,9 +33,12 @@ const HeaderLayout = () => {
       }}
     >
       <div style={{ width: "100%", padding: "0 24px" }}>
-        <div style={{ color: "white", fontSize: "20px", fontWeight: "bold" }}>
+        <Link
+          style={{ color: "white", fontSize: "20px", fontWeight: "bold" }}
+          to="/"
+        >
           Workflow Application
-        </div>
+        </Link>
       </div>
     </Header>
   );

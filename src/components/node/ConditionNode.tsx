@@ -53,83 +53,71 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
           !checkCondition() ? " condition-has-data" : ""
         }`}
       >
-        {checkCondition() ? (
+        {data.label === "ELSE" ? (
+          <Space className="node__space-container">
+            <span className="node__label">{props.data.label}</span>
+            <span className="node__text">do the following steps</span>
+          </Space>
+        ) : checkCondition() ? (
           data.label
         ) : (
-          <Row
-            justify="space-around"
-            align="middle"
-            style={{ width: "100%", height: "100%", padding: "8px" }}
-            gutter={4}
-          >
-            <Col
-              span={props.data.label.length > 4 ? 4 : 2}
-              className="node__condition-label"
-            >
-              <span className="node__label">{props.data.label}</span>
-            </Col>
-            <Col
-              span={props.data.label.length > 4 ? 20 : 22}
-              className="node__condition-container"
-            >
-              <Space direction="vertical" style={{ width: "100%", gap: 4 }}>
-                {filteredNodes.map(
-                  (nd: any) =>
-                    checkConditionChild(nd) && (
-                      <Flex key={nd.id} gap="2px 2px">
-                        {nd.data.order !== 1 ? (
-                          <Tag color="default">
-                            {nd.data.typeNode === "ConditionSetup"
-                              ? "OR"
-                              : "AND"}
-                          </Tag>
-                        ) : (
-                          <></>
-                        )}
-                        {nd.data.typeNode === "ConditionSetup" ? (
-                          <>
-                            <Tooltip title={nd.data.expression}>
-                              <Tag color="default" className="truncate">
-                                {nd.data.expression}
-                              </Tag>
-                            </Tooltip>
-                            <Tag color="default" bordered={false}>
-                              {nd.data.condition}
+          <Space className="node__space-container">
+            <span className="node__label">{props.data.label}</span>
+            <Space direction="vertical" style={{ width: "100%", gap: 4 }}>
+              {filteredNodes.map(
+                (nd: any) =>
+                  checkConditionChild(nd) && (
+                    <Flex key={nd.id} gap="2px 2px">
+                      {nd.data.order !== 1 ? (
+                        <Tag color="default">
+                          {nd.data.typeNode === "ConditionSetup" ? "OR" : "AND"}
+                        </Tag>
+                      ) : (
+                        <></>
+                      )}
+                      {nd.data.typeNode === "ConditionSetup" ? (
+                        <>
+                          <Tooltip title={nd.data.expression}>
+                            <Tag color="default" className="truncate">
+                              {nd.data.expression}
                             </Tag>
-                            <Tooltip title={nd.data.comparisonValue}>
-                              <Tag color="default" className="truncate">
-                                {nd.data.comparisonValue}
-                              </Tag>
-                            </Tooltip>
-                          </>
-                        ) : (
-                          <>
-                            <Tooltip title={nd.data.action}>
-                              <Tag color="default" className="truncate">
-                                {nd.data.action}
-                              </Tag>
-                            </Tooltip>
-                            <Tooltip title={nd.data.field}>
-                              <Tag
-                                style={{ background: "white" }}
-                                color="default"
-                              >
-                                {nd.data.field}
-                              </Tag>
-                            </Tooltip>
-                            <Tooltip title={nd.data.value}>
-                              <Tag color="default" className="truncate">
-                                {nd.data.value}
-                              </Tag>
-                            </Tooltip>
-                          </>
-                        )}
-                      </Flex>
-                    )
-                )}
-              </Space>
-            </Col>
-          </Row>
+                          </Tooltip>
+                          <Tag color="default" bordered={false}>
+                            {nd.data.condition}
+                          </Tag>
+                          <Tooltip title={nd.data.comparisonValue}>
+                            <Tag color="default" className="truncate">
+                              {nd.data.comparisonValue}
+                            </Tag>
+                          </Tooltip>
+                        </>
+                      ) : (
+                        <>
+                          <Tooltip title={nd.data.action}>
+                            <Tag color="default" className="truncate">
+                              {nd.data.action}
+                            </Tag>
+                          </Tooltip>
+                          <Tooltip title={nd.data.field}>
+                            <Tag
+                              style={{ background: "white" }}
+                              color="default"
+                            >
+                              {nd.data.field}
+                            </Tag>
+                          </Tooltip>
+                          <Tooltip title={nd.data.value}>
+                            <Tag color="default" className="truncate">
+                              {nd.data.value}
+                            </Tag>
+                          </Tooltip>
+                        </>
+                      )}
+                    </Flex>
+                  )
+              )}
+            </Space>
+          </Space>
         )}
       </div>
       <Handle type="source" position={Position.Bottom} />

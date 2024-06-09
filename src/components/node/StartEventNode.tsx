@@ -1,6 +1,6 @@
 import "./style.css";
 
-import { Col, Row, Typography } from "antd";
+import { Col, Row, Space, Typography } from "antd";
 import { FC, useEffect } from "react";
 import { Handle, NodeProps, Position } from "reactflow";
 
@@ -32,16 +32,12 @@ const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
         {!checkStartEventData() ? (
           props.data.label
         ) : (
-          <Row style={{ width: "100%", height: "100%" }}>
-            <Col span={4} className="image__container">
-              <img src={images.QWORKS} className="image-app" />
-            </Col>
-            <Col span={20}>
-              <div className="node__text">
-                {data.eventTopic + " event from " + data.category}
-              </div>
-            </Col>
-          </Row>
+          <Space>
+            <img src={images.QWORKS} className="image-app" />
+            <div className="node__text">
+              {data.eventTopic + " event from " + data.category}
+            </div>
+          </Space>
         )}
       </div>
       <Handle type="source" position={Position.Bottom} />

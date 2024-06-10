@@ -56,8 +56,8 @@ const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
             onChange={(value) => setAction(value)}
             options={[
               {
-                value: "Update account",
-                label: "Update account",
+                value: "Update data",
+                label: "Update data",
               },
             ]}
           />

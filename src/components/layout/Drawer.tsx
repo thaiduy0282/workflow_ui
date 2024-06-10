@@ -115,7 +115,7 @@ const DrawerLayout = ({
               value={eventTopic}
               onChange={setEventTopic}
               options={[
-                { value: "New/update account", label: "New/update account" },
+                { value: "ACCOUNT_EVENT", label: "ACCOUNT_EVENT" },
               ]}
             />
           </Space>

@@ -13,11 +13,15 @@ const ActionGroup: FC<NodeProps> = ({ isDisableAddAction, func }: any) => {
       <div className="node-group__container">
         {ActionList.map((node) => (
           <Button
-            key={"action__" + node.id}
-            id={"action__" + node.id}
+            key={node.id}
+            id={node.id}
             onClick={() => func(node)}
             className="btn-action"
-            disabled={isDisableAddAction}
+            disabled={
+              isDisableAddAction ||
+              node.id === "action__if-else-condition" ||
+              node.id === "action__loop"
+            }
           >
             {node.data.label}
           </Button>

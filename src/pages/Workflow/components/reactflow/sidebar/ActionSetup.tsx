@@ -11,16 +11,16 @@ import ReactFlow, {
 } from "reactflow";
 import { useCallback, useEffect } from "react";
 
-import AddNewCondition from "./node/AddNewCondition";
-import ConditionNode from "./node/ConditionNode";
+import ActionNode from "./nodes/ActionNode";
+import AddNewNode from "./nodes/AddNewNode";
 import { v4 as uuidV4 } from "uuid";
 
 let id = 1;
 const getId = () => `${id++}`;
 
 const nodeTypes = {
-  conditioNode: ConditionNode,
-  addNewCondition: AddNewCondition,
+  actionNode: ActionNode,
+  addNewNode: AddNewNode,
 };
 
 const position: XYPosition = { x: 0, y: 0 };
@@ -34,19 +34,19 @@ const ReactFlowChild = ({
   const initialChildNodes: Node[] = [
     {
       id: "id_" + uuidV4(),
-      type: "conditioNode",
+      type: "actionNode",
       data: {
-        typeNode: "ConditionSetup",
-        label: "IF",
+        typeNode: "ActionSetup",
+        label: "Action",
         order: 1,
       },
       position,
     },
     {
       id: "id_" + uuidV4(),
-      type: "addNewCondition",
-      data: { typeNode: "add-new-condition" },
-      position: { x: position.x, y: position.y + 300 },
+      type: "addNewNode",
+      data: { typeNode: "add-new-node" },
+      position: { x: position.x, y: position.y + 250 },
     },
   ];
 
@@ -76,10 +76,14 @@ const ReactFlowChild = ({
   ];
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    curNode?.data?.nodes.length !== 0 ? curNode?.data?.nodes : initialChildNodes
+    curNode?.data?.nodes?.length !== 0
+      ? curNode?.data?.nodes
+      : initialChildNodes
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    curNode?.data?.edges.length !== 0 ? curNode?.data?.edges : initialChildEdges
+    curNode?.data?.edges?.length !== 0
+      ? curNode?.data?.edges
+      : initialChildEdges
   );
 
   const {
@@ -93,8 +97,8 @@ const ReactFlowChild = ({
 
   useEffect(() => {
     if (
-      curNode?.data?.nodes.length !== 0 &&
-      curNode?.data?.edges.length !== 0
+      curNode?.data?.nodes?.length !== 0 &&
+      curNode?.data?.edges?.length !== 0
     ) {
       setNodes(curNode?.data?.nodes);
       setEdges(curNode?.data?.edges);
@@ -107,7 +111,14 @@ const ReactFlowChild = ({
   const editWorkflowNode = () => {
     const newWorkflowNodes = workflowNodes?.map((nd: any, index: number) => {
       if (nd.id === curNode.id) {
-        nd.position = { ...nd.position, x: 0 };
+        nd.position = {
+          ...nd.position,
+          x: !nd.data.isTrueNode
+            ? nd.data.isLoopNode
+              ? 50
+              : 0
+            : nd.position.x,
+        };
         nd.data = { ...nd.data, nodes, edges };
       }
       return nd;
@@ -129,13 +140,13 @@ const ReactFlowChild = ({
   const actionContinue = (newNode: Node) => {
     const newCondition = {
       id: "id_" + uuidV4(),
-      type: "addNewCondition",
+      type: "addNewNode",
       data: {
-        typeNode: "add-new-condition",
+        typeNode: "add-new-node",
       },
       position: {
         x: newNode?.position?.x,
-        y: newNode?.position?.y + 300,
+        y: newNode?.position?.y + 250,
       },
     };
     addNodes([newCondition]);
@@ -175,25 +186,25 @@ const ReactFlowChild = ({
         });
 
         const countAction = getNodes().filter(
-          (n) => n.data.typeNode === "ConditionSetup"
+          (n) => n.data.typeNode === "ActionSetup"
         ).length;
 
         const highestOrder = getNodes()
-          .filter((i) => i.data.typeNode !== "add-new-condition")
+          .filter((i) => i.data.typeNode !== "add-new-node")
           .sort((a, b) => a?.data?.order - b?.data?.order)[
           getNodes().length - 2
         ];
 
         const newNode = {
           id: "id_" + uuidV4(),
-          type: "conditioNode",
+          type: "actionNode",
           position: {
             x: getNodes()[0]?.position?.x,
-            y: getNodes()[0]?.position?.y + (countAction === 1 ? 300 : 0),
+            y: getNodes()[0]?.position?.y + (countAction === 1 ? 250 : 0),
           },
           data: {
-            typeNode: "ConditionSetup",
-            label: "IF",
+            typeNode: "ActionSetup",
+            label: "Action",
             order: getNodes().length === 2 ? 2 : highestOrder.data.order + 1,
           },
         };
@@ -201,7 +212,7 @@ const ReactFlowChild = ({
         addNodes(newNode);
 
         const filteredNodes = getNodes().filter(
-          (n) => n.data.typeNode === "ConditionSetup"
+          (n) => n.data.typeNode === "ActionSetup"
         );
 
         addEdges({
@@ -254,7 +265,7 @@ const ReactFlowChild = ({
   );
 };
 
-const ConditionSetup = ({
+const ActionSetup = ({
   currentNode,
   isOpenDrawer,
   workflowNodes,
@@ -270,4 +281,4 @@ const ConditionSetup = ({
   </ReactFlowProvider>
 );
 
-export default ConditionSetup;
+export default ActionSetup;

@@ -15,6 +15,10 @@ import ReactFlow, {
   Panel,
   ReactFlowProvider,
   XYPosition,
+  addEdge,
+  getConnectedEdges,
+  getIncomers,
+  getOutgoers,
   useEdgesState,
   useNodesState,
   useReactFlow,
@@ -25,12 +29,12 @@ import {
   handleUpdateWorkflow,
 } from "../../Home/handleApi";
 
-import ActionGroup from "../../../components/node/ActionGroup";
-import AddNewNode from "../../../components/node/AddNewNode";
-import ConditionNode from "../../../components/node/ConditionNode";
+import ActionGroup from "../components/reactflow/nodes/ActionGroup";
+import AddNewNode from "../components/reactflow/nodes/AddNewNode";
+import ConditionNode from "../components/reactflow/nodes/ConditionNode";
 import DrawerLayout from "../../../components/layout/Drawer";
-import { SmartSmoothEdge } from "../../../components/reactflow/edges/SmartStepSmoothEdges";
-import StartEventNode from "../../../components/node/StartEventNode";
+import { SmartSmoothEdge } from "../components/reactflow/sidebar/edges/SmartStepSmoothEdges";
+import StartEventNode from "../components/reactflow/nodes/StartEventNode";
 import handleNotificationMessege from "../../../utils/notification";
 import { handleSaveNodeConfigurationById } from "./handleApi";
 import { useParams } from "react-router-dom";
@@ -65,6 +69,140 @@ const ReactFlowMain = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const [isDisableAddAction, setDisableAddAction] = useState(false);
+  const getTypeNode = (typeNode: any) => {
+    switch (typeNode) {
+      case "action__Condition":
+        return "Condition";
+
+      case "action__If-Else-Condtion":
+        return "If-Else-Condition";
+
+      case "action__Action":
+        return "Action";
+
+      case "action__Loop":
+        return "Loop";
+
+      default:
+        return "EndEvent";
+    }
+  };
+  const onConnect = useCallback(
+    (params: any) => setEdges(addEdge(params, edges)),
+    [edges]
+  );
+
+  const onReplaceAction = (newNode: any, actionDraft: any) => {
+    console.log(actionDraft);
+    const replacementNode = {
+      id: actionDraft.id,
+      type: "conditionNode",
+      position: { x: actionDraft.xPos, y: actionDraft.yPos },
+      data: {
+        typeNode:
+          getTypeNode(newNode.data.typeNode) === "If-Else-Condition"
+            ? "Condition"
+            : getTypeNode(newNode.data.typeNode),
+        label: newNode.data.label !== "IF/ELSE" ? newNode.data.label : "IF",
+        nodes: [],
+        edges: [],
+      },
+    };
+    const remainingNodes = getNodes().map((node) => {
+      if (actionDraft.id === node.id) {
+        // Replace with a new node
+        return replacementNode;
+      }
+      return node;
+    });
+    setNodes(remainingNodes);
+  };
+
+  const onActionDraft = useCallback(
+    (deleted: any) => {
+      if (deleted[0].data.typeNode !== "action__group") {
+        const deletedNodeIds = deleted.map((node: any) => node.id);
+        const replacementNode = {
+          id: "id_" + uuidV4(),
+          type: "actionGroup",
+          position: deleted[0].position,
+          data: {
+            isActionDraft: true,
+            typeNode: "action__group-draft",
+            label: "Action Group",
+          },
+        };
+        const remainingNodes = nodes.map((node) => {
+          if (deletedNodeIds.includes(node.id)) {
+            // Replace with a new node
+            return replacementNode;
+          }
+          return node;
+        });
+        setNodes(remainingNodes);
+
+        const updatedEdges = edges.map((edge) => {
+          if (
+            deletedNodeIds.includes(edge.source) ||
+            deletedNodeIds.includes(edge.target)
+          ) {
+            return {
+              ...edge,
+              source:
+                edge.source === deleted[0].id
+                  ? replacementNode.id
+                  : edge.source,
+              target:
+                edge.target === deleted[0].id
+                  ? replacementNode.id
+                  : edge.target,
+            };
+          }
+          return edge;
+        });
+        setEdges(updatedEdges);
+      }
+    },
+    [nodes, edges]
+  );
+
+  const onNodesDelete = (deleted: any) => {
+    setEdges(
+      deleted.reduce((acc: any, node: any) => {
+        const incomers = getIncomers(node, getNodes(), getEdges());
+        const outgoers = getOutgoers(node, getNodes(), getEdges());
+        const connectedEdges = getConnectedEdges([node], getEdges());
+        const remainingEdges = acc.filter(
+          (edge: any) => !connectedEdges.includes(edge)
+        );
+
+        const createdEdges = incomers.flatMap(({ id: source }) =>
+          outgoers.map(({ id: target }) => ({
+            id: "id_" + uuidV4(),
+            source,
+            target,
+            type: "smoothstep",
+            animated: false,
+            labelStyle: { fill: "black", fontWeight: 700 },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+              color: "#b1b1b1",
+            },
+            style: {
+              strokeWidth: 2,
+              stroke: "#b1b1b1",
+            },
+          }))
+        );
+
+        return [...remainingEdges, ...createdEdges];
+      }, getEdges())
+    );
+    const newNodes = getNodes().filter((node) => node.id !== deleted[0].id);
+    setNodes(newNodes);
+  };
 
   const autoLayout = () => {
     if (nodes.length > 2) {
@@ -110,9 +248,10 @@ const ReactFlowMain = () => {
   const handleDrawerOpen = () => setDrawerOpen(true);
   const handleDrawerClose = () => setDrawerOpen(false);
 
-  const handleChangeActionId = (data: any) => {
+  const handleChangeActionId = (data: any, actionDraft: any) => {
     if (data.data.typeNode) {
-      onAddNode(data);
+      if (actionDraft.data.isActionDraft) onReplaceAction(data, actionDraft);
+      else onAddNode(data);
     }
   };
 
@@ -125,7 +264,8 @@ const ReactFlowMain = () => {
       actionGroup: (props: any) => (
         <ActionGroup
           isDisableAddAction={isDisableAddAction}
-          func={handleChangeActionId}
+          onSelectAction={handleChangeActionId}
+          onNodesDelete={onNodesDelete}
           {...props}
         />
       ),
@@ -219,25 +359,6 @@ const ReactFlowMain = () => {
     (node: any) => {
       const typeNode = node.data.typeNode;
 
-      const getTypeNode = () => {
-        switch (typeNode) {
-          case "action__Condition":
-            return "Condition";
-
-          case "action__If-Else-Condtion":
-            return "If-Else-Condition";
-
-          case "action__Action":
-            return "Action";
-
-          case "action__Loop":
-            return "Loop";
-
-          default:
-            return "EndEvent";
-        }
-      };
-
       if (typeNode === "add-trigger") {
         const newNode = {
           id: "id_" + uuidV4(),
@@ -250,9 +371,17 @@ const ReactFlowMain = () => {
         setTimeout(handleDrawerOpen, 200);
 
         actionContinue(newNode);
-      } else if (typeNode.includes("action") && typeNode !== "action__group") {
+      } else if (
+        typeNode.includes("action") &&
+        typeNode !== "action__group" &&
+        typeNode !== "action__group-draft"
+      ) {
         deleteElements({
-          nodes: getNodes().filter((n) => n.data.typeNode.includes("action")),
+          nodes: getNodes().filter(
+            (n) =>
+              n.data.typeNode.includes("action") &&
+              n.data.typeNode !== "action__group-draft"
+          ),
           edges: getEdges().filter((e) =>
             e.data?.typeEdge?.includes("animation")
           ),
@@ -265,7 +394,7 @@ const ReactFlowMain = () => {
         ).length;
 
         const newNode =
-          getTypeNode() === "EndEvent"
+          getTypeNode(typeNode) === "EndEvent"
             ? {
                 id: "id_" + uuidV4(),
                 type: "output",
@@ -284,9 +413,9 @@ const ReactFlowMain = () => {
                 },
                 data: {
                   typeNode:
-                    getTypeNode() === "If-Else-Condition"
+                    getTypeNode(typeNode) === "If-Else-Condition"
                       ? "Condition"
-                      : getTypeNode(),
+                      : getTypeNode(typeNode),
                   label: node.data.label !== "IF/ELSE" ? node.data.label : "IF",
                   nodes: [],
                   edges: [],
@@ -360,9 +489,9 @@ const ReactFlowMain = () => {
               },
             },
           ]);
-
-        if (getTypeNode() === "If-Else-Condition") {
-          const elseTrueNode = {
+        // ===================== ADD IF/ELSE NODE =====================
+        if (getTypeNode(typeNode) === "If-Else-Condition") {
+          const trueNode = {
             id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
@@ -381,8 +510,8 @@ const ReactFlowMain = () => {
             id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
-              x: elseTrueNode?.position?.x - 150,
-              y: elseTrueNode?.position?.y + 100,
+              x: trueNode?.position?.x - 150,
+              y: trueNode?.position?.y + 100,
             },
             data: {
               typeNode: "Condition",
@@ -391,7 +520,7 @@ const ReactFlowMain = () => {
               edges: [],
             },
           };
-          const trueNode = {
+          const falseNode = {
             id: "id_" + uuidV4(),
             type: "conditionNode",
             position: {
@@ -407,12 +536,12 @@ const ReactFlowMain = () => {
             },
           };
 
-          const falseNode = {
+          const actionGroupNode = {
             id: "id_" + uuidV4(),
             type: "actionGroup",
             position: {
-              x: trueNode.position.x - 150,
-              y: trueNode.position.y + 100,
+              x: falseNode.position.x - 150,
+              y: falseNode.position.y + 100,
             },
             data: {
               typeNode: "action__group",
@@ -420,13 +549,13 @@ const ReactFlowMain = () => {
             },
           };
 
-          addNodes([falseNode, trueNode, elseNode, elseTrueNode]);
+          addNodes([actionGroupNode, falseNode, elseNode, trueNode]);
 
           addEdges([
             {
               id: "id_" + uuidV4(),
               source: newNode.id,
-              target: elseTrueNode.id,
+              target: trueNode.id,
               type: "smoothstep",
               animated: false,
               label: "Yes",
@@ -466,7 +595,7 @@ const ReactFlowMain = () => {
             },
             {
               id: "id_" + uuidV4(),
-              source: elseTrueNode.id,
+              source: trueNode.id,
               target: elseNode.id,
               animated: false,
               type: "smoothstep",
@@ -488,7 +617,7 @@ const ReactFlowMain = () => {
             {
               id: "id_" + uuidV4(),
               source: elseNode.id,
-              target: trueNode.id,
+              target: falseNode.id,
               type: "smoothstep",
               animated: false,
               labelStyle: { fill: "black", fontWeight: 700 },
@@ -506,7 +635,7 @@ const ReactFlowMain = () => {
             {
               id: "id_" + uuidV4(),
               source: elseNode.id,
-              target: falseNode.id,
+              target: actionGroupNode.id,
               animated: false,
               type: "smoothstep",
               labelStyle: { fill: "black", fontWeight: 700 },
@@ -526,8 +655,8 @@ const ReactFlowMain = () => {
             },
             {
               id: "id_" + uuidV4(),
-              source: trueNode.id,
-              target: falseNode.id,
+              source: falseNode.id,
+              target: actionGroupNode.id,
               animated: false,
               type: "smoothstep",
               label,
@@ -547,7 +676,8 @@ const ReactFlowMain = () => {
               },
             },
           ]);
-        } else if (getTypeNode() === "Loop") {
+          // ===================== ADD LOOP NODE =====================
+        } else if (getTypeNode(typeNode) === "Loop") {
           const actionNode = {
             id: "id_" + uuidV4(),
             type: "conditionNode",
@@ -788,6 +918,8 @@ const ReactFlowMain = () => {
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        onNodesDelete={onActionDraft}
+        onConnect={onConnect}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}

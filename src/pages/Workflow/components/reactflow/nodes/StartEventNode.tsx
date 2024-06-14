@@ -4,7 +4,7 @@ import { Col, Row, Space, Typography } from "antd";
 import { FC, useEffect } from "react";
 import { Handle, NodeProps, Position } from "reactflow";
 
-import { images } from "../../assets";
+import { images } from "../../../../../assets";
 
 const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
   const { data } = props;

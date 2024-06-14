@@ -11,7 +11,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
   const filteredNodes = data.nodes
     .filter(
       (i: any) =>
-        i.data.typeNode !== "add-new-condition" && i.data.typeNode !== "Loop"
+        i.data.typeNode !== "add-new-node" && i.data.typeNode !== "Loop"
     )
     .sort((a: any, b: any) => a?.data?.order - b?.data?.order);
 

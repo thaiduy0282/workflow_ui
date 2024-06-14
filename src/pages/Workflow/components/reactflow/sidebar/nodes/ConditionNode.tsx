@@ -4,7 +4,7 @@ import { Divider, Input, Select, Space, Typography } from "antd";
 import { FC, useEffect, useState } from "react";
 import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
 
-import DroppableInput from "../../input/DragAndDropInput";
+import DroppableInput from "../../../../../../components/input/DragAndDropInput";
 
 const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
   const { data } = props;

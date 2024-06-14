@@ -46,7 +46,7 @@
     left: 24px !important;
 }
 
-.reactflow__setup-container .react-flow__handle.handle__top-addNewCondition {
+.reactflow__setup-container .react-flow__handle.handle__top-addNewNode {
     left: calc(100% / 2) !important;
     visibility: hidden;
 }

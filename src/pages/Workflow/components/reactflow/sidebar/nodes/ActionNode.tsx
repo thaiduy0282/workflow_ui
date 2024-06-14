@@ -4,7 +4,7 @@ import { Col, Divider, Input, Row, Select, Space, Typography } from "antd";
 import { FC, useEffect, useState } from "react";
 import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
 
-import { handleGetMetadata } from "../../collapse/handleAPI";
+import { handleGetMetadata } from "../../../../../../components/metadata/handleAPI";
 
 const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
   const actionData = props.data;

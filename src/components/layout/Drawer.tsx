@@ -3,9 +3,9 @@ import "./style.css";
 import { Drawer, Select, Space, Typography } from "antd";
 import { useEffect, useState } from "react";
 
-import ActionSetup from "../reactflow/ActionSetup";
-import CollapseCustom from "../collapse";
-import ConditionSetup from "../reactflow/ConditionSetup";
+import ActionSetup from "../../pages/Workflow/components/reactflow/sidebar/ActionSetup";
+import CollapseCustom from "../metadata";
+import ConditionSetup from "../../pages/Workflow/components/reactflow/sidebar/ConditionSetup";
 import { useReactFlow } from "reactflow";
 
 const DrawerLayout = ({
@@ -114,9 +114,7 @@ const DrawerLayout = ({
               style={{ width: "100%", height: "40px" }}
               value={eventTopic}
               onChange={setEventTopic}
-              options={[
-                { value: "ACCOUNT_EVENT", label: "ACCOUNT_EVENT" },
-              ]}
+              options={[{ value: "ACCOUNT_EVENT", label: "ACCOUNT_EVENT" }]}
             />
           </Space>
         ) : currentNode?.data?.typeNode === "Loop" ? (

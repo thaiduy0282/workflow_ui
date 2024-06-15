@@ -31,7 +31,7 @@ const DrawerLayout = ({
 
   useEffect(() => {
     if (currentNode?.data?.typeNode !== "EndEvent") {
-      if (open && currentNode?.data?.typeNode === "Condition") {
+      if (open && currentNode?.data?.typeNode === "If") {
         setTimeout(() => setShowMetadata(true), 500);
       }
       if (!open && isShowMetadata) {
@@ -130,7 +130,7 @@ const DrawerLayout = ({
         ) : (
           <>
             <CollapseCustom show={isShowMetadata} />
-            {currentNode?.data?.typeNode === "Condition" ? (
+            {currentNode?.data?.typeNode === "If" ? (
               <ConditionSetup
                 workflowNodes={workflowNodes}
                 setWorkflowNodes={setWorkflowNodes}

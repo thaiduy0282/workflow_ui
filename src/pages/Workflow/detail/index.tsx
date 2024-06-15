@@ -72,10 +72,10 @@ const ReactFlowMain = () => {
   const getTypeNode = (typeNode: any) => {
     switch (typeNode) {
       case "action__Condition":
-        return "Condition";
+        return "If";
 
       case "action__If-Else-Condtion":
-        return "If-Else-Condition";
+        return "If/else";
 
       case "action__Action":
         return "Action";
@@ -101,11 +101,12 @@ const ReactFlowMain = () => {
         y: loopNode?.position?.y + 100,
       },
       data: {
-        isLoopNode: true,
+        isLoopAction: true,
         typeNode: "Action",
         label: "Action",
         nodes: [],
         edges: [],
+        parentId: loopNode.id,
       },
     };
 
@@ -193,11 +194,12 @@ const ReactFlowMain = () => {
         y: ifNode?.position?.y + 100,
       },
       data: {
-        isTrueNode: true,
+        isIfElseAction: true,
         typeNode: "Action",
         label: "Action",
         nodes: [],
         edges: [],
+        parentId: ifNode.id,
       },
     };
     const elseNode = {
@@ -208,10 +210,11 @@ const ReactFlowMain = () => {
         y: trueNode?.position?.y + 100,
       },
       data: {
-        typeNode: "Condition",
+        typeNode: "If",
         label: "ELSE",
         nodes: [],
         edges: [],
+        parentId: ifNode.id,
       },
     };
     const falseNode = {
@@ -222,11 +225,12 @@ const ReactFlowMain = () => {
         y: elseNode?.position?.y + 100,
       },
       data: {
-        isTrueNode: true,
+        isIfElseAction: true,
         typeNode: "Action",
         label: "Action",
         nodes: [],
         edges: [],
+        parentId: ifNode.id,
       },
     };
 
@@ -381,16 +385,19 @@ const ReactFlowMain = () => {
       position: { x: actionDraft.xPos, y: actionDraft.yPos },
       data: {
         typeNode:
-          getTypeNode(newNode.data.typeNode) === "If-Else-Condition"
-            ? "Condition"
+          getTypeNode(newNode.data.typeNode) === "If/else"
+            ? "If"
             : getTypeNode(newNode.data.typeNode),
         label: newNode.data.label !== "IF/ELSE" ? newNode.data.label : "IF",
         nodes: [],
         edges: [],
       },
     };
-    if (getTypeNode(newNode.data.typeNode) === "If-Else-Condition") {
-      let ifElseData: any = [];
+    if (
+      getTypeNode(newNode.data.typeNode) === "If/else" ||
+      getTypeNode(newNode.data.typeNode) === "Loop"
+    ) {
+      let nodesData: any = [];
       let indexIfNode: number = 0;
       const remainingNodes = getNodes().map((node, index) => {
         if (actionDraft.id === node.id) {
@@ -400,33 +407,17 @@ const ReactFlowMain = () => {
             (edge) => edge.target !== outgoers[0].id
           );
           setEdges(newEdges);
-          ifElseData = handleIfElseNode(replacementNode, outgoers[0]);
+          if (getTypeNode(newNode.data.typeNode) === "If/else")
+            nodesData = handleIfElseNode(replacementNode, outgoers[0]);
+          else if (getTypeNode(newNode.data.typeNode) === "Loop")
+            nodesData = handleLoopNode(replacementNode, outgoers[0]);
           return replacementNode;
         }
         return node;
       });
-      remainingNodes.splice(indexIfNode, 0, ...ifElseData.nodes);
+      remainingNodes.splice(indexIfNode, 0, ...nodesData.nodes);
       setNodes(remainingNodes);
-      addEdges(ifElseData.edges);
-    } else if (getTypeNode(newNode.data.typeNode) === "Loop") {
-      let loopData: any = [];
-      let indexLoopNode: number = 0;
-      const remainingNodes = getNodes().map((node, index) => {
-        if (actionDraft.id === node.id) {
-          indexLoopNode = index;
-          const outgoers = getOutgoers(node, getNodes(), getEdges());
-          const newEdges = getEdges().filter(
-            (edge) => edge.target !== outgoers[0].id
-          );
-          setEdges(newEdges);
-          loopData = handleLoopNode(replacementNode, outgoers[0]);
-          return replacementNode;
-        }
-        return node;
-      });
-      remainingNodes.splice(indexLoopNode, 0, ...loopData.nodes);
-      setNodes(remainingNodes);
-      addEdges(loopData.edges);
+      addEdges(nodesData.edges);
     } else {
       const remainingNodes = getNodes().map((node, index) => {
         if (actionDraft.id === node.id) {
@@ -452,13 +443,17 @@ const ReactFlowMain = () => {
             label: "Action Group",
           },
         };
-        const remainingNodes = nodes.map((node) => {
-          if (deletedNodeIds.includes(node.id)) {
-            // Replace with a new node
-            return replacementNode;
-          }
-          return node;
-        });
+        const remainingNodes: any = nodes
+          .map((node) => {
+            if (deletedNodeIds.includes(node.id)) {
+              // Replace with a new node
+              return replacementNode;
+            } else if (deletedNodeIds.includes(node.data?.parentId)) {
+              return undefined;
+            }
+            return node;
+          })
+          .filter((node) => node !== undefined);
         setNodes(remainingNodes);
 
         const updatedEdges = edges.map((edge) => {
@@ -535,15 +530,15 @@ const ReactFlowMain = () => {
             ? 0
             : yPos +
               60 +
-              (nd.data.typeNode === "Loop" || nd.data.isLoopNode
+              (nd.data.typeNode === "Loop" || nd.data.isLoopAction
                 ? 40
                 : cloneNodes[index - 1].height);
         nd.position = {
-          x: nd.data.isTrueNode ? 150 : nd.data.isLoopNode ? 50 : 0,
+          x: nd.data.isIfElseAction ? 150 : nd.data.isLoopAction ? 50 : 0,
           y: yPos,
         };
         nd.positionAbsolute = {
-          x: nd.data.isTrueNode ? 150 : nd.data.isLoopNode ? 50 : 0,
+          x: nd.data.isIfElseAction ? 150 : nd.data.isLoopAction ? 50 : 0,
           y: yPos,
         };
         return nd;
@@ -604,6 +599,10 @@ const ReactFlowMain = () => {
     getEdges,
     deleteElements,
   } = useReactFlow();
+
+  useEffect(() => {
+    autoLayout();
+  }, [getNodes().length]);
 
   const onNodeClick = useCallback(
     (_: MouseEvent, node: Node) => {
@@ -733,8 +732,8 @@ const ReactFlowMain = () => {
                 },
                 data: {
                   typeNode:
-                    getTypeNode(typeNode) === "If-Else-Condition"
-                      ? "Condition"
+                    getTypeNode(typeNode) === "If/else"
+                      ? "If"
                       : getTypeNode(typeNode),
                   label: node.data.label !== "IF/ELSE" ? node.data.label : "IF",
                   nodes: [],
@@ -753,7 +752,7 @@ const ReactFlowMain = () => {
             !n.data.typeNode.includes("action__group")
         );
 
-        const isTrueNode = filteredNodes[0]?.data?.isTrueNode;
+        const isIfElseAction = filteredNodes[0]?.data?.isIfElseAction;
 
         const label = typeNode === "StartEvent" ? "ACTIONS" : "";
 
@@ -782,7 +781,7 @@ const ReactFlowMain = () => {
           },
         };
 
-        if (!isTrueNode) addEdges(newEdges);
+        if (!isIfElseAction) addEdges(newEdges);
         else
           addEdges([
             newEdges,
@@ -810,7 +809,7 @@ const ReactFlowMain = () => {
             },
           ]);
         // ===================== ADD IF/ELSE NODE =====================
-        if (getTypeNode(typeNode) === "If-Else-Condition") {
+        if (getTypeNode(typeNode) === "If/else") {
           const ifElseData = handleIfElseNode(newNode);
           addNodes(ifElseData.nodes);
           addEdges(ifElseData.edges);
@@ -823,7 +822,7 @@ const ReactFlowMain = () => {
               y: newNode?.position?.y + 100,
             },
             data: {
-              isLoopNode: true,
+              isLoopAction: true,
               typeNode: "Action",
               label: "Action",
               nodes: [],
@@ -995,7 +994,7 @@ const ReactFlowMain = () => {
                 customMessage: "[Trigger]: It's a custom error",
               },
             };
-          case "Condition":
+          case "If":
             return {
               workflowId: "",
               nodeId: node.id,

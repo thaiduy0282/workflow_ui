@@ -51,7 +51,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      {data.isLoopNode && (
+      {data.isLoopAction && (
         <Handle
           type="target"
           position={Position.Top}

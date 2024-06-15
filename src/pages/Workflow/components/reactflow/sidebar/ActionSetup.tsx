@@ -113,8 +113,8 @@ const ReactFlowChild = ({
       if (nd.id === curNode.id) {
         nd.position = {
           ...nd.position,
-          x: !nd.data.isTrueNode
-            ? nd.data.isLoopNode
+          x: !nd.data.isIfElseAction
+            ? nd.data.isLoopAction
               ? 50
               : 0
             : nd.position.x,

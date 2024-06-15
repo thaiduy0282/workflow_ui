@@ -585,7 +585,7 @@ const ReactFlowMain = () => {
 
   const handleChangeActionId = (data: any, actionDraft: any) => {
     if (data.data.typeNode) {
-      if (actionDraft.data.isActionDraft || actionDraft.data.isIfElseAction)
+      if (actionDraft.data.isActionDraft || actionDraft.data.isIfElseAction || actionDraft.data.isLoopAction)
         onReplaceAction(data, actionDraft);
       else onAddNode(data);
     }

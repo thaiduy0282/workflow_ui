@@ -814,94 +814,9 @@ const ReactFlowMain = () => {
           addNodes(ifElseData.nodes);
           addEdges(ifElseData.edges);
         } else if (getTypeNode(typeNode) === "Loop") {
-          const actionNode = {
-            id: "id_" + uuidV4(),
-            type: "conditionNode",
-            position: {
-              x: newNode?.position?.x + 50,
-              y: newNode?.position?.y + 100,
-            },
-            data: {
-              isLoopAction: true,
-              typeNode: "Action",
-              label: "Action",
-              nodes: [],
-              edges: [],
-            },
-          };
-
-          const actionGroupNode = {
-            id: "id_" + uuidV4(),
-            type: "actionGroup",
-            position: {
-              x: actionNode.position.x - 50,
-              y: actionNode.position.y + 100,
-            },
-            data: {
-              typeNode: "action__group",
-              label: "Action Group",
-            },
-          };
-
-          addNodes([actionGroupNode, actionNode]);
-
-          addEdges([
-            {
-              id: "id_" + uuidV4(),
-              source: newNode.id,
-              target: actionNode.id,
-              type: "smoothstep",
-              animated: false,
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-            },
-            {
-              id: "id_" + uuidV4(),
-              source: actionNode.id,
-              target: actionGroupNode.id,
-              type: "smoothstep",
-              animated: false,
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-            },
-            {
-              id: "id_" + uuidV4(),
-              source: actionNode.id,
-              target: actionNode.id,
-              targetHandle: "loop",
-              type: "smart",
-              animated: false,
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-            },
-          ]);
+          const loopData = handleLoopNode(newNode);
+          addNodes(loopData.nodes);
+          addEdges(loopData.edges);
         } else actionContinue(newNode);
       }
     },

@@ -95,17 +95,15 @@ const ReactFlowMain = () => {
   const handleLoopNode = (loopNode: any, outgoers?: any) => {
     const actionNode = {
       id: "id_" + uuidV4(),
-      type: "conditionNode",
+      type: "actionGroup",
       position: {
         x: loopNode?.position?.x + 50,
         y: loopNode?.position?.y + 100,
       },
       data: {
         isLoopAction: true,
-        typeNode: "Action",
-        label: "Action",
-        nodes: [],
-        edges: [],
+        typeNode: "action__group",
+        label: "Action Group",
         parentId: loopNode.id,
       },
     };
@@ -188,20 +186,19 @@ const ReactFlowMain = () => {
   const handleIfElseNode = (ifNode: any, outgoers?: any) => {
     const trueNode = {
       id: "id_" + uuidV4(),
-      type: "conditionNode",
+      type: "actionGroup",
       position: {
         x: ifNode?.position?.x + 150,
         y: ifNode?.position?.y + 100,
       },
       data: {
         isIfElseAction: true,
-        typeNode: "Action",
-        label: "Action",
-        nodes: [],
-        edges: [],
+        typeNode: "action__group",
+        label: "Action Group",
         parentId: ifNode.id,
       },
     };
+
     const elseNode = {
       id: "id_" + uuidV4(),
       type: "conditionNode",
@@ -217,19 +214,18 @@ const ReactFlowMain = () => {
         parentId: ifNode.id,
       },
     };
+
     const falseNode = {
       id: "id_" + uuidV4(),
-      type: "conditionNode",
+      type: "actionGroup",
       position: {
         x: elseNode?.position?.x + 150,
         y: elseNode?.position?.y + 100,
       },
       data: {
         isIfElseAction: true,
-        typeNode: "Action",
-        label: "Action",
-        nodes: [],
-        edges: [],
+        typeNode: "action__group",
+        label: "Action Group",
         parentId: ifNode.id,
       },
     };
@@ -383,7 +379,7 @@ const ReactFlowMain = () => {
   };
 
   const onReplaceAction = (newNode: any, actionDraft: any) => {
-    const replacementNode = {
+    const replacementNode: any = {
       id: actionDraft.id,
       type: "conditionNode",
       position: { x: actionDraft.xPos, y: actionDraft.yPos },
@@ -394,6 +390,13 @@ const ReactFlowMain = () => {
         edges: [],
       },
     };
+
+    if (actionDraft.data.isIfElseAction) {
+      replacementNode.data.isIfElseAction = actionDraft.data.isIfElseAction;
+    } else if (actionDraft.data.isLoopAction) {
+      replacementNode.data.isLoopAction = actionDraft.data.isLoopAction;
+    }
+
     if (
       getTypeNode(newNode.data.typeNode) === "If/else" ||
       getTypeNode(newNode.data.typeNode) === "Loop"
@@ -582,7 +585,8 @@ const ReactFlowMain = () => {
 
   const handleChangeActionId = (data: any, actionDraft: any) => {
     if (data.data.typeNode) {
-      if (actionDraft.data.isActionDraft) onReplaceAction(data, actionDraft);
+      if (actionDraft.data.isActionDraft || actionDraft.data.isIfElseAction)
+        onReplaceAction(data, actionDraft);
       else onAddNode(data);
     }
   };

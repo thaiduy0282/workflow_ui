@@ -130,7 +130,8 @@ const DrawerLayout = ({
         ) : (
           <>
             <CollapseCustom show={isShowMetadata} />
-            {currentNode?.data?.typeNode === "If" ? (
+            {currentNode?.data?.typeNode === "If" ||
+            currentNode?.data?.typeNode === "If/else" ? (
               <ConditionSetup
                 workflowNodes={workflowNodes}
                 setWorkflowNodes={setWorkflowNodes}

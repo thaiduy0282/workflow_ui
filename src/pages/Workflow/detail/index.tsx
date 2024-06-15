@@ -384,10 +384,7 @@ const ReactFlowMain = () => {
       type: "conditionNode",
       position: { x: actionDraft.xPos, y: actionDraft.yPos },
       data: {
-        typeNode:
-          getTypeNode(newNode.data.typeNode) === "If/else"
-            ? "If"
-            : getTypeNode(newNode.data.typeNode),
+        typeNode: getTypeNode(newNode.data.typeNode),
         label: newNode.data.label !== "IF/ELSE" ? newNode.data.label : "IF",
         nodes: [],
         edges: [],
@@ -731,10 +728,7 @@ const ReactFlowMain = () => {
                   y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
                 },
                 data: {
-                  typeNode:
-                    getTypeNode(typeNode) === "If/else"
-                      ? "If"
-                      : getTypeNode(typeNode),
+                  typeNode: getTypeNode(typeNode),
                   label: node.data.label !== "IF/ELSE" ? node.data.label : "IF",
                   nodes: [],
                   edges: [],

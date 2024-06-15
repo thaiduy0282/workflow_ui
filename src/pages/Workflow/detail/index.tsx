@@ -260,6 +260,7 @@ const ReactFlowMain = () => {
           animated: false,
           label: "Yes",
           labelStyle: { fill: "black", fontWeight: 700 },
+          data: { edgeType: true },
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
@@ -291,6 +292,7 @@ const ReactFlowMain = () => {
           },
           data: {
             typeEdge: "e-action-group__" + getId(),
+            edgeType: false,
           },
         },
         {
@@ -321,6 +323,7 @@ const ReactFlowMain = () => {
           type: "smoothstep",
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
+          data: { edgeType: true },
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
@@ -351,6 +354,7 @@ const ReactFlowMain = () => {
           },
           data: {
             typeEdge: "e-action-group__" + getId(),
+            edgeType: false,
           },
         },
         {
@@ -432,7 +436,6 @@ const ReactFlowMain = () => {
       const referenceNodes: any = nodes.filter(
         (node) => deletedNode.id === node.data?.parentId
       );
-      console.log("referenceNodes", referenceNodes);
       let lastNode: any = null;
       if (deletedNode.data.typeNode === "If/else") {
         lastNode = referenceNodes.filter(
@@ -441,7 +444,6 @@ const ReactFlowMain = () => {
       } else if (deletedNode.data.typeNode === "Loop") {
         lastNode = referenceNodes[0];
       }
-      console.log("lastNode", lastNode);
       if (deletedNode.data.typeNode !== "action__group") {
         const replacementNode = {
           id: "id_" + uuidV4(),

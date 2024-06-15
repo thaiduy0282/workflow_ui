@@ -31,7 +31,7 @@ const DrawerLayout = ({
 
   useEffect(() => {
     if (currentNode?.data?.typeNode !== "EndEvent") {
-      if (open && currentNode?.data?.typeNode === "If") {
+      if (open && (currentNode?.data?.typeNode === "If" || currentNode?.data?.typeNode === "If/else")) {
         setTimeout(() => setShowMetadata(true), 500);
       }
       if (!open && isShowMetadata) {

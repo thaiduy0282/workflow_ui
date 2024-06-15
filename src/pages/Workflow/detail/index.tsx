@@ -210,7 +210,7 @@ const ReactFlowMain = () => {
         y: trueNode?.position?.y + 100,
       },
       data: {
-        typeNode: "If",
+        typeNode: "If/else",
         label: "ELSE",
         nodes: [],
         edges: [],
@@ -428,12 +428,25 @@ const ReactFlowMain = () => {
 
   const onActionDraft = useCallback(
     (deleted: any) => {
-      if (deleted[0].data.typeNode !== "action__group") {
-        const deletedNodeIds = deleted.map((node: any) => node.id);
+      const deletedNode: any = deleted[0];
+      const referenceNodes: any = nodes.filter(
+        (node) => deletedNode.id === node.data?.parentId
+      );
+      console.log("referenceNodes", referenceNodes);
+      let lastNode: any = null;
+      if (deletedNode.data.typeNode === "If/else") {
+        lastNode = referenceNodes.filter(
+          (node: any) => node.data.label === "ELSE"
+        )[0];
+      } else if (deletedNode.data.typeNode === "Loop") {
+        lastNode = referenceNodes[0];
+      }
+      console.log("lastNode", lastNode);
+      if (deletedNode.data.typeNode !== "action__group") {
         const replacementNode = {
           id: "id_" + uuidV4(),
           type: "actionGroup",
-          position: deleted[0].position,
+          position: deletedNode.position,
           data: {
             isActionDraft: true,
             typeNode: "action__group-draft",
@@ -442,10 +455,10 @@ const ReactFlowMain = () => {
         };
         const remainingNodes: any = nodes
           .map((node) => {
-            if (deletedNodeIds.includes(node.id)) {
+            if (deletedNode.id === node.id) {
               // Replace with a new node
               return replacementNode;
-            } else if (deletedNodeIds.includes(node.data?.parentId)) {
+            } else if (deletedNode.id === node.data?.parentId) {
               return undefined;
             }
             return node;
@@ -455,17 +468,22 @@ const ReactFlowMain = () => {
 
         const updatedEdges = edges.map((edge) => {
           if (
-            deletedNodeIds.includes(edge.source) ||
-            deletedNodeIds.includes(edge.target)
+            (lastNode == null
+              ? deletedNode.id === edge.source
+              : lastNode.id === edge.source) ||
+            deletedNode.id === edge.target
           ) {
             return {
               ...edge,
-              source:
-                edge.source === deleted[0].id
-                  ? replacementNode.id
-                  : edge.source,
+              source: (
+                lastNode == null
+                  ? deletedNode.id === edge.source
+                  : lastNode.id === edge.source
+              )
+                ? replacementNode.id
+                : edge.source,
               target:
-                edge.target === deleted[0].id
+                edge.target === deletedNode.id
                   ? replacementNode.id
                   : edge.target,
             };

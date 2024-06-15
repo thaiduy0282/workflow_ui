@@ -393,8 +393,10 @@ const ReactFlowMain = () => {
 
     if (actionDraft.data.isIfElseAction) {
       replacementNode.data.isIfElseAction = actionDraft.data.isIfElseAction;
+      replacementNode.data.parentId = actionDraft.data.parentId;
     } else if (actionDraft.data.isLoopAction) {
       replacementNode.data.isLoopAction = actionDraft.data.isLoopAction;
+      replacementNode.data.parentId = actionDraft.data.parentId;
     }
 
     if (

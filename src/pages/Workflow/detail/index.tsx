@@ -92,8 +92,289 @@ const ReactFlowMain = () => {
     [edges]
   );
 
+  const handleLoopNode = (loopNode: any, outgoers?: any) => {
+    const actionNode = {
+      id: "id_" + uuidV4(),
+      type: "conditionNode",
+      position: {
+        x: loopNode?.position?.x + 50,
+        y: loopNode?.position?.y + 100,
+      },
+      data: {
+        isLoopNode: true,
+        typeNode: "Action",
+        label: "Action",
+        nodes: [],
+        edges: [],
+      },
+    };
+
+    const actionGroupNode = {
+      id: "id_" + uuidV4(),
+      type: "actionGroup",
+      position: {
+        x: actionNode.position.x - 50,
+        y: actionNode.position.y + 100,
+      },
+      data: {
+        typeNode: "action__group",
+        label: "Action Group",
+      },
+    };
+
+    return {
+      nodes: outgoers ? [actionNode] : [actionGroupNode, actionNode],
+      edges: [
+        {
+          id: "id_" + uuidV4(),
+          source: loopNode.id,
+          target: actionNode.id,
+          type: "smoothstep",
+          animated: false,
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+        },
+        {
+          id: "id_" + uuidV4(),
+          source: actionNode.id,
+          target: outgoers ? outgoers.id : actionGroupNode.id,
+          type: "smoothstep",
+          animated: false,
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+        },
+        {
+          id: "id_" + uuidV4(),
+          source: actionNode.id,
+          target: actionNode.id,
+          targetHandle: "loop",
+          type: "smart",
+          animated: false,
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+        },
+      ],
+    };
+  };
+
+  const handleIfElseNode = (ifNode: any, outgoers?: any) => {
+    const trueNode = {
+      id: "id_" + uuidV4(),
+      type: "conditionNode",
+      position: {
+        x: ifNode?.position?.x + 150,
+        y: ifNode?.position?.y + 100,
+      },
+      data: {
+        isTrueNode: true,
+        typeNode: "Action",
+        label: "Action",
+        nodes: [],
+        edges: [],
+      },
+    };
+    const elseNode = {
+      id: "id_" + uuidV4(),
+      type: "conditionNode",
+      position: {
+        x: trueNode?.position?.x - 150,
+        y: trueNode?.position?.y + 100,
+      },
+      data: {
+        typeNode: "Condition",
+        label: "ELSE",
+        nodes: [],
+        edges: [],
+      },
+    };
+    const falseNode = {
+      id: "id_" + uuidV4(),
+      type: "conditionNode",
+      position: {
+        x: elseNode?.position?.x + 150,
+        y: elseNode?.position?.y + 100,
+      },
+      data: {
+        isTrueNode: true,
+        typeNode: "Action",
+        label: "Action",
+        nodes: [],
+        edges: [],
+      },
+    };
+
+    const actionGroupNode = {
+      id: "id_" + uuidV4(),
+      type: "actionGroup",
+      position: {
+        x: falseNode.position.x - 150,
+        y: falseNode.position.y + 100,
+      },
+      data: {
+        typeNode: "action__group",
+        label: "Action Group",
+      },
+    };
+
+    return {
+      nodes: outgoers
+        ? [falseNode, elseNode, trueNode]
+        : [actionGroupNode, falseNode, elseNode, trueNode],
+      edges: [
+        {
+          id: "id_" + uuidV4(),
+          source: ifNode.id,
+          target: trueNode.id,
+          type: "smoothstep",
+          animated: false,
+          label: "Yes",
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+        },
+        {
+          id: "id_" + uuidV4(),
+          source: ifNode.id,
+          target: elseNode.id,
+          animated: false,
+          type: "smoothstep",
+          label: "No",
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+          data: {
+            typeEdge: "e-action-group__" + getId(),
+          },
+        },
+        {
+          id: "id_" + uuidV4(),
+          source: trueNode.id,
+          target: elseNode.id,
+          animated: false,
+          type: "smoothstep",
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+          data: {
+            typeEdge: "e-action-group__" + getId(),
+          },
+        },
+        {
+          id: "id_" + uuidV4(),
+          source: elseNode.id,
+          target: falseNode.id,
+          type: "smoothstep",
+          animated: false,
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+        },
+        {
+          id: "id_" + uuidV4(),
+          source: elseNode.id,
+          target: outgoers ? outgoers.id : actionGroupNode.id,
+          animated: false,
+          type: "smoothstep",
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+          data: {
+            typeEdge: "e-action-group__" + getId(),
+          },
+        },
+        {
+          id: "id_" + uuidV4(),
+          source: falseNode.id,
+          target: outgoers ? outgoers.id : actionGroupNode.id,
+          animated: false,
+          type: "smoothstep",
+          labelStyle: { fill: "black", fontWeight: 700 },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#b1b1b1",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#b1b1b1",
+          },
+          data: {
+            typeEdge: "e-action-group__" + getId(),
+          },
+        },
+      ],
+    };
+  };
+
   const onReplaceAction = (newNode: any, actionDraft: any) => {
-    console.log(actionDraft);
     const replacementNode = {
       id: actionDraft.id,
       type: "conditionNode",
@@ -108,14 +389,53 @@ const ReactFlowMain = () => {
         edges: [],
       },
     };
-    const remainingNodes = getNodes().map((node) => {
-      if (actionDraft.id === node.id) {
-        // Replace with a new node
-        return replacementNode;
-      }
-      return node;
-    });
-    setNodes(remainingNodes);
+    if (getTypeNode(newNode.data.typeNode) === "If-Else-Condition") {
+      let ifElseData: any = [];
+      let indexIfNode: number = 0;
+      const remainingNodes = getNodes().map((node, index) => {
+        if (actionDraft.id === node.id) {
+          indexIfNode = index;
+          const outgoers = getOutgoers(node, getNodes(), getEdges());
+          const newEdges = getEdges().filter(
+            (edge) => edge.target !== outgoers[0].id
+          );
+          setEdges(newEdges);
+          ifElseData = handleIfElseNode(replacementNode, outgoers[0]);
+          return replacementNode;
+        }
+        return node;
+      });
+      remainingNodes.splice(indexIfNode, 0, ...ifElseData.nodes);
+      setNodes(remainingNodes);
+      addEdges(ifElseData.edges);
+    } else if (getTypeNode(newNode.data.typeNode) === "Loop") {
+      let loopData: any = [];
+      let indexLoopNode: number = 0;
+      const remainingNodes = getNodes().map((node, index) => {
+        if (actionDraft.id === node.id) {
+          indexLoopNode = index;
+          const outgoers = getOutgoers(node, getNodes(), getEdges());
+          const newEdges = getEdges().filter(
+            (edge) => edge.target !== outgoers[0].id
+          );
+          setEdges(newEdges);
+          loopData = handleLoopNode(replacementNode, outgoers[0]);
+          return replacementNode;
+        }
+        return node;
+      });
+      remainingNodes.splice(indexLoopNode, 0, ...loopData.nodes);
+      setNodes(remainingNodes);
+      addEdges(loopData.edges);
+    } else {
+      const remainingNodes = getNodes().map((node, index) => {
+        if (actionDraft.id === node.id) {
+          return replacementNode;
+        }
+        return node;
+      });
+      setNodes(remainingNodes);
+    }
   };
 
   const onActionDraft = useCallback(
@@ -491,192 +811,9 @@ const ReactFlowMain = () => {
           ]);
         // ===================== ADD IF/ELSE NODE =====================
         if (getTypeNode(typeNode) === "If-Else-Condition") {
-          const trueNode = {
-            id: "id_" + uuidV4(),
-            type: "conditionNode",
-            position: {
-              x: newNode?.position?.x + 150,
-              y: newNode?.position?.y + 100,
-            },
-            data: {
-              isTrueNode: true,
-              typeNode: "Action",
-              label: "Action",
-              nodes: [],
-              edges: [],
-            },
-          };
-          const elseNode = {
-            id: "id_" + uuidV4(),
-            type: "conditionNode",
-            position: {
-              x: trueNode?.position?.x - 150,
-              y: trueNode?.position?.y + 100,
-            },
-            data: {
-              typeNode: "Condition",
-              label: "ELSE",
-              nodes: [],
-              edges: [],
-            },
-          };
-          const falseNode = {
-            id: "id_" + uuidV4(),
-            type: "conditionNode",
-            position: {
-              x: elseNode?.position?.x + 150,
-              y: elseNode?.position?.y + 100,
-            },
-            data: {
-              isTrueNode: true,
-              typeNode: "Action",
-              label: "Action",
-              nodes: [],
-              edges: [],
-            },
-          };
-
-          const actionGroupNode = {
-            id: "id_" + uuidV4(),
-            type: "actionGroup",
-            position: {
-              x: falseNode.position.x - 150,
-              y: falseNode.position.y + 100,
-            },
-            data: {
-              typeNode: "action__group",
-              label: "Action Group",
-            },
-          };
-
-          addNodes([actionGroupNode, falseNode, elseNode, trueNode]);
-
-          addEdges([
-            {
-              id: "id_" + uuidV4(),
-              source: newNode.id,
-              target: trueNode.id,
-              type: "smoothstep",
-              animated: false,
-              label: "Yes",
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-            },
-            {
-              id: "id_" + uuidV4(),
-              source: newNode.id,
-              target: elseNode.id,
-              animated: false,
-              type: "smoothstep",
-              label: "No",
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-              data: {
-                typeEdge: "e-action-group__" + getId(),
-              },
-            },
-            {
-              id: "id_" + uuidV4(),
-              source: trueNode.id,
-              target: elseNode.id,
-              animated: false,
-              type: "smoothstep",
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-              data: {
-                typeEdge: "e-action-group__" + getId(),
-              },
-            },
-            {
-              id: "id_" + uuidV4(),
-              source: elseNode.id,
-              target: falseNode.id,
-              type: "smoothstep",
-              animated: false,
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-            },
-            {
-              id: "id_" + uuidV4(),
-              source: elseNode.id,
-              target: actionGroupNode.id,
-              animated: false,
-              type: "smoothstep",
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-              data: {
-                typeEdge: "e-action-group__" + getId(),
-              },
-            },
-            {
-              id: "id_" + uuidV4(),
-              source: falseNode.id,
-              target: actionGroupNode.id,
-              animated: false,
-              type: "smoothstep",
-              label,
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-              data: {
-                typeEdge: "e-action-group__" + getId(),
-              },
-            },
-          ]);
-          // ===================== ADD LOOP NODE =====================
+          const ifElseData = handleIfElseNode(newNode);
+          addNodes(ifElseData.nodes);
+          addEdges(ifElseData.edges);
         } else if (getTypeNode(typeNode) === "Loop") {
           const actionNode = {
             id: "id_" + uuidV4(),

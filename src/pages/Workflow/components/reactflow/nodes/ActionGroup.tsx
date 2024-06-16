@@ -13,7 +13,7 @@ const ActionGroup: FC<NodeProps> = (props: any) => {
       <Handle type="target" position={Position.Top} />
       <div className="node-group__container">
         {ActionList.map((node: any) =>
-          props.data.isActionDraft ? (
+          props.data.isActionDraft || props.data.isLoopAction ? (
             node.data.typeNode !== "action__EndEvent" && (
               <Button
                 key={node.id}
@@ -37,7 +37,7 @@ const ActionGroup: FC<NodeProps> = (props: any) => {
             </Button>
           )
         )}
-        {props.data.isActionDraft && (
+        {(props.data.isActionDraft || props.data.isLoopAction) && (
           <Tooltip title="Delete">
             <Button
               onClick={() => props.onNodesDelete([props])}

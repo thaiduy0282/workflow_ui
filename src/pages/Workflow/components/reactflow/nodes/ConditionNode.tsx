@@ -1,8 +1,9 @@
 import "./style.css";
 
-import { Col, Flex, Row, Space, Tag, Tooltip } from "antd";
+import { Button, Col, Flex, Row, Space, Tag, Tooltip } from "antd";
 import { Handle, NodeProps, Position } from "reactflow";
 
+import { CloseOutlined } from "@ant-design/icons";
 import { FC } from "react";
 
 const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
@@ -136,6 +137,16 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
               )}
             </Space>
           </Space>
+        )}
+        {data.label !== "ELSE" && (
+          <Tooltip title="Delete">
+            <Button
+              onClick={() => props.handleDeleteNode(props.id)}
+              shape="circle"
+              className="btn-delete"
+              icon={<CloseOutlined style={{ fontSize: "8px" }} />}
+            />
+          </Tooltip>
         )}
       </div>
       <Handle type="source" position={Position.Bottom} />

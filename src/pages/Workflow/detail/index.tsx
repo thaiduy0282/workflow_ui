@@ -20,7 +20,9 @@ import ReactFlow, {
   getIncomers,
   getOutgoers,
   useEdgesState,
+  useKeyPress,
   useNodesState,
+  useOnSelectionChange,
   useReactFlow,
 } from "reactflow";
 import {
@@ -256,7 +258,7 @@ const ReactFlowMain = () => {
           animated: false,
           label: "Yes",
           labelStyle: { fill: "black", fontWeight: 700 },
-          data: { edgeType: true },
+          data: { edgeType: "yes" },
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
@@ -288,7 +290,7 @@ const ReactFlowMain = () => {
           },
           data: {
             typeEdge: "e-action-group__" + getId(),
-            edgeType: false,
+            edgeType: "no",
           },
         },
         {
@@ -319,7 +321,7 @@ const ReactFlowMain = () => {
           type: "smoothstep",
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
-          data: { edgeType: true },
+          data: { edgeType: "yes" },
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 20,
@@ -350,7 +352,7 @@ const ReactFlowMain = () => {
           },
           data: {
             typeEdge: "e-action-group__" + getId(),
-            edgeType: false,
+            edgeType: "no",
           },
         },
         {
@@ -435,45 +437,70 @@ const ReactFlowMain = () => {
     }
   };
 
-  const onActionDraft = useCallback(
-    (deleted: any) => {
-      const deletedNode: any = deleted[0];
-      const referenceNodes: any = nodes.filter(
-        (node) => deletedNode.id === node.data?.parentId
-      );
-      let lastNode: any = null;
-      if (deletedNode.data.typeNode === "If/else") {
-        lastNode = referenceNodes.filter(
-          (node: any) => node.data.label === "ELSE"
-        )[0];
-      } else if (deletedNode.data.typeNode === "Loop") {
-        lastNode = referenceNodes[0];
-      }
-      if (deletedNode.data.typeNode !== "action__group") {
-        const replacementNode = {
-          id: "id_" + uuidV4(),
-          type: "actionGroup",
-          position: deletedNode.position,
-          data: {
-            isActionDraft: true,
-            typeNode: "action__group-draft",
-            label: "Action Group",
-          },
-        };
-        const remainingNodes: any = nodes
-          .map((node) => {
-            if (deletedNode.id === node.id) {
-              // Replace with a new node
-              return replacementNode;
-            } else if (deletedNode.id === node.data?.parentId) {
-              return undefined;
-            }
-            return node;
-          })
-          .filter((node) => node !== undefined);
-        setNodes(remainingNodes);
+  // onDeleteNode
+  const handleDeleteNode = (selectedNodeId?: any) => {
+    let deletedNode: any = null;
+    if (selectedNodeId) {
+      deletedNode = getNodes().filter((node) => node.id === selectedNodeId)[0];
+    } else {
+      deletedNode = currentNode;
+    }
+    if (!deletedNode) return;
+    if (
+      deletedNode.data.typeNode === "StartEvent" ||
+      deletedNode.data.typeNode === "EndEvent"
+    )
+      return;
+    const referenceNodes: any = getNodes().filter(
+      (node) => deletedNode.id === node.data?.parentId
+    );
+    let lastNode: any = null;
+    if (deletedNode.data.typeNode === "If/else") {
+      lastNode = referenceNodes.filter(
+        (node: any) => node.data.label === "ELSE"
+      )[0];
+    } else if (deletedNode.data.typeNode === "Loop") {
+      lastNode = referenceNodes[0];
+    }
+    if (deletedNode.data.typeNode !== "action__group") {
+      let replacementNode: any = {
+        id: "id_" + uuidV4(),
+        type: "actionGroup",
+        position: deletedNode.position,
+        data: {
+          isActionDraft: true,
+          typeNode: "action__group-draft",
+          label: "Action Group",
+        },
+      };
 
-        const updatedEdges = edges.map((edge) => {
+      if (deletedNode.data.isIfElseAction) {
+        replacementNode.data.isIfElseAction = deletedNode.data.isIfElseAction;
+        replacementNode.data.parentId = deletedNode.data.parentId;
+        delete replacementNode.data.isActionDraft;
+      } else if (deletedNode.data.isLoopAction) {
+        replacementNode.data.isLoopAction = deletedNode.data.isLoopAction;
+        replacementNode.data.parentId = deletedNode.data.parentId;
+        delete replacementNode.data.isActionDraft;
+      }
+
+      const referenceNodeIds = referenceNodes.map((node: any) => node.id);
+
+      const remainingNodes: any = getNodes()
+        .filter((node) => !referenceNodeIds.includes(node.id))
+        .map((node) => (deletedNode.id === node.id ? replacementNode : node));
+      setNodes(remainingNodes);
+      console.log("referenceNodeIds", referenceNodeIds);
+      const updatedEdges = getEdges()
+        .filter(
+          (edge) =>
+            ((lastNode == null
+              ? deletedNode.id === edge.source
+              : lastNode.id === edge.source && edge.data?.edgeType !== "yes") ||
+              deletedNode.id === edge.target) &&
+            edge.target !== edge.source
+        )
+        .map((edge) => {
           if (
             (lastNode == null
               ? deletedNode.id === edge.source
@@ -497,11 +524,15 @@ const ReactFlowMain = () => {
           }
           return edge;
         });
-        setEdges(updatedEdges);
-      }
-    },
-    [nodes, edges]
-  );
+      setEdges(updatedEdges);
+    }
+  };
+
+  const deletePressed = useKeyPress(["Delete", "Backspace"]);
+
+  useEffect(() => {
+    handleDeleteNode();
+  }, [deletePressed]);
 
   const onNodesDelete = (deleted: any) => {
     setEdges(
@@ -509,7 +540,7 @@ const ReactFlowMain = () => {
         const incomers = getIncomers(node, getNodes(), getEdges());
         const outgoers = getOutgoers(node, getNodes(), getEdges());
         const connectedEdges = getConnectedEdges([node], getEdges());
-        const remainingEdges = acc.filter(
+        let remainingEdges = acc.filter(
           (edge: any) => !connectedEdges.includes(edge)
         );
 
@@ -533,7 +564,15 @@ const ReactFlowMain = () => {
             },
           }))
         );
-
+        const incomerIds = incomers.map((item) => item.id);
+        remainingEdges = remainingEdges.filter(
+          (edge: any) =>
+            !(
+              incomerIds.includes(edge.source) &&
+              edge.target !== outgoers[0].id &&
+              edge.data.edgeType !== "yes"
+            )
+        );
         return [...remainingEdges, ...createdEdges];
       }, getEdges())
     );
@@ -587,7 +626,11 @@ const ReactFlowMain = () => {
 
   const handleChangeActionId = (data: any, actionDraft: any) => {
     if (data.data.typeNode) {
-      if (actionDraft.data.isActionDraft || actionDraft.data.isIfElseAction || actionDraft.data.isLoopAction)
+      if (
+        actionDraft.data.isActionDraft ||
+        actionDraft.data.isIfElseAction ||
+        actionDraft.data.isLoopAction
+      )
         onReplaceAction(data, actionDraft);
       else onAddNode(data);
     }
@@ -607,7 +650,9 @@ const ReactFlowMain = () => {
           {...props}
         />
       ),
-      conditionNode: ConditionNode,
+      conditionNode: (props: any) => (
+        <ConditionNode handleDeleteNode={handleDeleteNode} {...props} />
+      ),
     }),
     [isDisableAddAction]
   );
@@ -628,7 +673,7 @@ const ReactFlowMain = () => {
   }, [getNodes().length]);
 
   const onNodeClick = useCallback(
-    (_: MouseEvent, node: Node) => {
+    (e: any, node: Node) => {
       if (node.data.typeNode === "add-trigger") {
         onAddNode(node);
         setTimeout(() => fitView({ duration: 1200, padding: 1 }), 100);
@@ -646,7 +691,11 @@ const ReactFlowMain = () => {
         const { x, y } = node.position;
         setCenter(x + 75, y + 25, { zoom: 1.85, duration: 1200 });
         setCurrentNode(node);
-        if (node.data.typeNode !== "EndEvent" && node.data.label !== "ELSE")
+        if (
+          e.target.className === "node__container" &&
+          node.data.typeNode !== "EndEvent" &&
+          node.data.label !== "ELSE"
+        )
           setTimeout(handleDrawerOpen, 200);
       }
     },
@@ -718,12 +767,15 @@ const ReactFlowMain = () => {
         typeNode !== "action__group" &&
         typeNode !== "action__group-draft"
       ) {
+        const deleteActionGroupNode = getNodes().filter(
+          (n) =>
+            n.data.typeNode.includes("action") &&
+            n.data.typeNode !== "action__group-draft" &&
+            !n.data.isIfElseAction &&
+            !n.data.isLoopAction
+        );
         deleteElements({
-          nodes: getNodes().filter(
-            (n) =>
-              n.data.typeNode.includes("action") &&
-              n.data.typeNode !== "action__group-draft"
-          ),
+          nodes: deleteActionGroupNode,
           edges: getEdges().filter((e) =>
             e.data?.typeEdge?.includes("animation")
           ),
@@ -766,68 +818,45 @@ const ReactFlowMain = () => {
         const triggerNode = getNodes().filter(
           (n) => n.data.typeNode === "StartEvent"
         );
-        const filteredNodes = getNodes().filter(
-          (n) =>
-            !n.data.typeNode.includes("StartEvent") &&
-            !n.data.typeNode.includes("action__group")
-        );
-
-        const isIfElseAction = filteredNodes[0]?.data?.isIfElseAction;
 
         const label = typeNode === "StartEvent" ? "ACTIONS" : "";
+        const imcomers = getIncomers(
+          deleteActionGroupNode[0],
+          getNodes(),
+          getEdges()
+        );
 
-        const newEdges = {
-          id: "id_" + uuidV4(),
-          source: filteredNodes[0]?.id
-            ? filteredNodes[0]?.id
-            : triggerNode[0].id,
-          target: newNode.id,
-          animated: false,
-          type: "smoothstep",
-          label,
-          labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
-          style: {
-            strokeWidth: 2,
-            stroke: "#b1b1b1",
-          },
-          data: {
-            typeEdge: "e-action-group__" + getId(),
-          },
-        };
-
-        if (!isIfElseAction) addEdges(newEdges);
-        else
-          addEdges([
-            newEdges,
-            {
-              id: "id_" + uuidV4(),
-              source: filteredNodes[1]?.id,
-              target: newNode.id,
-              animated: false,
-              type: "smoothstep",
-              label,
-              labelStyle: { fill: "black", fontWeight: 700 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: "#b1b1b1",
-              },
-              style: {
-                strokeWidth: 2,
-                stroke: "#b1b1b1",
-              },
-              data: {
-                typeEdge: "e-action-group__" + getId(),
-              },
+        const newEdges: any = imcomers.map((filteredNode) => {
+          return {
+            id: "id_" + uuidV4(),
+            source: filteredNode?.id ? filteredNode?.id : triggerNode[0].id,
+            target: newNode.id,
+            animated: false,
+            type: "smoothstep",
+            label,
+            labelStyle: { fill: "black", fontWeight: 700 },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+              color: "#b1b1b1",
             },
-          ]);
+            style: {
+              strokeWidth: 2,
+              stroke: "#b1b1b1",
+            },
+            data: {
+              typeEdge: "e-action-group__" + getId(),
+            },
+          };
+        });
+
+        setEdges(
+          getEdges()
+            .filter((edge) => edge.target !== deleteActionGroupNode[0].id)
+            .concat(newEdges)
+        );
+
         // ===================== ADD IF/ELSE NODE =====================
         if (getTypeNode(typeNode) === "If/else") {
           const ifElseData = handleIfElseNode(newNode);
@@ -985,11 +1014,14 @@ const ReactFlowMain = () => {
   ) : (
     <>
       <ReactFlow
+        deleteKeyCode={null}
+        selectionKeyCode={null}
+        multiSelectionKeyCode={null}
+        disableKeyboardA11y={true}
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        onNodesDelete={onActionDraft}
         onConnect={onConnect}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}

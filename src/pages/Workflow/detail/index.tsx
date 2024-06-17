@@ -435,6 +435,8 @@ const ReactFlowMain = () => {
       });
       setNodes(remainingNodes);
     }
+    if (actionDraft.data.isIfElseAction || actionDraft.data.isLoopAction)
+      actionContinue(replacementNode);
   };
 
   // onDeleteNode
@@ -448,7 +450,8 @@ const ReactFlowMain = () => {
     if (!deletedNode) return;
     if (
       deletedNode.data.typeNode === "StartEvent" ||
-      deletedNode.data.typeNode === "EndEvent"
+      (deletedNode.data.typeNode === "EndEvent" &&
+        !deletedNode.data.isIfElseAction)
     )
       return;
     const referenceNodes: any = getNodes().filter(
@@ -496,7 +499,8 @@ const ReactFlowMain = () => {
           ? deletedNode.id === edge.source
           : lastNode.id === edge.source && edge.data?.edgeType !== "yes") ||
           deletedNode.id === edge.target) &&
-        edge.target !== edge.source;
+        edge.target !== edge.source &&
+        !(deletedNode.data.typeNode === "Loop" && edge.targetHandle === "loop");
 
       const updatedEdges = getEdges()
         .filter((edge) => filterEdgesCondition(edge))
@@ -525,7 +529,8 @@ const ReactFlowMain = () => {
             (edge) =>
               !(
                 referenceNodeIds.includes(edge.source) ||
-                referenceNodeIds.includes(edge.target)
+                referenceNodeIds.includes(edge.target) ||
+                deletedNode.id === edge.target
               )
           )
           .concat(updatedEdges)
@@ -710,21 +715,93 @@ const ReactFlowMain = () => {
   // Add action group
   const actionContinue = (newNode: Node) => {
     if (newNode.data.typeNode !== "EndEvent") {
-      const newGroup = {
-        id: "id_" + uuidV4(),
+      const newGroupId = "id_" + uuidV4();
+      let newGroup: any = {
+        id: newGroupId,
         type: "actionGroup",
-        position: { x: newNode?.position?.x, y: newNode?.position?.y + 100 },
+        position: {
+          x: newNode?.position?.x,
+          y: newNode?.position?.y + 100,
+        },
         data: {
           typeNode: "action__group",
           label: "Action Group",
         },
       };
 
-      if (newNode.data.typeNode === "StartEvent")
-        setNodesHook([newNode, newGroup]);
-      else addNodes([newGroup]);
-
       const label = newNode.data.typeNode === "StartEvent" ? "ACTIONS" : "";
+      const nextNode = getOutgoers(newNode, getNodes(), getEdges())[0];
+
+      if (newNode.data.isIfElseAction) {
+        newGroup = {
+          ...newGroup,
+          position: {
+            x: newNode?.position?.x,
+            y: newNode?.position?.y + 5,
+          },
+          data: {
+            ...newGroup.data,
+            isIfElseAction: true,
+            parentId: newNode.data.parentId,
+          },
+        };
+
+        let foundIndexNode = 0;
+        let newNodes = getNodes().map((node, index) => {
+          if (node.id === newNode.id) {
+            foundIndexNode = index;
+            return newNode;
+          } else return node;
+        });
+
+        newNodes.splice(foundIndexNode, 0, newGroup);
+
+        let newEdges = getEdges().map((edge) => ({
+          ...edge,
+          animated: false,
+          source:
+            edge.source === newNode.id && edge.target === nextNode.id
+              ? newGroupId
+              : edge.source,
+        }));
+        setNodes(newNodes);
+        setEdges(newEdges);
+      } else if (newNode.data.isLoopAction) {
+        newGroup = {
+          ...newGroup,
+          position: {
+            x: newNode?.position?.x,
+            y: newNode?.position?.y + 5,
+          },
+          data: {
+            ...newGroup.data,
+            isLoopAction: true,
+            parentId: newNode.data.parentId,
+          },
+        };
+
+        let foundIndexNode = 0;
+        let newNodes = getNodes().map((node, index) => {
+          if (node.id === newNode.id) {
+            foundIndexNode = index;
+            return newNode;
+          } else return node;
+        });
+
+        newNodes.splice(foundIndexNode, 0, newGroup);
+
+        let newEdges = getEdges().map((edge) => ({
+          ...edge,
+          animated: false,
+          source: edge.source === newNode.id ? newGroupId : edge.source,
+        }));
+        setNodes(newNodes);
+        setEdges(newEdges);
+      } else {
+        if (newNode.data.typeNode === "StartEvent")
+          setNodesHook([newNode, newGroup]);
+        else addNodes([newGroup]);
+      }
 
       addEdges({
         id: "id_" + uuidV4(),

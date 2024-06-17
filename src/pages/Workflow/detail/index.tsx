@@ -490,23 +490,18 @@ const ReactFlowMain = () => {
         .filter((node) => !referenceNodeIds.includes(node.id))
         .map((node) => (deletedNode.id === node.id ? replacementNode : node));
       setNodes(remainingNodes);
-      console.log("referenceNodeIds", referenceNodeIds);
+
+      const filterEdgesCondition = (edge: any) =>
+        ((lastNode == null
+          ? deletedNode.id === edge.source
+          : lastNode.id === edge.source && edge.data?.edgeType !== "yes") ||
+          deletedNode.id === edge.target) &&
+        edge.target !== edge.source;
+
       const updatedEdges = getEdges()
-        .filter(
-          (edge) =>
-            ((lastNode == null
-              ? deletedNode.id === edge.source
-              : lastNode.id === edge.source && edge.data?.edgeType !== "yes") ||
-              deletedNode.id === edge.target) &&
-            edge.target !== edge.source
-        )
+        .filter((edge) => filterEdgesCondition(edge))
         .map((edge) => {
-          if (
-            (lastNode == null
-              ? deletedNode.id === edge.source
-              : lastNode.id === edge.source) ||
-            deletedNode.id === edge.target
-          ) {
+          if (filterEdgesCondition(edge)) {
             return {
               ...edge,
               source: (
@@ -524,7 +519,17 @@ const ReactFlowMain = () => {
           }
           return edge;
         });
-      setEdges(updatedEdges);
+      setEdges(
+        getEdges()
+          .filter(
+            (edge) =>
+              !(
+                referenceNodeIds.includes(edge.source) ||
+                referenceNodeIds.includes(edge.target)
+              )
+          )
+          .concat(updatedEdges)
+      );
     }
   };
 

@@ -35,9 +35,12 @@ const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
         ) : (
           <Space>
             <img src={images.QWORKS} className="image-app" />
-            <div className="node__text">
-              {data.eventTopic + " event from " + data.category}
-            </div>
+            <Space direction="vertical" style={{ gap: "0px" }}>
+              <Typography.Title level={5} style={{ margin: "0px" }}>
+                {data.category}
+              </Typography.Title>
+              <Typography.Text>{data.eventTopic}</Typography.Text>
+            </Space>
           </Space>
         )}
       </div>

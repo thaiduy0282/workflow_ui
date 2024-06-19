@@ -21,31 +21,16 @@
   --white: #ffffff;
   --black: #000000;
 
-  --grey-neutral-900: #1e2020;
-  --grey-neutral-800: #313535;
-  --grey-neutral-700: #454a4a;
-  --grey-neutral-600: #595f5f;
-  --grey-neutral-500: #6d7474;
-  --grey-neutral-400: #818888;
-  --grey-neutral-300: #969c9c;
-  --grey-neutral-200: #abb0b0;
-  --grey-neutral-100: #c0c4c4;
-  --grey-neutral-80: #d5d7d7;
-  --grey-neutral-60: #eaebeb;
-  --grey-neutral-40: #f4f5f5;
-
-  --grey-primary-900: #182525;
-  --grey-primary-800: #283e3e;
-  --grey-primary-700: #385656;
-  --grey-primary-600: #496f6f;
-  --grey-primary-500: #598888;
-  --grey-primary-400: #6b9e9e;
-  --grey-primary-300: #84aeae;
-  --grey-primary-200: #9cbfbf;
-  --grey-primary-100: #b5cfcf;
-  --grey-primary-80: #cedfdf;
-  --grey-primary-60: #e6efef;
-  --grey-primary-40: #f3f7f7;
+  --grek-blue-primary-1: #EFEFFF;
+  --grek-blue-primary-2: #D9D9FF;
+  --grek-blue-primary-3: #BBBBFF;
+  --grek-blue-primary-4: #9B9BFF;
+  --grek-blue-primary-5: #7D7DFF;
+  --grek-blue-primary-6: #6161FF;
+  --grek-blue-primary-7: #5252D9;
+  --grek-blue-primary-8: #4545B5;
+  --grek-blue-primary-9: #373791;
+  --grek-blue-primary-10: #2C2C73;
 
   --turquoise-900: #083535;
   --turquoise-800: #0d5959;

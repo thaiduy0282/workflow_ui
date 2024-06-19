@@ -133,12 +133,6 @@ const ReactFlowMain = () => {
           type: "smoothstep",
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -151,12 +145,6 @@ const ReactFlowMain = () => {
           type: "smoothstep",
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -170,12 +158,6 @@ const ReactFlowMain = () => {
           type: "smart",
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -259,12 +241,6 @@ const ReactFlowMain = () => {
           label: "Yes",
           labelStyle: { fill: "black", fontWeight: 700 },
           data: { edgeType: "yes" },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -278,12 +254,6 @@ const ReactFlowMain = () => {
           type: "smoothstep",
           label: "No",
           labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -300,12 +270,6 @@ const ReactFlowMain = () => {
           animated: false,
           type: "smoothstep",
           labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -322,12 +286,6 @@ const ReactFlowMain = () => {
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
           data: { edgeType: "yes" },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -340,12 +298,6 @@ const ReactFlowMain = () => {
           animated: false,
           type: "smoothstep",
           labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -362,12 +314,6 @@ const ReactFlowMain = () => {
           animated: false,
           type: "smoothstep",
           labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",
@@ -562,12 +508,6 @@ const ReactFlowMain = () => {
             type: "smoothstep",
             animated: false,
             labelStyle: { fill: "black", fontWeight: 700 },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              width: 20,
-              height: 20,
-              color: "#b1b1b1",
-            },
             style: {
               strokeWidth: 2,
               stroke: "#b1b1b1",
@@ -811,12 +751,6 @@ const ReactFlowMain = () => {
         type: "smoothstep",
         label,
         labelStyle: { fill: "black", fontWeight: 700 },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-          color: "#b1b1b1",
-        },
         style: {
           strokeWidth: 2,
           stroke: "#b1b1b1",
@@ -917,12 +851,6 @@ const ReactFlowMain = () => {
             type: "smoothstep",
             label,
             labelStyle: { fill: "black", fontWeight: 700 },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              width: 20,
-              height: 20,
-              color: "#b1b1b1",
-            },
             style: {
               strokeWidth: 2,
               stroke: "#b1b1b1",

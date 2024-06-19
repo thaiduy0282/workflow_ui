@@ -35,7 +35,7 @@
 }
 
 .ant-collapse-header {
-    background: #6dc8ce !important;
+    background: var(--grek-blue-primary-5) !important;
     color: rgba(0, 0, 0, 0.88);
     font-weight: 600;
     font-size: 20px;

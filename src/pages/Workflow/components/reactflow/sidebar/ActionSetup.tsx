@@ -59,12 +59,6 @@ const ReactFlowChild = ({
       type: "smoothstep",
       label: "",
       labelStyle: { fill: "black", fontWeight: 700 },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
-        color: "#b1b1b1",
-      },
       style: {
         strokeWidth: 2,
         stroke: "#b1b1b1",
@@ -159,12 +153,6 @@ const ReactFlowChild = ({
       type: "smoothstep",
       label: "",
       labelStyle: { fill: "black", fontWeight: 700 },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 20,
-        height: 20,
-        color: "#b1b1b1",
-      },
       style: {
         strokeWidth: 2,
         stroke: "#b1b1b1",
@@ -222,12 +210,6 @@ const ReactFlowChild = ({
           animated: false,
           type: "smoothstep",
           labelStyle: { fill: "black", fontWeight: 700 },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: "#b1b1b1",
-          },
           style: {
             strokeWidth: 2,
             stroke: "#b1b1b1",

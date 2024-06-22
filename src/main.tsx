@@ -7,6 +7,8 @@ import App from "./App";
 import { SnackbarProvider } from "notistack";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { ThemeProvider } from "./context/ThemeContext";
+import AntThemeProvider from "./theme/AntThemeProvider";
 
 // Create client
 const queryClient = new QueryClient({
@@ -21,22 +23,26 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <SnackbarProvider
-        hideIconVariant
-        autoHideDuration={3000}
-        maxSnack={1}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        preventDuplicate
-        style={{
-          width: "400px",
-          background: "var(--green-600)",
-        }}
-      >
-        <App />
-      </SnackbarProvider>
+      <AntThemeProvider>
+        <ThemeProvider>
+          <SnackbarProvider
+            hideIconVariant
+            autoHideDuration={3000}
+            maxSnack={1}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+            preventDuplicate
+            style={{
+              width: "400px",
+              background: "var(--green-600)",
+            }}
+          >
+            <App />
+          </SnackbarProvider>
+        </ThemeProvider>
+      </AntThemeProvider>
     </QueryClientProvider>
   </StrictMode>
 );

@@ -33,7 +33,7 @@ const EnhancedTableToolbar: React.FC<{
         ]}
         style={{ marginBottom: "10px" }}
       />
-      <Row justify="end" style={{ padding: "0 24px" }}>
+      <Row justify="end">
         {numSelected > 0 ? (
           <Tooltip title="Delete">
             <Button icon={<DeleteOutlined />} onClick={deleteAllFunc} />
@@ -99,7 +99,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Layout style={{ width: "100%" }}>
+    <>
       <EnhancedTableToolbar
         numSelected={
           currentTab === "1" ? selectedWorkflow.length : selectedProcess.length
@@ -108,9 +108,7 @@ const Home: React.FC = () => {
         setCurrentTab={setCurrentTab}
         currentTab={currentTab}
       />
-      <Content
-        style={{ padding: "24px", minHeight: "100%", backgroundColor: "white" }}
-      >
+      <Content>
         <WorkflowTable
           currentTab={currentTab}
           page={page}
@@ -122,7 +120,7 @@ const Home: React.FC = () => {
           loading={isLoading}
         />
       </Content>
-    </Layout>
+    </>
   );
 };
 

@@ -1022,7 +1022,7 @@ const ReactFlowMain = () => {
   return isLoading ? (
     <Spin spinning={isLoading} fullscreen />
   ) : (
-    <>
+    <div style={{ width: "100%", height: "100%" }}>
       <ReactFlow
         deleteKeyCode={null}
         selectionKeyCode={null}
@@ -1123,7 +1123,7 @@ const ReactFlowMain = () => {
         workflowNodes={getNodes()}
         setWorkflowNodes={setNodesHook}
       />
-    </>
+    </div>
   );
 };
 

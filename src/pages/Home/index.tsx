@@ -7,6 +7,7 @@ import ModalCreateWorkflow from "./components/modal/ModalCreateWorkflow";
 import WorkflowTable from "./components/Table";
 import axios from "axios";
 import { handleGetWorkflow } from "./handleApi";
+import { PageHeader } from "../../components/layout/PageHeader";
 
 const { Content } = Layout;
 
@@ -100,14 +101,19 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <EnhancedTableToolbar
+      <PageHeader
+        title="Workflow"
+        secondaryHeader
+        extraAction={<ModalCreateWorkflow />}
+      />
+      {/* <EnhancedTableToolbar
         numSelected={
           currentTab === "1" ? selectedWorkflow.length : selectedProcess.length
         }
         onDeleteAllFunc={deleteAllFunc}
         setCurrentTab={setCurrentTab}
         currentTab={currentTab}
-      />
+      /> */}
       <Content>
         <WorkflowTable
           currentTab={currentTab}

@@ -1,8 +1,13 @@
 import "./style.css";
 
-import { Button, Space, Spin, Tooltip } from "antd";
-import { LayoutOutlined, LoadingOutlined } from "@ant-design/icons";
-import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  LayoutOutlined,
+  LoadingOutlined,
+  LoginOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
+import { Button, Flex, Spin, Tooltip } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -12,7 +17,6 @@ import ReactFlow, {
   MarkerType,
   MiniMap,
   Node,
-  Panel,
   ReactFlowProvider,
   XYPosition,
   addEdge,
@@ -22,7 +26,6 @@ import ReactFlow, {
   useEdgesState,
   useKeyPress,
   useNodesState,
-  useOnSelectionChange,
   useReactFlow,
 } from "reactflow";
 import {
@@ -31,16 +34,18 @@ import {
   handleUpdateWorkflow,
 } from "../../Home/handleApi";
 
+import { useParams } from "react-router-dom";
+import { v4 as uuidV4 } from "uuid";
+import DrawerLayout from "../../../components/layout/Drawer";
+import { PageHeader } from "../../../components/layout/PageHeader";
+import handleNotificationMessege from "../../../utils/notification";
 import ActionGroup from "../components/reactflow/nodes/ActionGroup";
 import AddNewNode from "../components/reactflow/nodes/AddNewNode";
 import ConditionNode from "../components/reactflow/nodes/ConditionNode";
-import DrawerLayout from "../../../components/layout/Drawer";
-import { SmartSmoothEdge } from "../components/reactflow/sidebar/edges/SmartStepSmoothEdges";
 import StartEventNode from "../components/reactflow/nodes/StartEventNode";
-import handleNotificationMessege from "../../../utils/notification";
+import { SmartSmoothEdge } from "../components/reactflow/sidebar/edges/SmartStepSmoothEdges";
 import { handleSaveNodeConfigurationById } from "./handleApi";
-import { useParams } from "react-router-dom";
-import { v4 as uuidV4 } from "uuid";
+import { getEdgeStyle } from "../../../common/GetEdgeStyle";
 
 const edgeTypes = {
   smart: SmartSmoothEdge,
@@ -134,8 +139,14 @@ const ReactFlowMain = () => {
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
           style: {
-            strokeWidth: 2,
+            strokeWidth: 1,
             stroke: "#b1b1b1",
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 10,
+            height: 10,
+            color: "#b1b1b1",
           },
         },
         {
@@ -146,8 +157,14 @@ const ReactFlowMain = () => {
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
           style: {
-            strokeWidth: 2,
+            strokeWidth: 1,
             stroke: "#b1b1b1",
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 10,
+            height: 10,
+            color: "#b1b1b1",
           },
         },
         {
@@ -159,8 +176,14 @@ const ReactFlowMain = () => {
           animated: false,
           labelStyle: { fill: "black", fontWeight: 700 },
           style: {
-            strokeWidth: 2,
+            strokeWidth: 1,
             stroke: "#b1b1b1",
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 10,
+            height: 10,
+            color: "#b1b1b1",
           },
         },
       ],
@@ -232,96 +255,54 @@ const ReactFlowMain = () => {
         ? [falseNode, elseNode, trueNode]
         : [actionGroupNode, falseNode, elseNode, trueNode],
       edges: [
-        {
-          id: "id_" + uuidV4(),
-          source: ifNode.id,
-          target: trueNode.id,
-          type: "smoothstep",
-          animated: false,
-          label: "Yes",
-          labelStyle: { fill: "black", fontWeight: 700 },
-          data: { edgeType: "yes" },
-          style: {
-            strokeWidth: 2,
-            stroke: "#b1b1b1",
-          },
-        },
-        {
-          id: "id_" + uuidV4(),
-          source: ifNode.id,
-          target: elseNode.id,
-          animated: false,
-          type: "smoothstep",
-          label: "No",
-          labelStyle: { fill: "black", fontWeight: 700 },
-          style: {
-            strokeWidth: 2,
-            stroke: "#b1b1b1",
-          },
-          data: {
-            typeEdge: "e-action-group__" + getId(),
-            edgeType: "no",
-          },
-        },
-        {
-          id: "id_" + uuidV4(),
-          source: trueNode.id,
-          target: elseNode.id,
-          animated: false,
-          type: "smoothstep",
-          labelStyle: { fill: "black", fontWeight: 700 },
-          style: {
-            strokeWidth: 2,
-            stroke: "#b1b1b1",
-          },
-          data: {
-            typeEdge: "e-action-group__" + getId(),
-          },
-        },
-        {
-          id: "id_" + uuidV4(),
-          source: elseNode.id,
-          target: falseNode.id,
-          type: "smoothstep",
-          animated: false,
-          labelStyle: { fill: "black", fontWeight: 700 },
-          data: { edgeType: "yes" },
-          style: {
-            strokeWidth: 2,
-            stroke: "#b1b1b1",
-          },
-        },
-        {
-          id: "id_" + uuidV4(),
-          source: elseNode.id,
-          target: outgoers ? outgoers.id : actionGroupNode.id,
-          animated: false,
-          type: "smoothstep",
-          labelStyle: { fill: "black", fontWeight: 700 },
-          style: {
-            strokeWidth: 2,
-            stroke: "#b1b1b1",
-          },
-          data: {
-            typeEdge: "e-action-group__" + getId(),
-            edgeType: "no",
-          },
-        },
-        {
-          id: "id_" + uuidV4(),
-          source: falseNode.id,
-          target: outgoers ? outgoers.id : actionGroupNode.id,
-          animated: false,
-          type: "smoothstep",
-          labelStyle: { fill: "black", fontWeight: 700 },
-          style: {
-            strokeWidth: 2,
-            stroke: "#b1b1b1",
-          },
-          data: {
-            typeEdge: "e-action-group__" + getId(),
-          },
-        },
+        getEdgeStyle(
+          "id_" + uuidV4(),
+          ifNode.id,
+          trueNode.id,
+          "",
+          false,
+          "yes",
+          "Yes"
+        ),
+        getEdgeStyle(
+          "id_" + uuidV4(),
+          ifNode.id,
+          elseNode.id,
+          "e-action-group__" + getId(),
+          false,
+          "no",
+          "No"
+        ),
+        getEdgeStyle(
+          "id_" + uuidV4(),
+          trueNode.id,
+          elseNode.id,
+          "e-action-group__" + getId(),
+          false
+        ),
+        getEdgeStyle(
+          "id_" + uuidV4(),
+          elseNode.id,
+          falseNode.id,
+          "e-action-group__" + getId(),
+          false,
+          "yes"
+        ),
+        getEdgeStyle(
+          "id_" + uuidV4(),
+          elseNode.id,
+          outgoers ? outgoers.id : actionGroupNode.id,
+          "e-action-group__" + getId(),
+          false,
+          "no"
+        ),
+        getEdgeStyle(
+          "id_" + uuidV4(),
+          falseNode.id,
+          outgoers ? outgoers.id : actionGroupNode.id,
+          "e-action-group__" + getId(),
+          false
+        ),
       ],
     };
   };
@@ -509,8 +490,14 @@ const ReactFlowMain = () => {
             animated: false,
             labelStyle: { fill: "black", fontWeight: 700 },
             style: {
-              strokeWidth: 2,
+              strokeWidth: 1,
               stroke: "#b1b1b1",
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 10,
+              height: 10,
+              color: "#b1b1b1",
             },
           }))
         );
@@ -743,22 +730,14 @@ const ReactFlowMain = () => {
         else addNodes([newGroup]);
       }
 
-      addEdges({
-        id: "id_" + uuidV4(),
-        source: newNode.id,
-        target: newGroup.id,
-        animated: true,
-        type: "smoothstep",
-        label,
-        labelStyle: { fill: "black", fontWeight: 700 },
-        style: {
-          strokeWidth: 2,
-          stroke: "#b1b1b1",
-        },
-        data: {
-          typeEdge: "e-animation-action-group__" + getId(),
-        },
-      });
+      addEdges(
+        getEdgeStyle(
+          "id_" + uuidV4(),
+          newNode.id,
+          newGroup.id,
+          "e-animation-action-group__" + getId()
+        )
+      );
     }
   };
 
@@ -852,11 +831,17 @@ const ReactFlowMain = () => {
             label,
             labelStyle: { fill: "black", fontWeight: 700 },
             style: {
-              strokeWidth: 2,
+              strokeWidth: 1,
               stroke: "#b1b1b1",
             },
             data: {
               typeEdge: "e-action-group__" + getId(),
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 10,
+              height: 10,
+              color: "#b1b1b1",
             },
           };
         });
@@ -1022,108 +1007,106 @@ const ReactFlowMain = () => {
   return isLoading ? (
     <Spin spinning={isLoading} fullscreen />
   ) : (
-    <div style={{ width: "100%", height: "100%" }}>
-      <ReactFlow
-        deleteKeyCode={null}
-        selectionKeyCode={null}
-        multiSelectionKeyCode={null}
-        disableKeyboardA11y={true}
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        onConnect={onConnect}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onNodeClick={onNodeClick}
-        fitView
-        fitViewOptions={{
-          duration: 1200,
-          padding: !data?.nodes || data?.nodes?.length === 0 ? 3 : 0.5,
-          nodes: data?.nodes,
-        }}
-        maxZoom={Infinity}
-      >
-        <Panel position="top-left">
-          <div style={{ width: "100%", padding: "0 24px" }}>
-            <div
-              style={{ color: "black", fontSize: "20px", fontWeight: "bold" }}
+    <>
+      <PageHeader
+        onBack
+        breadcrumb={[{ title: "Workflows", href: "/" }, { title: data?.name }]}
+        title={data?.name}
+        extraAction={
+          <Flex gap={5}>
+            <Button
+              className="btn-actions"
+              size="large"
+              onClick={onSave}
+              disabled={isPending}
+              type="primary"
+              ghost
+              icon={<SaveOutlined />}
             >
-              {data?.name}
-            </div>
-          </div>
-        </Panel>
-        <Background variant={BackgroundVariant.Dots} />
-        <MiniMap />
-        <Controls
-          position="top-right"
-          onFitView={() => fitView({ duration: 0, padding: 1 })}
-          showInteractive={false}
-          fitViewOptions={{ duration: 1200 }}
-        >
-          <Tooltip title="Auto Layout" placement="left">
-            <ControlButton onClick={() => autoLayout()}>
-              <LayoutOutlined />
-            </ControlButton>
-          </Tooltip>
-        </Controls>
-      </ReactFlow>
-      <Space
-        direction="horizontal"
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}
-      >
-        <Button
-          className="btn-actions"
-          size="large"
-          onClick={onSave}
-          disabled={isPending}
-        >
-          {isPending ? (
-            <Spin
-              indicator={
-                <LoadingOutlined
-                  style={{ fontSize: 24, color: "#000" }}
-                  spin={isPending}
+              {isPending ? (
+                <Spin
+                  indicator={
+                    <LoadingOutlined
+                      style={{ fontSize: 24, color: "#000" }}
+                      spin={isPending}
+                    />
+                  }
                 />
-              }
-            />
-          ) : (
-            "Save as draft"
-          )}
-        </Button>
-        <Button
-          className="btn-actions"
-          size="large"
-          onClick={onPublish}
-          disabled={isDisablePublish || isPendingPublish}
-        >
-          {isPendingPublish ? (
-            <Spin
-              indicator={
-                <LoadingOutlined
-                  style={{ fontSize: 24, color: "#000" }}
-                  spin={isPendingPublish}
+              ) : (
+                "Save as draft"
+              )}
+            </Button>
+            <Button
+              className="btn-actions"
+              size="large"
+              onClick={onPublish}
+              disabled={isDisablePublish || isPendingPublish}
+              type="primary"
+              icon={<LoginOutlined />}
+            >
+              {isPendingPublish ? (
+                <Spin
+                  indicator={
+                    <LoadingOutlined
+                      style={{ fontSize: 24, color: "#000" }}
+                      spin={isPendingPublish}
+                    />
+                  }
                 />
-              }
-            />
-          ) : (
-            "Publish"
-          )}
-        </Button>
-      </Space>
-      <DrawerLayout
-        open={drawerOpen}
-        close={handleDrawerClose}
-        currentNode={currentNode}
-        workflowNodes={getNodes()}
-        setWorkflowNodes={setNodesHook}
+              ) : (
+                "Publish"
+              )}
+            </Button>
+          </Flex>
+        }
       />
-    </div>
+      <div style={{ width: "100%", height: "100%" }}>
+        <ReactFlow
+          deleteKeyCode={null}
+          selectionKeyCode={null}
+          multiSelectionKeyCode={null}
+          disableKeyboardA11y={true}
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          onConnect={onConnect}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={onNodeClick}
+          fitView
+          fitViewOptions={{
+            duration: 1200,
+            padding: !data?.nodes || data?.nodes?.length === 0 ? 3 : 0.5,
+            nodes: data?.nodes,
+          }}
+          maxZoom={Infinity}
+        >
+          <Background variant={BackgroundVariant.Dots} />
+          <MiniMap />
+          <Controls
+            className="react-flow__controls"
+            position="bottom-center"
+            onFitView={() => fitView({ duration: 0, padding: 1 })}
+            showInteractive={false}
+            fitViewOptions={{ duration: 1200 }}
+          >
+            <Tooltip title="Auto Layout" placement="top">
+              <ControlButton onClick={() => autoLayout()}>
+                <LayoutOutlined />
+              </ControlButton>
+            </Tooltip>
+          </Controls>
+        </ReactFlow>
+        <DrawerLayout
+          open={drawerOpen}
+          close={handleDrawerClose}
+          currentNode={currentNode}
+          workflowNodes={getNodes()}
+          setWorkflowNodes={setNodesHook}
+        />
+      </div>
+    </>
   );
 };
 

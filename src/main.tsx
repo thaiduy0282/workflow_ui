@@ -30,13 +30,17 @@ createRoot(document.getElementById("root") as HTMLElement).render(
             autoHideDuration={3000}
             maxSnack={1}
             anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
+              vertical: "top",
+              horizontal: "center",
             }}
             preventDuplicate
             style={{
               width: "400px",
-              background: "var(--green-600)",
+              border: "1px solid #B7EB8F",
+              background: "#F6FFED",
+              color: "#000",
+              height: "38px !important",
+              borderRadius: "8px",
             }}
           >
             <App />

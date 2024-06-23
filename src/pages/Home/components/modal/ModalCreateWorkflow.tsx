@@ -1,13 +1,12 @@
-import "./style.css";
+import { Modal, Radio, RadioChangeEvent, Typography } from "antd";
 
-import { Button, Modal, Radio, RadioChangeEvent, Typography } from "antd";
-
-import CustomInput from "../../../../components/input/CustomInput";
 import { PlusOutlined } from "@ant-design/icons";
-import { handleCreateWorkflow } from "../../handleApi";
-import handleNotificationMessege from "../../../../utils/notification";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { PrimaryButton } from "../../../../components/button/PrimaryButton";
+import CustomInput from "../../../../components/input/CustomInput";
+import handleNotificationMessege from "../../../../utils/notification";
+import { handleCreateWorkflow } from "../../handleApi";
 
 const options = [
   { label: "By event", value: "E" },
@@ -64,14 +63,12 @@ const ModalCreateWorkflow = () => {
 
   return (
     <>
-      <Button
-        className="btn-actions"
+      <PrimaryButton
+        className="btn-create-workflow"
         icon={<PlusOutlined />}
-        style={{ marginBottom: "10px" }}
-        onClick={() => showModalCreateWorkflow()}
-      >
-        Create
-      </Button>
+        text="Workflow"
+        onClick={showModalCreateWorkflow}
+      />
       <Modal
         title="Create Workflow"
         open={isModalOpen}

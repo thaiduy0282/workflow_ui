@@ -31,15 +31,19 @@ const StartEventNode: FC<NodeProps> = ({ ...props }: any) => {
         }`}
       >
         {!checkStartEventData() ? (
-          props.data.label
+          <Typography.Text className="node-text">
+            {props.data.label}
+          </Typography.Text>
         ) : (
-          <Space>
+          <Space className="node__space-trigger">
             <img src={images.QWORKS} className="image-app" />
             <Space direction="vertical" style={{ gap: "0px" }}>
-              <Typography.Title level={5} style={{ margin: "0px" }}>
+              <Typography.Text className="node-text">
                 {data.category}
-              </Typography.Title>
-              <Typography.Text>{data.eventTopic}</Typography.Text>
+              </Typography.Text>
+              <Typography.Text className="node-description">
+                {data.eventTopic}
+              </Typography.Text>
             </Space>
           </Space>
         )}

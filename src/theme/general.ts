@@ -17,7 +17,7 @@ export const typographyConfig = {
   lineHeightHeading5: 1.4,
 
   // text
-  fontSize: 16,
+  fontSize: 14,
   lineHeight: 1.5
 };
 

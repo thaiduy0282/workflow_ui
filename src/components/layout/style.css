@@ -69,3 +69,27 @@
   border-radius: 8px;
   overflow: hidden;
 }
+
+.layout__page-header {
+  margin-bottom: 12px;
+}
+
+.layout__page-header .layout__page-header-title {
+  margin: 0 !important;
+}
+
+.layout__page-header-secondary {
+  margin-bottom: 12px;
+}
+
+.layout__page-header-secondary-menu {
+  width: 100%;
+}
+
+.layout__page-header-secondary-search {
+  width: 250px;
+}
+
+.ant-input {
+  border-color: #d9d9d9 !important;
+}

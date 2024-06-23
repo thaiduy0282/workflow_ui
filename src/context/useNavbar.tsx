@@ -13,8 +13,8 @@ export const useNavbarItems = () => {
       children: [],
     },
     {
-      label: "User",
-      key: "customer-consultation",
+      label: "Users",
+      key: "users",
       children: [],
     },
   ];

@@ -1,5 +1,5 @@
+import { useCallback, useEffect } from "react";
 import ReactFlow, {
-  Controls,
   Edge,
   MarkerType,
   Node,
@@ -9,11 +9,11 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
 } from "reactflow";
-import { useCallback, useEffect } from "react";
 
+import { v4 as uuidV4 } from "uuid";
 import ActionNode from "./nodes/ActionNode";
 import AddNewNode from "./nodes/AddNewNode";
-import { v4 as uuidV4 } from "uuid";
+import { getEdgeStyle } from "../../../../../common/GetEdgeStyle";
 
 let id = 1;
 const getId = () => `${id++}`;
@@ -30,6 +30,7 @@ const ReactFlowChild = ({
   isOpenDrawer,
   workflowNodes,
   setWorkflowNodes,
+  getEdgeStyle,
 }: any) => {
   const initialChildNodes: Node[] = [
     {
@@ -51,22 +52,13 @@ const ReactFlowChild = ({
   ];
 
   const initialChildEdges: Edge[] = [
-    {
-      id: "id_" + uuidV4(),
-      source: initialChildNodes[0].id,
-      target: initialChildNodes[1].id,
-      animated: true,
-      type: "smoothstep",
-      label: "",
-      labelStyle: { fill: "black", fontWeight: 700 },
-      style: {
-        strokeWidth: 2,
-        stroke: "#b1b1b1",
-      },
-      data: {
-        typeEdge: "e-animation-condition__" + getId(),
-      },
-    },
+    getEdgeStyle(
+      "id_" + uuidV4(),
+      initialChildNodes[0].id,
+      initialChildNodes[1].id,
+      "",
+      "e-animation-condition__" + getId()
+    ),
   ];
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
@@ -145,22 +137,14 @@ const ReactFlowChild = ({
     };
     addNodes([newCondition]);
 
-    addEdges({
-      id: "id_" + uuidV4(),
-      source: newNode.id,
-      target: newCondition.id,
-      animated: true,
-      type: "smoothstep",
-      label: "",
-      labelStyle: { fill: "black", fontWeight: 700 },
-      style: {
-        strokeWidth: 2,
-        stroke: "#b1b1b1",
-      },
-      data: {
-        typeEdge: "e-animation-action-group__" + getId(),
-      },
-    });
+    addEdges(
+      getEdgeStyle(
+        "id_" + uuidV4(),
+        newNode.id,
+        newCondition.id,
+        "e-animation-action-group__" + getId()
+      )
+    );
   };
 
   const onAddNode = useCallback(
@@ -203,21 +187,15 @@ const ReactFlowChild = ({
           (n) => n.data.typeNode === "ActionSetup"
         );
 
-        addEdges({
-          id: "id_" + uuidV4(),
-          source: filteredNodes[0]?.id,
-          target: newNode.id,
-          animated: false,
-          type: "smoothstep",
-          labelStyle: { fill: "black", fontWeight: 700 },
-          style: {
-            strokeWidth: 2,
-            stroke: "#b1b1b1",
-          },
-          data: {
-            typeEdge: "e-action-group__" + getId(),
-          },
-        });
+        addEdges(
+          getEdgeStyle(
+            "id_" + uuidV4(),
+            filteredNodes[0]?.id,
+            newNode.id,
+            "e-action-group__" + getId(),
+            false
+          )
+        );
         actionContinue(newNode);
       }
     },
@@ -259,6 +237,7 @@ const ActionSetup = ({
       isOpenDrawer={isOpenDrawer}
       workflowNodes={workflowNodes}
       setWorkflowNodes={setWorkflowNodes}
+      getEdgeStyle={getEdgeStyle}
     />
   </ReactFlowProvider>
 );

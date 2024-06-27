@@ -1,0 +1,6 @@
+.modal__layout {
+    position: absolute;
+    top: 50%;
+    right: 45px;
+    transform: translateY(-50%);
+}

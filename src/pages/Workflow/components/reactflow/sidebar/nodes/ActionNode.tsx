@@ -1,9 +1,10 @@
 import "./style.css";
 
-import { Col, Divider, Input, Row, Select, Space, Typography } from "antd";
+import { Divider, Input, Select, Space } from "antd";
 import { FC, useEffect, useState } from "react";
 import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
 
+import { Title } from "../../../../../../components/custom/Typography";
 import { handleGetMetadata } from "../../../../../../components/metadata/handleAPI";
 
 const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
@@ -41,12 +42,12 @@ const ActionNode: FC<NodeProps> = ({ ...props }: any) => {
     <>
       <Handle type="target" position={Position.Top} />
       <Space direction="vertical" className="space__setup-container">
-        <Typography.Title
+        <Title
           level={5}
           style={{ margin: 0, textAlign: "center", lineHeight: 1 }}
         >
           ACTION
-        </Typography.Title>
+        </Title>
         <Divider style={{ margin: 0 }} />
         <Space className="space__condition" direction="vertical">
           <Select

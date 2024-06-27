@@ -1,13 +1,12 @@
 import "./style.css";
 
+import { Button, Flex, Spin, Tooltip } from "antd";
 import {
   LayoutOutlined,
   LoadingOutlined,
   LoginOutlined,
   SaveOutlined,
 } from "@ant-design/icons";
-import { Button, Flex, Spin, Tooltip } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -29,23 +28,45 @@ import ReactFlow, {
   useReactFlow,
 } from "reactflow";
 import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
   handleGetWorkflowById,
   handlePublishWorkflow,
   handleUpdateWorkflow,
 } from "../../Home/handleApi";
 
-import { useParams } from "react-router-dom";
-import { v4 as uuidV4 } from "uuid";
-import DrawerLayout from "../../../components/layout/Drawer";
-import { PageHeader } from "../../../components/layout/PageHeader";
-import handleNotificationMessege from "../../../utils/notification";
 import ActionGroup from "../components/reactflow/nodes/ActionGroup";
 import AddNewNode from "../components/reactflow/nodes/AddNewNode";
 import ConditionNode from "../components/reactflow/nodes/ConditionNode";
-import StartEventNode from "../components/reactflow/nodes/StartEventNode";
+import DrawerLayout from "../../../components/layout/Drawer";
+import EndEventNode from "../components/reactflow/nodes/EndEventNode";
+import ModalTrigger from "../components/modal/ModalTrigger";
+import { PageHeader } from "../../../components/layout/PageHeader";
 import { SmartSmoothEdge } from "../components/reactflow/sidebar/edges/SmartStepSmoothEdges";
-import { handleSaveNodeConfigurationById } from "./handleApi";
+import StartEventNode from "../components/reactflow/nodes/StartEventNode";
 import { getEdgeStyle } from "../../../common/GetEdgeStyle";
+import handleNotificationMessege from "../../../utils/notification";
+import { handleSaveNodeConfigurationById } from "./handleApi";
+import { useParams } from "react-router-dom";
+import { v4 as uuidV4 } from "uuid";
+
+interface FlowContextType {
+  isDisableAddAction: boolean;
+  setOpenTrigger: (open: boolean) => void;
+  setDisableAddAction: (isDisableAddAction: boolean) => void;
+  onNodesDelete: (deleted: any) => void;
+  handleChangeActionId: (data: any, actionDraft: any) => void;
+  handleDeleteNode: (node: any) => void;
+}
+
+export const ReactFlowContext = createContext<FlowContextType | undefined>(
+  undefined
+);
 
 const edgeTypes = {
   smart: SmartSmoothEdge,
@@ -70,12 +91,25 @@ const getId = () => `${id++}`;
 const ReactFlowMain = () => {
   const { workflowId } = useParams();
 
+  const [isOpenTrigger, setOpenTrigger] = useState(false);
   const { isLoading, data }: any = handleGetWorkflowById(workflowId || "");
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const [isDisableAddAction, setDisableAddAction] = useState(false);
+
+  const [currentNode, setCurrentNode] = useState<Node | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isDisablePublish, setDisablePublish] = useState(true);
+
+  const handleDrawerOpen = () => setDrawerOpen(true);
+  const handleDrawerClose = () => setDrawerOpen(false);
+
+  const onCancelTrigger = () => {
+    setOpenTrigger(false);
+  };
+
   const getTypeNode = (typeNode: any) => {
     switch (typeNode) {
       case "action__Condition":
@@ -104,7 +138,7 @@ const ReactFlowMain = () => {
       id: "id_" + uuidV4(),
       type: "actionGroup",
       position: {
-        x: loopNode?.position?.x + 50,
+        x: loopNode?.position?.x + 139,
         y: loopNode?.position?.y + 100,
       },
       data: {
@@ -119,7 +153,7 @@ const ReactFlowMain = () => {
       id: "id_" + uuidV4(),
       type: "actionGroup",
       position: {
-        x: actionNode.position.x - 50,
+        x: actionNode.position.x - 139,
         y: actionNode.position.y + 100,
       },
       data: {
@@ -396,7 +430,10 @@ const ReactFlowMain = () => {
       let replacementNode: any = {
         id: "id_" + uuidV4(),
         type: "actionGroup",
-        position: deletedNode.position,
+        position: {
+          x: deletedNode.position.x + 114,
+          y: deletedNode.position.y,
+        },
         data: {
           isActionDraft: true,
           typeNode: "action__group-draft",
@@ -532,11 +569,23 @@ const ReactFlowMain = () => {
                 ? 40
                 : cloneNodes[index - 1].height);
         nd.position = {
-          x: nd.data.isIfElseAction ? 150 : nd.data.isLoopAction ? 50 : 0,
+          x: nd.data.isIfElseAction
+            ? 150
+            : nd.data.isLoopAction
+            ? 139
+            : nd.data.typeNode === "action__group"
+            ? 114
+            : 0,
           y: yPos,
         };
         nd.positionAbsolute = {
-          x: nd.data.isIfElseAction ? 150 : nd.data.isLoopAction ? 50 : 0,
+          x: nd.data.isIfElseAction
+            ? 150
+            : nd.data.isLoopAction
+            ? 139
+            : nd.data.typeNode === "action__group"
+            ? 114
+            : 0,
           y: yPos,
         };
         return nd;
@@ -548,19 +597,12 @@ const ReactFlowMain = () => {
   useEffect(() => {
     if (data?.nodes && data?.edges) {
       setNodes(data?.nodes);
+      setDisablePublish(
+        !data?.nodes?.some((nd: any) => nd.type === "endEventNode")
+      );
       setEdges(data?.edges);
     }
-
-    setDisablePublish(!data?.nodes?.some((nd: any) => nd.type === "output"));
   }, [data]);
-
-  const [currentNode, setCurrentNode] = useState<Node | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isDisablePublish, setDisablePublish] = useState(true);
-
-  const handleDrawerOpen = () => setDrawerOpen(true);
-  const handleDrawerClose = () => setDrawerOpen(false);
-
   const handleChangeActionId = (data: any, actionDraft: any) => {
     if (data.data.typeNode) {
       if (
@@ -575,21 +617,11 @@ const ReactFlowMain = () => {
 
   const nodeTypes = useMemo(
     () => ({
-      startEventNode: (props: any) => (
-        <StartEventNode setDisableAddAction={setDisableAddAction} {...props} />
-      ),
+      startEventNode: (props: any) => <StartEventNode {...props} />,
       addNewNode: AddNewNode,
-      actionGroup: (props: any) => (
-        <ActionGroup
-          isDisableAddAction={isDisableAddAction}
-          onSelectAction={handleChangeActionId}
-          onNodesDelete={onNodesDelete}
-          {...props}
-        />
-      ),
-      conditionNode: (props: any) => (
-        <ConditionNode handleDeleteNode={handleDeleteNode} {...props} />
-      ),
+      actionGroup: (props: any) => <ActionGroup {...props} />,
+      conditionNode: (props: any) => <ConditionNode {...props} />,
+      endEventNode: (props: any) => <EndEventNode {...props} />,
     }),
     [isDisableAddAction]
   );
@@ -613,6 +645,7 @@ const ReactFlowMain = () => {
     (e: any, node: Node) => {
       if (node.data.typeNode === "add-trigger") {
         onAddNode(node);
+        setOpenTrigger(true);
         setTimeout(() => fitView({ duration: 1200, padding: 1 }), 100);
       } else if (node.data.typeNode.includes("action")) {
         onAddNode(node);
@@ -626,14 +659,15 @@ const ReactFlowMain = () => {
         !node.data.typeNode.includes("action")
       ) {
         const { x, y } = node.position;
-        setCenter(x + 75, y + 25, { zoom: 1.85, duration: 1200 });
+        setCenter(x + 75, y + 25, { zoom: 1.25, duration: 1200 });
         setCurrentNode(node);
         if (
           e.target.className === "node__container" &&
           node.data.typeNode !== "EndEvent" &&
+          node.data.typeNode !== "action__group" &&
           node.data.label !== "ELSE"
         )
-          setTimeout(handleDrawerOpen, 200);
+          if (node.data.typeNode === "If") setTimeout(handleDrawerOpen, 200);
       }
     },
     [setCenter, nodes, edges]
@@ -647,7 +681,7 @@ const ReactFlowMain = () => {
         id: newGroupId,
         type: "actionGroup",
         position: {
-          x: newNode?.position?.x,
+          x: newNode?.position?.x + 114,
           y: newNode?.position?.y + 100,
         },
         data: {
@@ -656,7 +690,6 @@ const ReactFlowMain = () => {
         },
       };
 
-      const label = newNode.data.typeNode === "StartEvent" ? "ACTIONS" : "";
       const nextNode = getOutgoers(newNode, getNodes(), getEdges())[0];
 
       if (newNode.data.isIfElseAction) {
@@ -754,7 +787,9 @@ const ReactFlowMain = () => {
         };
 
         setCurrentNode(newNode);
-        setTimeout(handleDrawerOpen, 200);
+        // setTimeout(handleDrawerOpen, 200);
+
+        setOpenTrigger(true);
 
         actionContinue(newNode);
       } else if (
@@ -781,14 +816,13 @@ const ReactFlowMain = () => {
             !n.data.typeNode.includes("StartEvent") &&
             !n.data.typeNode.includes("action__group")
         ).length;
-
         const newNode =
           getTypeNode(typeNode) === "EndEvent"
             ? {
                 id: "id_" + uuidV4(),
-                type: "output",
+                type: "endEventNode",
                 position: {
-                  x: getNodes()[0]?.position?.x,
+                  x: 0,
                   y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
                 },
                 data: { typeNode: "EndEvent", label: node.data.label },
@@ -1007,7 +1041,21 @@ const ReactFlowMain = () => {
   return isLoading ? (
     <Spin spinning={isLoading} fullscreen />
   ) : (
-    <>
+    <ReactFlowContext.Provider
+      value={{
+        isDisableAddAction,
+        setOpenTrigger,
+        setDisableAddAction,
+        handleDeleteNode,
+        onNodesDelete,
+        handleChangeActionId,
+      }}
+    >
+      <ModalTrigger
+        isOpen={isOpenTrigger}
+        onCancel={onCancelTrigger}
+        currentNode={currentNode}
+      />
       <PageHeader
         onBack
         breadcrumb={[{ title: "Workflows", href: "/" }, { title: data?.name }]}
@@ -1106,7 +1154,7 @@ const ReactFlowMain = () => {
           setWorkflowNodes={setNodesHook}
         />
       </div>
-    </>
+    </ReactFlowContext.Provider>
   );
 };
 

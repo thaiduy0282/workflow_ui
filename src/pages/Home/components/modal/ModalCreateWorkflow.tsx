@@ -1,12 +1,13 @@
 import { Modal, Radio, RadioChangeEvent, Typography } from "antd";
 
-import { PlusOutlined } from "@ant-design/icons";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { PrimaryButton } from "../../../../components/button/PrimaryButton";
 import CustomInput from "../../../../components/input/CustomInput";
-import handleNotificationMessege from "../../../../utils/notification";
+import { PlusOutlined } from "@ant-design/icons";
+import { PrimaryButton } from "../../../../components/button/PrimaryButton";
+import { Title } from "../../../../components/custom/Typography";
 import { handleCreateWorkflow } from "../../handleApi";
+import handleNotificationMessege from "../../../../utils/notification";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const options = [
   { label: "By event", value: "E" },
@@ -89,7 +90,7 @@ const ModalCreateWorkflow = () => {
           value={folder}
           onChange={setFolder}
         />
-        <Typography.Title level={5}>Trigger Type</Typography.Title>
+        <Title level={5}>Trigger Type</Title>
         <Radio.Group
           options={options}
           onChange={onChange}

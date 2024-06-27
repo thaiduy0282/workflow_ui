@@ -7,11 +7,7 @@
   position: absolute;
   font-size: 12px;
   font-weight: 600;
-  height: 29px;
-  margin: 0 0 8px -8px;
-  padding: 8px 8px 4px;
   pointer-events: none;
-  text-transform: uppercase;
   -webkit-user-select: none;
   user-select: none;
   top: -30px;
@@ -38,7 +34,7 @@
   justify-content: center;
   align-items: center;
   border-radius: 3px;
-  min-width: 250px;
+  width: 250px;
   height: 58px;
   font-size: 12px;
   padding: 10px;
@@ -47,7 +43,6 @@
 .node__container.trigger-has-data {
   justify-content: left;
   min-height: 30px;
-  width: fit-content;
 }
 
 .node__container.condition-has-data {
@@ -84,28 +79,26 @@
   width: 100%;
 }
 
+.node__tag-container {
+  align-items: center;
+}
+
 .node-group__container {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 10px;
-  padding: 12px;
-  gap: 8px;
+  border-radius: 50%;
 }
 
-.node-group__container button:hover {
-  color: #6dc8ce !important;
-  border-color: #6dc8ce !important;
-}
-
-.btn-delete {
+.dropdown__edit-node {
+  border: #FFF !important;
   position: absolute;
   min-width: 16px !important;
   width: 16px !important;
   height: 16px !important;
-  transform: translate(50%, -50%);
-  top: 0px;
-  right: 0px;
+  box-shadow: none !important;
+  top: 5px;
+  right: 5px;
   padding: 0 !important;
 }
 
@@ -117,9 +110,42 @@
   font-size: 12px;
   font-weight: 400;
   color: #00000073;
+  text-transform: uppercase;
 }
 
 .node__space-trigger > .ant-space-item:first-child {
   display: flex;
   justify-content: center;
+}
+
+.react-flow__node-actionGroup {
+  border-radius: 50%;
+  padding: 5px;
+  border-color: var(--border-color);
+}
+
+.react-flow__node-actionGroup:hover {
+  color: var(--white);
+  background: var(--primary);
+}
+
+.tag__icon {
+  line-height: 0;
+  padding: 6px;
+}
+
+.modal-config .ant-modal-body {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.btn-add-more-field {
+  width: 100%;
+  text-align: end;
+}
+
+.btn-add-more-field button,
+.btn-add-more-field button:hover,
+.btn-add-more-field button:focus {
+  border: none !important
 }

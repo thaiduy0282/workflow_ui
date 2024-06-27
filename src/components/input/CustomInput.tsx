@@ -1,6 +1,7 @@
 import "./style.css";
 
-import { Flex, Input, Typography } from "antd";
+import { Input } from "antd";
+import { Title } from "../custom/Typography";
 
 type TProps = {
   value?: string;
@@ -30,9 +31,9 @@ const CustomInput = (props: TProps) => {
   } = props;
   return (
     <>
-      <Typography.Title level={5}>
+      <Title level={5}>
         {label} {isRequired && <span className="is-required">*</span>}
-      </Typography.Title>
+      </Title>
       <Input
         value={value}
         placeholder={placeholder}

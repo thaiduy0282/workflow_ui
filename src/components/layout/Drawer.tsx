@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import ActionSetup from "../../pages/Workflow/components/reactflow/sidebar/ActionSetup";
 import CollapseCustom from "../metadata";
 import ConditionSetup from "../../pages/Workflow/components/reactflow/sidebar/ConditionSetup";
+import { Title } from "../custom/Typography";
 import { useReactFlow } from "reactflow";
 
 const DrawerLayout = ({
@@ -31,7 +32,11 @@ const DrawerLayout = ({
 
   useEffect(() => {
     if (currentNode?.data?.typeNode !== "EndEvent") {
-      if (open && (currentNode?.data?.typeNode === "If" || currentNode?.data?.typeNode === "If/else")) {
+      if (
+        open &&
+        (currentNode?.data?.typeNode === "If" ||
+          currentNode?.data?.typeNode === "If/else")
+      ) {
         setTimeout(() => setShowMetadata(true), 500);
       }
       if (!open && isShowMetadata) {
@@ -87,12 +92,12 @@ const DrawerLayout = ({
     <>
       <Drawer
         title={
-          <Typography.Title
+          <Title
             level={3}
             style={{ margin: 0, textAlign: "center", lineHeight: 1 }}
           >
             {currentNode?.data?.label} Setup
-          </Typography.Title>
+          </Title>
         }
         placement="right"
         width={500}

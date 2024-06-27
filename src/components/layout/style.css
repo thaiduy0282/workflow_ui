@@ -71,7 +71,7 @@
 }
 
 .layout__page-header {
-  margin-bottom: 12px;
+  margin: 12px 0 12px 0;
 }
 
 .layout__page-header .layout__page-header-title {

@@ -54,7 +54,6 @@
 }
 
 .react-flow__handle {
-  left: 30px !important;
   visibility: hidden;
 }
 

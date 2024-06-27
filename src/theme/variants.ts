@@ -14,6 +14,7 @@ const variantsConfig = (theme: THEME) => ({
   colorErrorBorder: '#ff3d57',
   colorErrorText: '#ff3d57',
   colorBgLayout: "#6161ff",
+  colorPink: '#EB2F96',
 
   // for specific theme
   ...(theme === THEME.DARK

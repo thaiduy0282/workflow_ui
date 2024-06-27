@@ -30,12 +30,10 @@ function ThemeProvider({ children }: ThemeProviderProps) {
   }, [theme]);
 
   const setTheme = (_theme: THEME) => {
-    console.log(_theme);
     _setTheme(_theme);
   };
 
   const toogleTheme = () => {
-    console.log(theme);
     _setTheme((prev) => (prev === THEME.LIGHT ? THEME.DARK : THEME.LIGHT));
   };
 

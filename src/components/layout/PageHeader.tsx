@@ -1,13 +1,15 @@
 import { Breadcrumb, Flex, Input, Menu, Typography, theme } from "antd";
-import { ReactNode, useState } from "react";
-import { PrimaryButton } from "../button/PrimaryButton";
 import {
   FilterOutlined,
   LeftOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import { ItemType } from "antd/es/breadcrumb/Breadcrumb";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { ReactNode, useState } from "react";
+
+import { ItemType } from "antd/es/breadcrumb/Breadcrumb";
+import { PrimaryButton } from "../button/PrimaryButton";
+import { Title } from "../custom/Typography";
 import useToken from "antd/es/theme/useToken";
 
 type Props = {
@@ -53,9 +55,9 @@ export const PageHeader: React.FC<Props> = ({ ...props }) => {
               onClick={() => navigate("/")}
             />
           )}
-          <Typography.Title level={3} className="layout__page-header-title">
+          <Title level={3} className="layout__page-header-title">
             {title}
-          </Typography.Title>
+          </Title>
         </Flex>
         {extraAction}
       </Flex>

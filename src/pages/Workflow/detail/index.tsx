@@ -345,7 +345,7 @@ const ReactFlowMain = () => {
     const replacementNode: any = {
       id: actionDraft.id,
       type: "conditionNode",
-      position: { x: actionDraft.xPos, y: actionDraft.yPos },
+      position: { x: actionDraft.xPos + 114, y: actionDraft.yPos },
       data: {
         typeNode: getTypeNode(newNode.data.typeNode),
         label: newNode.data.label !== "IF/ELSE" ? newNode.data.label : "IF",
@@ -560,14 +560,7 @@ const ReactFlowMain = () => {
       let yPos = 0;
 
       const sortNewWorkFlowNodes = cloneNodes.map((nd: any, index: any) => {
-        yPos =
-          index === 0
-            ? 0
-            : yPos +
-              60 +
-              (nd.data.typeNode === "Loop" || nd.data.isLoopAction
-                ? 40
-                : cloneNodes[index - 1].height);
+        yPos = index === 0 ? 0 : yPos + 60 + cloneNodes[index - 1].height;
         nd.position = {
           x: nd.data.isIfElseAction
             ? 150

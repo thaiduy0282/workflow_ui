@@ -50,6 +50,7 @@ import { PageHeader } from "../../../components/layout/PageHeader";
 import { SmartSmoothEdge } from "../components/reactflow/sidebar/edges/SmartStepSmoothEdges";
 import StartEventNode from "../components/reactflow/nodes/StartEventNode";
 import { getEdgeStyle } from "../../../common/GetEdgeStyle";
+import { getNodeStyle } from "../../../common/GetNodeStyle";
 import handleNotificationMessege from "../../../utils/notification";
 import { handleSaveNodeConfigurationById } from "./handleApi";
 import { useParams } from "react-router-dom";
@@ -134,33 +135,31 @@ const ReactFlowMain = () => {
   );
 
   const handleLoopNode = (loopNode: any, outgoers?: any) => {
-    const actionNode = {
-      id: "id_" + uuidV4(),
-      type: "actionGroup",
-      position: {
-        x: loopNode?.position?.x + 139,
-        y: loopNode?.position?.y + 100,
-      },
-      data: {
+    const actionNode = getNodeStyle(
+      "actionGroup",
+      {
         isLoopAction: true,
         typeNode: "action__group",
         label: "Action Group",
         parentId: loopNode.id,
       },
-    };
+      {
+        x: loopNode?.position?.x + 139,
+        y: loopNode?.position?.y + 100,
+      }
+    );
 
-    const actionGroupNode = {
-      id: "id_" + uuidV4(),
-      type: "actionGroup",
-      position: {
-        x: actionNode.position.x - 139,
-        y: actionNode.position.y + 100,
-      },
-      data: {
+    const actionGroupNode = getNodeStyle(
+      "actionGroup",
+      {
         typeNode: "action__group",
         label: "Action Group",
       },
-    };
+      {
+        x: actionNode.position.x - 139,
+        y: actionNode.position.y + 100,
+      }
+    );
 
     return {
       nodes: outgoers ? [actionNode] : [actionGroupNode, actionNode],
@@ -225,81 +224,68 @@ const ReactFlowMain = () => {
   };
 
   const handleIfElseNode = (ifNode: any, outgoers?: any) => {
-    const trueNode = {
-      id: "id_" + uuidV4(),
-      type: "actionGroup",
-      position: {
-        x: ifNode?.position?.x + 150,
-        y: ifNode?.position?.y + 100,
-      },
-      data: {
+    const trueNode = getNodeStyle(
+      "actionGroup",
+      {
         isIfElseAction: true,
         typeNode: "action__group",
         label: "Action Group",
         parentId: ifNode.id,
       },
-    };
+      {
+        x: ifNode?.position?.x + 150,
+        y: ifNode?.position?.y + 100,
+      }
+    );
 
-    const elseNode = {
-      id: "id_" + uuidV4(),
-      type: "conditionNode",
-      position: {
-        x: trueNode?.position?.x - 150,
-        y: trueNode?.position?.y + 100,
-      },
-      data: {
+    const elseNode = getNodeStyle(
+      "conditionNode",
+      {
         typeNode: "If/else",
         label: "ELSE",
         nodes: [],
         edges: [],
         parentId: ifNode.id,
       },
-    };
+      {
+        x: trueNode?.position?.x - 150,
+        y: trueNode?.position?.y + 100,
+      }
+    );
 
-    const falseNode = {
-      id: "id_" + uuidV4(),
-      type: "actionGroup",
-      position: {
-        x: elseNode?.position?.x + 150,
-        y: elseNode?.position?.y + 100,
-      },
-      data: {
+    const falseNode = getNodeStyle(
+      "actionGroup",
+      {
         isIfElseAction: true,
         typeNode: "action__group",
         label: "Action Group",
         parentId: ifNode.id,
       },
-    };
+      {
+        x: elseNode?.position?.x + 150,
+        y: elseNode?.position?.y + 100,
+      }
+    );
 
-    const actionGroupNode = {
-      id: "id_" + uuidV4(),
-      type: "actionGroup",
-      position: {
-        x: falseNode.position.x - 150,
-        y: falseNode.position.y + 100,
-      },
-      data: {
+    const actionGroupNode = getNodeStyle(
+      "actionGroup",
+      {
         typeNode: "action__group",
         label: "Action Group",
       },
-    };
+      {
+        x: falseNode.position.x - 150,
+        y: falseNode.position.y + 100,
+      }
+    );
 
     return {
       nodes: outgoers
         ? [falseNode, elseNode, trueNode]
         : [actionGroupNode, falseNode, elseNode, trueNode],
       edges: [
+        getEdgeStyle(ifNode.id, trueNode.id, "", false, "yes", "Yes"),
         getEdgeStyle(
-          "id_" + uuidV4(),
-          ifNode.id,
-          trueNode.id,
-          "",
-          false,
-          "yes",
-          "Yes"
-        ),
-        getEdgeStyle(
-          "id_" + uuidV4(),
           ifNode.id,
           elseNode.id,
           "e-action-group__" + getId(),
@@ -308,14 +294,12 @@ const ReactFlowMain = () => {
           "No"
         ),
         getEdgeStyle(
-          "id_" + uuidV4(),
           trueNode.id,
           elseNode.id,
           "e-action-group__" + getId(),
           false
         ),
         getEdgeStyle(
-          "id_" + uuidV4(),
           elseNode.id,
           falseNode.id,
           "e-action-group__" + getId(),
@@ -323,7 +307,6 @@ const ReactFlowMain = () => {
           "yes"
         ),
         getEdgeStyle(
-          "id_" + uuidV4(),
           elseNode.id,
           outgoers ? outgoers.id : actionGroupNode.id,
           "e-action-group__" + getId(),
@@ -331,7 +314,6 @@ const ReactFlowMain = () => {
           "no"
         ),
         getEdgeStyle(
-          "id_" + uuidV4(),
           falseNode.id,
           outgoers ? outgoers.id : actionGroupNode.id,
           "e-action-group__" + getId(),
@@ -342,17 +324,15 @@ const ReactFlowMain = () => {
   };
 
   const onReplaceAction = (newNode: any, actionDraft: any) => {
-    const replacementNode: any = {
-      id: actionDraft.id,
-      type: "conditionNode",
-      position: { x: actionDraft.xPos + 114, y: actionDraft.yPos },
-      data: {
+    const replacementNode: any = getNodeStyle(
+      "conditionNode",
+      {
         typeNode: getTypeNode(newNode.data.typeNode),
         label: newNode.data.label !== "IF/ELSE" ? newNode.data.label : "IF",
-        nodes: [],
-        edges: [],
       },
-    };
+      { x: actionDraft.xPos + 118, y: actionDraft.yPos },
+      actionDraft.id
+    );
 
     if (actionDraft.data.isIfElseAction) {
       replacementNode.data.isIfElseAction = actionDraft.data.isIfElseAction;
@@ -427,19 +407,18 @@ const ReactFlowMain = () => {
       lastNode = referenceNodes[0];
     }
     if (deletedNode.data.typeNode !== "action__group") {
-      let replacementNode: any = {
-        id: "id_" + uuidV4(),
-        type: "actionGroup",
-        position: {
-          x: deletedNode.position.x + 114,
-          y: deletedNode.position.y,
-        },
-        data: {
+      let replacementNode: any = getNodeStyle(
+        "actionGroup",
+        {
           isActionDraft: true,
           typeNode: "action__group-draft",
           label: "Action Group",
         },
-      };
+        {
+          x: deletedNode.position.x + 118,
+          y: deletedNode.position.y,
+        }
+      );
 
       if (deletedNode.data.isIfElseAction) {
         replacementNode.data.isIfElseAction = deletedNode.data.isIfElseAction;
@@ -567,7 +546,7 @@ const ReactFlowMain = () => {
             : nd.data.isLoopAction
             ? 139
             : nd.data.typeNode === "action__group"
-            ? 114
+            ? 118
             : 0,
           y: yPos,
         };
@@ -577,7 +556,7 @@ const ReactFlowMain = () => {
             : nd.data.isLoopAction
             ? 139
             : nd.data.typeNode === "action__group"
-            ? 114
+            ? 118
             : 0,
           y: yPos,
         };
@@ -668,20 +647,21 @@ const ReactFlowMain = () => {
 
   // Add action group
   const actionContinue = (newNode: Node) => {
+    console.log("after", newNode);
     if (newNode.data.typeNode !== "EndEvent") {
       const newGroupId = "id_" + uuidV4();
-      let newGroup: any = {
-        id: newGroupId,
-        type: "actionGroup",
-        position: {
-          x: newNode?.position?.x + 114,
-          y: newNode?.position?.y + 100,
-        },
-        data: {
+      let newGroup: any = getNodeStyle(
+        "actionGroup",
+        {
           typeNode: "action__group",
           label: "Action Group",
         },
-      };
+        {
+          x: newNode?.position?.x + 118,
+          y: newNode?.position?.y + 100,
+        },
+        newGroupId
+      );
 
       const nextNode = getOutgoers(newNode, getNodes(), getEdges())[0];
 
@@ -758,7 +738,6 @@ const ReactFlowMain = () => {
 
       addEdges(
         getEdgeStyle(
-          "id_" + uuidV4(),
           newNode.id,
           newGroup.id,
           "e-animation-action-group__" + getId()
@@ -772,12 +751,13 @@ const ReactFlowMain = () => {
       const typeNode = node.data.typeNode;
 
       if (typeNode === "add-trigger") {
-        const newNode = {
-          id: "id_" + uuidV4(),
-          type: "startEventNode",
-          position,
-          data: { typeNode: "StartEvent", label: "Trigger" },
-        };
+        const newNode = getNodeStyle(
+          "startEventNode",
+          { typeNode: "StartEvent", label: "Trigger" },
+          position
+        );
+
+        console.log(newNode);
 
         setCurrentNode(newNode);
         // setTimeout(handleDrawerOpen, 200);
@@ -830,8 +810,6 @@ const ReactFlowMain = () => {
                 data: {
                   typeNode: getTypeNode(typeNode),
                   label: node.data.label !== "IF/ELSE" ? node.data.label : "IF",
-                  nodes: [],
-                  edges: [],
                 },
               };
 

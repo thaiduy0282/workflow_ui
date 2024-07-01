@@ -54,19 +54,20 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
   ];
 
   const filteredNodes = data.nodes
-    .filter((i: any) => i.data.typeNode !== "add-new-node")
+    ?.filter((i: any) => i.data.typeNode !== "add-new-node")
     .sort((a: any, b: any) => a?.data?.order - b?.data?.order);
 
   const checkCondition = () => {
-    const typeNode = filteredNodes[0]?.data?.typeNode;
+    const exists = filteredNodes?.[0];
+    const typeNode = exists?.data?.typeNode;
 
     switch (typeNode) {
       case "ConditionSetup":
         return (
-          filteredNodes[0].data.expressionType &&
-          filteredNodes[0].data.expression &&
-          filteredNodes[0].data.condition &&
-          filteredNodes[0].data.comparisonValue
+          exists?.data.expressionType &&
+          exists?.data.expression &&
+          exists?.data.condition &&
+          exists?.data.comparisonValue
         );
       default:
         return false;

@@ -117,7 +117,7 @@ const ActionGroup: FC<NodeProps> = (props: any) => {
         trigger={["click"]}
         className="node-group__container"
       >
-        <PlusOutlined style={{ fontSize: "12px" }} />
+        <PlusOutlined style={{ fontSize: "8px" }} />
       </Dropdown>
       <Handle type="source" position={Position.Bottom} />
     </>

@@ -1,7 +1,7 @@
 import { MarkerType } from "reactflow";
+import { v4 as uuidV4 } from "uuid";
 
 export const getEdgeStyle = (
-  id: any,
   source: any,
   target: any,
   typeEdge: any,
@@ -10,7 +10,7 @@ export const getEdgeStyle = (
   label?: any
 ) => {
   return {
-    id,
+    id: "id_" + uuidV4(),
     source,
     target,
     animated,

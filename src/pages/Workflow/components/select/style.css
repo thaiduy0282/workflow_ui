@@ -1,0 +1,31 @@
+.ant-select-dropdown-empty {
+    display: none;
+}
+
+.ant-select-selector {
+    padding-right: 45px;
+}
+
+.metadata{
+
+}
+
+.operator{
+    border: none;
+    color: #EB2F96;
+}
+
+.bracket{
+    border: none;
+    color: #EB2F96;
+}
+
+.value{
+    border: none;
+    color: #6161FF;
+}
+
+.next{
+    border: none;
+    color: #00C5BD;
+}

@@ -1,14 +1,15 @@
-import { Checkbox, CollapseProps, Flex, Form, Select, message } from "antd";
-import Input, { TextArea } from "../../../../components/custom/Input";
+import { Checkbox, Flex, Form, Select, message } from "antd";
+import { useEffect, useState } from "react";
 
 import Button from "../../../../components/custom/Button";
 import Collapse from "../../../../components/custom/Collapse";
+import Input from "../../../../components/custom/Input";
 import ModalLayout from "../../../../components/modal/ModalLayout";
 import { PlusCircleOutlined } from "@ant-design/icons";
+import SelectFormula from "../select/SelectFormula";
 import { handleGetMetadata } from "../../../../components/metadata/handleAPI";
 import { useForm } from "antd/es/form/Form";
 import { useReactFlow } from "reactflow";
-import { useState } from "react";
 
 type Props = {
   isOpen: boolean;
@@ -22,9 +23,21 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
   const { data }: any = handleGetMetadata();
 
   const [form] = useForm();
+  const [formula, setFormula] = useState<any>(["("]);
   const [collapseList, setCollapseList] = useState(["field-1"]);
 
   const { getNodes, setNodes } = useReactFlow();
+
+  // useEffect(() => {
+  //   const { data } = currentNode;
+  //   switch (data.typeNode) {
+  //     case "If":
+  //       form.setFieldValue("displayName", data.displayName);
+  //       setFormula(data.formula);
+  //       break;
+  //   }
+  //   form.setFieldsValue(data);
+  // }, []);
 
   const addMoreCollapse = () => {
     const cloneList = collapseList;
@@ -56,11 +69,82 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
     return newData;
   };
 
+  const formatFormula = () => {
+    let referenceObjects: any = [];
+    let formulaItems: any = [];
+    const collectFormula = formula.map((item: any) => {
+      if (typeof item === "string") {
+        return item;
+      } else {
+        return item?.value?.split("#")[1]
+          ? item?.value?.split("#")[1]
+          : item?.value;
+      }
+    });
+
+    let formulaItem: any = {};
+    formula.forEach((item: any) => {
+      if (typeof item === "string") {
+        if (item === ")") {
+          formulaItems.push(formulaItem);
+          formulaItem = {};
+        } else {
+          formulaItem.comparisonValue = item;
+        }
+      } else if (item.value !== "(") {
+        if (item?.value?.split("#").length === 1) {
+          if (item.value === ")") {
+            formulaItems.push(formulaItem);
+            formulaItem = {};
+          } else {
+            formulaItem.comparisonValue = item.value;
+          }
+        } else {
+          if (item?.value?.split("#")[0] === "metadata") {
+            formulaItem.expression = item.label;
+          } else if (item?.value?.split("#")[0] === "operator") {
+            formulaItem.condition = item.label;
+          }
+        }
+      }
+    });
+
+    function isJsonString(str: string) {
+      try {
+        JSON.parse(str);
+      } catch (e) {
+        return false;
+      }
+      return true;
+    }
+
+    const expression = collectFormula
+      .map((item: any) => {
+        if (isJsonString(item)) {
+          referenceObjects.push(JSON.parse(item));
+          return JSON.parse(item).apiName;
+        } else {
+          return item;
+        }
+      })
+      .join(" ");
+
+    return { formula, formulaItems, expression, referenceObjects };
+  };
+
   const onFinish = () => {
     const currentformValues = { ...form.getFieldsValue() };
     if (currentNode.data.typeNode === "Action")
       setNodes(editNode(formatValue(currentformValues)));
-    else setNodes(editNode(currentformValues));
+    else if (currentNode.data.typeNode === "If") {
+      setNodes(
+        editNode({
+          displayName: currentformValues.displayName,
+          showSyntax: currentformValues.showSyntax,
+          ...formatFormula(),
+        })
+      );
+    } else setNodes(editNode(currentformValues));
     message.success("Submit success!");
   };
 
@@ -117,10 +201,10 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
           {currentNode.data.typeNode === "If" && (
             <>
               <Form.Item name="formula" label="Formula">
-                <TextArea placeholder="Write Condition" />
+                <SelectFormula formula={formula} setFormula={setFormula} />
               </Form.Item>
               <Form.Item name="showSyntax" valuePropName="checked">
-                <Checkbox defaultChecked={true}>Show syntax help</Checkbox>
+                <Checkbox>Show syntax help</Checkbox>
               </Form.Item>
             </>
           )}

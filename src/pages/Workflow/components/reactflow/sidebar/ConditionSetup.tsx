@@ -1,4 +1,3 @@
-import { useCallback, useEffect } from "react";
 import ReactFlow, {
   Edge,
   Node,
@@ -8,11 +7,12 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
 } from "reactflow";
+import { useCallback, useEffect } from "react";
 
-import { v4 as uuidV4 } from "uuid";
-import { getEdgeStyle } from "../../../../../common/GetEdgeStyle";
 import AddNewNode from "./nodes/AddNewNode";
 import ConditionNode from "./nodes/ConditionNode";
+import { getEdgeStyle } from "../../../../../common/GetEdgeStyle";
+import { v4 as uuidV4 } from "uuid";
 
 let id = 1;
 const getId = () => `${id++}`;
@@ -60,10 +60,14 @@ const ReactFlowChild = ({
   ];
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    curNode?.data?.nodes.length !== 0 ? curNode?.data?.nodes : initialChildNodes
+    curNode?.data?.nodes?.length !== 0
+      ? curNode?.data?.nodes
+      : initialChildNodes
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    curNode?.data?.edges.length !== 0 ? curNode?.data?.edges : initialChildEdges
+    curNode?.data?.edges?.length !== 0
+      ? curNode?.data?.edges
+      : initialChildEdges
   );
 
   const {
@@ -77,8 +81,8 @@ const ReactFlowChild = ({
 
   useEffect(() => {
     if (
-      curNode?.data?.nodes.length !== 0 &&
-      curNode?.data?.edges.length !== 0
+      curNode?.data?.nodes?.length !== 0 &&
+      curNode?.data?.edges?.length !== 0
     ) {
       setNodes(curNode?.data?.nodes);
       setEdges(curNode?.data?.edges);

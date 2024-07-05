@@ -17,6 +17,7 @@ const EndEventNode: FC<NodeProps> = ({ ...props }: any) => {
   return (
     <>
       <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Left} />
       <Flex className="trigger-title" gap={5}>
         <StopOutlined size={16} />
         <Tag>End</Tag>

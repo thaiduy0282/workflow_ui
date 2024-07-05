@@ -323,23 +323,29 @@ const ReactFlowMain = () => {
     };
   };
 
-  const onReplaceAction = (newNode: any, actionDraft: any) => {
+  const onReplaceAction = (newNode: any, currentActionGroup: any) => {
     const replacementNode: any = getNodeStyle(
       "conditionNode",
       {
         typeNode: getTypeNode(newNode.data.typeNode),
         label: newNode.data.label !== "IF/ELSE" ? newNode.data.label : "IF",
       },
-      { x: actionDraft.xPos + 118, y: actionDraft.yPos },
-      actionDraft.id
+      {
+        x: currentActionGroup?.data?.isFalseNode
+          ? currentActionGroup.xPos + 60
+          : 0,
+        y: currentActionGroup.yPos,
+      },
+      currentActionGroup.id
     );
 
-    if (actionDraft.data.isIfElseAction) {
-      replacementNode.data.isIfElseAction = actionDraft.data.isIfElseAction;
-      replacementNode.data.parentId = actionDraft.data.parentId;
-    } else if (actionDraft.data.isLoopAction) {
-      replacementNode.data.isLoopAction = actionDraft.data.isLoopAction;
-      replacementNode.data.parentId = actionDraft.data.parentId;
+    if (currentActionGroup.data.isIfElseAction) {
+      replacementNode.data.isIfElseAction =
+        currentActionGroup.data.isIfElseAction;
+      replacementNode.data.parentId = currentActionGroup.data.parentId;
+    } else if (currentActionGroup.data.isLoopAction) {
+      replacementNode.data.isLoopAction = currentActionGroup.data.isLoopAction;
+      replacementNode.data.parentId = currentActionGroup.data.parentId;
     }
 
     if (
@@ -349,7 +355,7 @@ const ReactFlowMain = () => {
       let nodesData: any = [];
       let indexIfNode: number = 0;
       const remainingNodes = getNodes().map((node, index) => {
-        if (actionDraft.id === node.id) {
+        if (currentActionGroup.id === node.id) {
           indexIfNode = index;
           const outgoers = getOutgoers(node, getNodes(), getEdges());
           const newEdges = getEdges().filter(
@@ -369,14 +375,17 @@ const ReactFlowMain = () => {
       addEdges(nodesData.edges);
     } else {
       const remainingNodes = getNodes().map((node, index) => {
-        if (actionDraft.id === node.id) {
+        if (currentActionGroup.id === node.id) {
           return replacementNode;
         }
         return node;
       });
       setNodes(remainingNodes);
     }
-    if (actionDraft.data.isIfElseAction || actionDraft.data.isLoopAction)
+    if (
+      currentActionGroup.data.isIfElseAction ||
+      currentActionGroup.data.isLoopAction
+    )
       actionContinue(replacementNode);
   };
 
@@ -534,36 +543,68 @@ const ReactFlowMain = () => {
   };
 
   const autoLayout = () => {
-    if (nodes.length > 2) {
-      const cloneNodes: any = getNodes().reverse();
-      let yPos = 0;
+    if (nodes.length <= 2) return;
 
-      const sortNewWorkFlowNodes = cloneNodes.map((nd: any, index: any) => {
-        yPos = index === 0 ? 0 : yPos + 60 + cloneNodes[index - 1].height;
-        nd.position = {
-          x: nd.data.isIfElseAction
-            ? 150
-            : nd.data.isLoopAction
-            ? 139
-            : nd.data.typeNode === "action__group"
-            ? 118
-            : 0,
-          y: yPos,
-        };
-        nd.positionAbsolute = {
-          x: nd.data.isIfElseAction
-            ? 150
-            : nd.data.isLoopAction
-            ? 139
-            : nd.data.typeNode === "action__group"
-            ? 118
-            : 0,
-          y: yPos,
-        };
-        return nd;
-      });
-      setNodes(sortNewWorkFlowNodes.reverse());
-    }
+    const cloneNodes: any = getNodes().reverse();
+    let yPos = 0;
+    let countParent = 1;
+    let prevParentNode: any = null;
+
+    const sortedNodes = cloneNodes.map((nd: any, index: any) => {
+      const parentNode: any = getNode(nd.data.parentId);
+      if (prevParentNode !== parentNode) {
+        countParent = 1;
+      }
+      prevParentNode = parentNode;
+      const filterParentId = cloneNodes.filter(
+        (clnd: any) => clnd.data.parentId === nd.data.parentId
+      );
+      // handle yPos
+      if (index === 0) {
+        yPos = 0;
+      } else if (nd.data.isFalseNode) {
+        if (nd.data.typeNode === "action__group") {
+          yPos =
+            parentNode?.position.y +
+            cloneNodes[index - 1].height / 2 -
+            nd.height / 2;
+        } else {
+          yPos = parentNode?.position.y;
+        }
+      } else if (nd.data.typeNode === "action__group") {
+        if (cloneNodes[index - 1].data.typeNode === "action__group") {
+          yPos = yPos + 60 + cloneNodes[index - 1].height * 2;
+        } else {
+          yPos = yPos + 60 + cloneNodes[index - 1].height;
+        }
+      } else {
+        yPos = yPos + 60 + cloneNodes[index - 1].height;
+      }
+
+      let xPos = 0;
+      if (nd.data.isFalseNode) {
+        if (nd.data.typeNode === "action__group") {
+          xPos =
+            parentNode?.width *
+              (filterParentId.length < 2 ? 1 : filterParentId.length) +
+            100 * countParent;
+        } else {
+          xPos = parentNode?.width * countParent + 100 * countParent;
+        }
+        countParent++;
+      } else if (nd.data.isLoopAction) {
+        xPos = 139;
+      } else if (nd.data.typeNode === "action__group") {
+        xPos = 118;
+      } else {
+        xPos = 0;
+      }
+
+      nd.position = nd.positionAbsolute = { x: xPos, y: yPos };
+      return nd;
+    });
+
+    setNodes(sortedNodes.reverse());
   };
 
   useEffect(() => {
@@ -583,7 +624,7 @@ const ReactFlowMain = () => {
         actionDraft.data.isLoopAction
       )
         onReplaceAction(data, actionDraft);
-      else onAddNode(data);
+      else onAddNode(data, actionDraft);
     }
   };
 
@@ -604,6 +645,7 @@ const ReactFlowMain = () => {
     addNodes,
     setNodes: setNodesHook,
     addEdges,
+    getNode,
     getNodes,
     getEdges,
     deleteElements,
@@ -633,13 +675,6 @@ const ReactFlowMain = () => {
         const { x, y } = node.position;
         setCenter(x + 75, y + 25, { zoom: 1.25, duration: 1200 });
         setCurrentNode(node);
-        if (
-          e.target.className === "node__container" &&
-          node.data.typeNode !== "EndEvent" &&
-          node.data.typeNode !== "action__group" &&
-          node.data.label !== "ELSE"
-        )
-          if (node.data.typeNode === "If") setTimeout(handleDrawerOpen, 200);
       }
     },
     [setCenter, nodes, edges]
@@ -647,7 +682,6 @@ const ReactFlowMain = () => {
 
   // Add action group
   const actionContinue = (newNode: Node) => {
-    console.log("after", newNode);
     if (newNode.data.typeNode !== "EndEvent") {
       const newGroupId = "id_" + uuidV4();
       let newGroup: any = getNodeStyle(
@@ -655,16 +689,17 @@ const ReactFlowMain = () => {
         {
           typeNode: "action__group",
           label: "Action Group",
+          ...(newNode.data.isFalseNode
+            ? { isFalseNode: true, parentId: newNode.data.parentId }
+            : {}),
         },
         {
-          x: newNode?.position?.x + 118,
-          y: newNode?.position?.y + 100,
+          x: newNode?.position?.x + (newNode.data.isFalseNode ? 250 : 118),
+          y: newNode?.position?.y + (newNode.data.isFalseNode ? 0 : 100),
         },
         newGroupId
       );
-
       const nextNode = getOutgoers(newNode, getNodes(), getEdges())[0];
-
       if (newNode.data.isIfElseAction) {
         newGroup = {
           ...newGroup,
@@ -730,24 +765,62 @@ const ReactFlowMain = () => {
         }));
         setNodes(newNodes);
         setEdges(newEdges);
+      } else if (newNode.data.typeNode === "If") {
+        const newGroupFalseId = "id_" + uuidV4();
+        const newGroupFalse = {
+          ...newGroup,
+          position: {
+            x: newNode?.position?.x + 250,
+            y: newNode?.position?.y,
+          },
+          data: {
+            ...newGroup.data,
+            parentId: newNode.id,
+            isFalseNode: true,
+          },
+          id: newGroupFalseId,
+        };
+        addNodes([newGroup, newGroupFalse]);
+        addEdges({
+          ...getEdgeStyle(
+            newNode.id,
+            newGroupFalse.id,
+            "e-animation-action-group__" + getId(),
+            true,
+            "no"
+            // "No"
+          ),
+          sourceHandle: "no",
+          targetHandle: "no",
+        });
       } else {
         if (newNode.data.typeNode === "StartEvent")
           setNodesHook([newNode, newGroup]);
         else addNodes([newGroup]);
       }
 
-      addEdges(
-        getEdgeStyle(
-          newNode.id,
-          newGroup.id,
-          "e-animation-action-group__" + getId()
-        )
+      let newEdge = getEdgeStyle(
+        newNode.id,
+        newGroup.id,
+        "e-animation-action-group__" + getId()
       );
+
+      newEdge = {
+        ...newEdge,
+        ...(newNode.data.isFalseNode
+          ? { sourceHandle: "no", targetHandle: "no" }
+          : {}),
+      };
+
+      addEdges(newEdge);
     }
   };
 
+  console.log(getNodes());
+  console.log(getEdges());
+
   const onAddNode = useCallback(
-    (node: any) => {
+    (node: any, currentActionGroup?: any) => {
       const typeNode = node.data.typeNode;
 
       if (typeNode === "add-trigger") {
@@ -756,8 +829,6 @@ const ReactFlowMain = () => {
           { typeNode: "StartEvent", label: "Trigger" },
           position
         );
-
-        console.log(newNode);
 
         setCurrentNode(newNode);
         // setTimeout(handleDrawerOpen, 200);
@@ -771,17 +842,10 @@ const ReactFlowMain = () => {
         typeNode !== "action__group-draft"
       ) {
         const deleteActionGroupNode = getNodes().filter(
-          (n) =>
-            n.data.typeNode.includes("action") &&
-            n.data.typeNode !== "action__group-draft" &&
-            !n.data.isIfElseAction &&
-            !n.data.isLoopAction
+          (n) => currentActionGroup.id === n.id
         );
         deleteElements({
           nodes: deleteActionGroupNode,
-          edges: getEdges().filter((e) =>
-            e.data?.typeEdge?.includes("animation")
-          ),
         });
 
         const countAction = getNodes().filter(
@@ -794,22 +858,42 @@ const ReactFlowMain = () => {
             ? {
                 id: "id_" + uuidV4(),
                 type: "endEventNode",
-                position: {
-                  x: 0,
-                  y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
-                },
-                data: { typeNode: "EndEvent", label: node.data.label },
+                position: !currentActionGroup.data.isFalseNode
+                  ? {
+                      x: 0,
+                      y:
+                        getNodes()[0]?.position?.y +
+                        (countAction === 0 ? 100 : 0),
+                    }
+                  : {
+                      x: currentActionGroup?.xPos,
+                      y: currentActionGroup?.yPos,
+                    },
+                data: { typeNode: "EndEvent", label: getNodes()[0].data.label },
               }
             : {
                 id: "id_" + uuidV4(),
                 type: "conditionNode",
-                position: {
-                  x: getNodes()[0]?.position?.x,
-                  y: getNodes()[0]?.position?.y + (countAction === 0 ? 100 : 0),
-                },
+                position: !currentActionGroup.data.isFalseNode
+                  ? {
+                      x: getNodes()[0]?.position?.x,
+                      y:
+                        getNodes()[0]?.position?.y +
+                        (countAction === 0 ? 100 : 0),
+                    }
+                  : {
+                      x: currentActionGroup?.xPos,
+                      y: currentActionGroup?.yPos,
+                    },
                 data: {
+                  ...(currentActionGroup.data.isFalseNode
+                    ? {
+                        parentId: currentActionGroup.data.parentId,
+                        isFalseNode: currentActionGroup.data.isFalseNode,
+                      }
+                    : {}),
                   typeNode: getTypeNode(typeNode),
-                  label: node.data.label !== "IF/ELSE" ? node.data.label : "IF",
+                  label: node.data.label,
                 },
               };
 
@@ -828,26 +912,15 @@ const ReactFlowMain = () => {
 
         const newEdges: any = imcomers.map((filteredNode) => {
           return {
-            id: "id_" + uuidV4(),
-            source: filteredNode?.id ? filteredNode?.id : triggerNode[0].id,
-            target: newNode.id,
-            animated: false,
-            type: "smoothstep",
-            label,
-            labelStyle: { fill: "black", fontWeight: 700 },
-            style: {
-              strokeWidth: 1,
-              stroke: "#b1b1b1",
-            },
-            data: {
-              typeEdge: "e-action-group__" + getId(),
-            },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              width: 10,
-              height: 10,
-              color: "#b1b1b1",
-            },
+            ...getEdgeStyle(
+              filteredNode?.id ? filteredNode?.id : triggerNode[0].id,
+              newNode.id,
+              "e-action-group__" + getId(),
+              false
+            ),
+            ...(currentActionGroup.data.isFalseNode
+              ? { sourceHandle: "no", targetHandle: "no" }
+              : {}),
           };
         });
 
@@ -857,12 +930,7 @@ const ReactFlowMain = () => {
             .concat(newEdges)
         );
 
-        // ===================== ADD IF/ELSE NODE =====================
-        if (getTypeNode(typeNode) === "If/else") {
-          const ifElseData = handleIfElseNode(newNode);
-          addNodes(ifElseData.nodes);
-          addEdges(ifElseData.edges);
-        } else if (getTypeNode(typeNode) === "Loop") {
+        if (getTypeNode(typeNode) === "Loop") {
           const loopData = handleLoopNode(newNode);
           addNodes(loopData.nodes);
           addEdges(loopData.edges);
@@ -934,15 +1002,12 @@ const ReactFlowMain = () => {
           referenceObjects: item.data.referenceObjects,
         }));
 
-    const collectActionChild = (nodes: any) =>
-      nodes
-        .filter((nd: any) => nd.data.typeNode === "ActionSetup")
-        .map((item: any) => ({
-          actionType: item.data.action,
-          key: item.data.field,
-          value: item.data.value,
-          referenceObjects: item.data.referenceObjects,
-        }));
+    const collectActionChild = (data: any) => ({
+      actionType: data.actionType,
+      displayName: data.displayName,
+      fields: data.fields,
+    });
+
     return getNodes()
       .filter((nd: any) => nd.data.typeNode !== "action__group")
       .map((node) => {
@@ -963,7 +1028,9 @@ const ReactFlowMain = () => {
               workflowId: "",
               nodeId: node.id,
               triggerConfiguration,
-              conditions: collectConditionChild(node.data.nodes),
+              conditions: node.data.nodes
+                ? collectConditionChild(node.data.nodes)
+                : [],
               actions: [],
               errorConfiguration: {
                 customMessage: "[Condition]: It's a custom error",
@@ -975,7 +1042,7 @@ const ReactFlowMain = () => {
               nodeId: node.id,
               triggerConfiguration,
               conditions: [],
-              actions: collectActionChild(node.data.nodes),
+              actions: collectActionChild(node.data.fields),
               errorConfiguration: {
                 customMessage: "[Action]: It's a custom error",
               },

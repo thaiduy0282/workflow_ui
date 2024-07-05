@@ -53,6 +53,31 @@ const TagComponent = ({ data }: any) => {
           </Tag>
         </Tooltip>
       ));
+    case "If":
+      return data.formulaItems.map((item: any) => (
+        <Tooltip
+          title={
+            <>
+              <span>{item.expression}</span>
+              <span style={{ color: token.colorPink }}> {item.condition} </span>
+              <span style={{ color: token.colorPrimary }}>
+                {item.comparisonValue}
+              </span>
+            </>
+          }
+          placement="bottom"
+        >
+          <Tag style={{ width: "fit-content" }}>
+            <Flex gap={5}>
+              <span>{item.expression}</span>
+              <span style={{ color: token.colorPink }}> {item.condition} </span>
+              <span className="truncate" style={{ color: token.colorPrimary }}>
+                {item.comparisonValue}
+              </span>
+            </Flex>
+          </Tag>
+        </Tooltip>
+      ));
   }
 };
 

@@ -83,6 +83,14 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
     );
   };
 
+  const hasIfData = () => {
+    return (
+      data.typeNode === "If" &&
+      data.displayName !== undefined &&
+      data.formulaItems.length > 0
+    );
+  };
+
   const hasLoopData = () => {
     return data.typeNode === "Loop" && !!data.inputList;
   };
@@ -141,6 +149,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
         currentNode={props}
       />
       <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Left} id="no" />
       {data.isLoopAction && (
         <Handle
           type="target"
@@ -152,7 +161,9 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
       {checkCondition() && getTag(props.data.label)}
       <div
         className={`node__container${
-          checkCondition() || hasActionData() ? " condition-has-data" : ""
+          checkCondition() || hasActionData() || hasIfData()
+            ? " condition-has-data"
+            : ""
         }`}
       >
         {data.label === "ELSE" && (
@@ -161,7 +172,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
             <span className="node__text">do the following steps</span>
           </Space>
         )}
-        {!(hasActionData() || hasLoopData() || checkCondition())
+        {!(hasActionData() || hasLoopData() || checkCondition() || hasIfData())
           ? data.label
           : getTag(props.data.label)}
         {hasLoopData() && (
@@ -173,6 +184,18 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
                 <Text className="node-description">{data.inputList}</Text>
               </Space>
             </Space>
+          </Flex>
+        )}
+        {hasIfData() && (
+          <Flex vertical className="node__space-container" gap={5}>
+            <Flex gap={5}>
+              {getIcon(props.data.label)}
+              <Text className="node-text">{data.displayName}</Text>
+            </Flex>
+            <Divider />
+            <Flex gap={5} vertical className="node__tag-container">
+              <TagComponent data={data} />
+            </Flex>
           </Flex>
         )}
         {checkCondition() && (
@@ -204,6 +227,7 @@ const ConditionNode: FC<NodeProps> = ({ ...props }: any) => {
         {data.label !== "ELSE" && <DropdownNode items={itemsDropdown} />}
       </div>
       <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Right} id="no" />
     </>
   );
 };

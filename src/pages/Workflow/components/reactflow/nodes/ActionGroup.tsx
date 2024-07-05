@@ -111,6 +111,7 @@ const ActionGroup: FC<NodeProps> = (props: any) => {
   return (
     <>
       <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Left} id="no" />
       <Dropdown
         menu={{ items }}
         placement="bottomRight"
@@ -120,6 +121,7 @@ const ActionGroup: FC<NodeProps> = (props: any) => {
         <PlusOutlined style={{ fontSize: "8px" }} />
       </Dropdown>
       <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Right} id="no" />
     </>
   );
 };

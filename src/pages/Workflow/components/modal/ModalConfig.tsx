@@ -42,7 +42,6 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
   useEffect(() => {
     const { data } = currentNode;
     form.setFieldValue("displayName", data.displayName);
-    console.log("data", data);
     switch (data.typeNode) {
       case "If":
         setFormula(data.formula ? data.formula : formula);
@@ -51,12 +50,11 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
         break;
       case "Action":
         let fieldsArray: any = [];
-        data.fields.forEach((field: any, index: any) => {
+        data.fields?.forEach((field: any, index: any) => {
           fieldsArray.push({ [`field-${index + 1}`]: field });
         });
 
         fieldsArray.map((field: any) => {
-          console.log(field);
           Object.keys(field).map((key: string) => {
             form.setFieldValue(key, field[key]);
           });
@@ -65,8 +63,6 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
     }
     form.setFieldsValue(data);
   }, [isOpen]);
-
-  console.log(form.getFieldsValue());
 
   const addMoreCollapse = () => {
     const cloneList = collapseList;
@@ -163,7 +159,6 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
 
   const onFinish = () => {
     const currentformValues = { ...form.getFieldsValue() };
-    console.log("currentformValues", currentformValues);
     if (currentNode.data.typeNode === "Action")
       setNodes(editNode(formatValue(currentformValues)));
     else if (currentNode.data.typeNode === "If") {

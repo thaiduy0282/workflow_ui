@@ -700,6 +700,13 @@ const ReactFlowMain = () => {
         newGroupId
       );
       const nextNode = getOutgoers(newNode, getNodes(), getEdges())[0];
+
+      let newEdge = getEdgeStyle(
+        newNode.id,
+        newGroup.id,
+        "e-animation-action-group__" + getId()
+      );
+
       if (newNode.data.isIfElseAction) {
         newGroup = {
           ...newGroup,
@@ -787,23 +794,21 @@ const ReactFlowMain = () => {
             newGroupFalse.id,
             "e-animation-action-group__" + getId(),
             true,
-            "no"
-            // "No"
+            "no",
+            "No"
           ),
           sourceHandle: "no",
           targetHandle: "no",
         });
+        newEdge = {
+          ...newEdge,
+          ...{ edgeType: "yes", label: "Yes" },
+        };
       } else {
         if (newNode.data.typeNode === "StartEvent")
           setNodesHook([newNode, newGroup]);
         else addNodes([newGroup]);
       }
-
-      let newEdge = getEdgeStyle(
-        newNode.id,
-        newGroup.id,
-        "e-animation-action-group__" + getId()
-      );
 
       newEdge = {
         ...newEdge,
@@ -815,9 +820,6 @@ const ReactFlowMain = () => {
       addEdges(newEdge);
     }
   };
-
-  console.log(getNodes());
-  console.log(getEdges());
 
   const onAddNode = useCallback(
     (node: any, currentActionGroup?: any) => {
@@ -898,36 +900,13 @@ const ReactFlowMain = () => {
               };
 
         addNodes(newNode);
-
-        const triggerNode = getNodes().filter(
-          (n) => n.data.typeNode === "StartEvent"
-        );
-
-        const label = typeNode === "StartEvent" ? "ACTIONS" : "";
-        const imcomers = getIncomers(
-          deleteActionGroupNode[0],
-          getNodes(),
-          getEdges()
-        );
-
-        const newEdges: any = imcomers.map((filteredNode) => {
-          return {
-            ...getEdgeStyle(
-              filteredNode?.id ? filteredNode?.id : triggerNode[0].id,
-              newNode.id,
-              "e-action-group__" + getId(),
-              false
-            ),
-            ...(currentActionGroup.data.isFalseNode
-              ? { sourceHandle: "no", targetHandle: "no" }
-              : {}),
-          };
-        });
-
         setEdges(
-          getEdges()
-            .filter((edge) => edge.target !== deleteActionGroupNode[0].id)
-            .concat(newEdges)
+          getEdges().map((edge) => {
+            if (edge.target == deleteActionGroupNode[0].id) {
+              (edge.target = newNode.id), (edge.animated = false);
+            }
+            return edge;
+          })
         );
 
         if (getTypeNode(typeNode) === "Loop") {

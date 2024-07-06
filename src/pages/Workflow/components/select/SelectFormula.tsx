@@ -77,8 +77,6 @@ const SelectFormula: React.FC<Props> = (props) => {
       });
     }
     if (formula.length == 1) {
-      console.log("formula", formula);
-
       setFormula(["("]);
     }
     getPrevStep();

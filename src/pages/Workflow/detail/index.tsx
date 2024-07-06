@@ -976,24 +976,21 @@ const ReactFlowMain = () => {
       return clonedExpression;
     };
 
-    const collectConditionChild = (nodes: any) =>
-      nodes
-        .filter((nd: any) => nd.data.typeNode === "ConditionSetup")
-        .map((item: any) => ({
-          expression: handleReplaceExpression(
-            item.data.expression,
-            item.data.referenceObjects
-          ),
-          condition: item.data.condition,
-          expressionType: item.data.expressionType,
-          comparisonValue: item.data.comparisonValue,
-          referenceObjects: item.data.referenceObjects,
-        }));
-
-    const collectActionChild = (data: any) => ({
-      actionType: data.actionType,
-      displayName: data.displayName,
-      fields: data.fields,
+    const collectCondition = (node: any) => ({
+      displayName: node.data.displayName,
+      expression: node.data.expression,
+      referenceObjects: node.data.referenceObjects?.map(
+        (referenceObject: any) => referenceObject.apiName
+      ),
+    });
+    const collectAction = (node: any) => ({
+      actionType: node.data.actionType,
+      displayName: node.data.displayName,
+      fields: node.data.fields?.map((item: any) => ({
+        key: item.field.apiName,
+        existingValue: "",
+        newValue: item.value,
+      })),
     });
 
     return getNodes()
@@ -1005,8 +1002,8 @@ const ReactFlowMain = () => {
               workflowId: "",
               nodeId: node.id,
               triggerConfiguration,
-              conditions: [],
-              actions: [],
+              condition: null,
+              action: null,
               errorConfiguration: {
                 customMessage: "[Trigger]: It's a custom error",
               },
@@ -1016,10 +1013,8 @@ const ReactFlowMain = () => {
               workflowId: "",
               nodeId: node.id,
               triggerConfiguration,
-              conditions: node.data.nodes
-                ? collectConditionChild(node.data.nodes)
-                : [],
-              actions: [],
+              condition: collectCondition(node),
+              action: null,
               errorConfiguration: {
                 customMessage: "[Condition]: It's a custom error",
               },
@@ -1029,8 +1024,8 @@ const ReactFlowMain = () => {
               workflowId: "",
               nodeId: node.id,
               triggerConfiguration,
-              conditions: [],
-              actions: collectActionChild(node.data.fields),
+              condition: null,
+              action: collectAction(node),
               errorConfiguration: {
                 customMessage: "[Action]: It's a custom error",
               },
@@ -1040,8 +1035,8 @@ const ReactFlowMain = () => {
               workflowId: "",
               nodeId: node.id,
               triggerConfiguration,
-              conditions: [],
-              actions: [],
+              condition: null,
+              action: null,
               errorConfiguration: {
                 customMessage: "[End]: It's a custom error",
               },

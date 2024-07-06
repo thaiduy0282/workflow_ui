@@ -374,7 +374,7 @@ const ReactFlowMain = () => {
       setNodes(remainingNodes);
       addEdges(nodesData.edges);
     } else {
-      const remainingNodes = getNodes().map((node, index) => {
+      const remainingNodes = getNodes().map((node) => {
         if (currentActionGroup.id === node.id) {
           return replacementNode;
         }
@@ -871,7 +871,16 @@ const ReactFlowMain = () => {
                       x: currentActionGroup?.xPos,
                       y: currentActionGroup?.yPos,
                     },
-                data: { typeNode: "EndEvent", label: getNodes()[0].data.label },
+                data: {
+                  typeNode: "EndEvent",
+                  label: getNodes()[0].data.label,
+                  ...(currentActionGroup.data.isFalseNode
+                    ? {
+                        parentId: currentActionGroup.data.parentId,
+                        isFalseNode: currentActionGroup.data.isFalseNode,
+                      }
+                    : {}),
+                },
               }
             : {
                 id: "id_" + uuidV4(),

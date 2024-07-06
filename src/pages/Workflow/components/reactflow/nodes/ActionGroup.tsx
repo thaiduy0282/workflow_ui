@@ -22,38 +22,17 @@ const ActionGroup: FC<NodeProps> = (props: any) => {
 
   const initItems: MenuItem[] = [
     {
-      key: "condition",
+      key: "if",
       icon: <NodeIndexOutlined />,
-      label: "Condition",
-      children: [
-        {
-          key: "condition-1-1",
-          label: "IF",
-          onClick: () =>
-            handleChangeActionId(
-              {
-                id: "action__condition",
-                data: { typeNode: "action__Condition", label: "IF" },
-              },
-              props
-            ),
-        },
-        {
-          key: "condition-1-2",
-          label: "IF/ELSE",
-          onClick: () =>
-            handleChangeActionId(
-              {
-                id: "action__if-else-condition",
-                data: {
-                  typeNode: "action__If-Else-Condtion",
-                  label: "IF/ELSE",
-                },
-              },
-              props
-            ),
-        },
-      ],
+      label: "IF",
+      onClick: () =>
+        handleChangeActionId(
+          {
+            id: "action__condition",
+            data: { typeNode: "action__Condition", label: "IF" },
+          },
+          props
+        ),
     },
     {
       key: "action",
@@ -111,6 +90,7 @@ const ActionGroup: FC<NodeProps> = (props: any) => {
   return (
     <>
       <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Top} id="loop" />
       <Handle type="target" position={Position.Left} id="no" />
       <Dropdown
         menu={{ items }}
@@ -121,6 +101,7 @@ const ActionGroup: FC<NodeProps> = (props: any) => {
         <PlusOutlined style={{ fontSize: "8px" }} />
       </Dropdown>
       <Handle type="source" position={Position.Bottom} />
+      <Handle type="target" position={Position.Bottom} id="loop" />
       <Handle type="source" position={Position.Right} id="no" />
     </>
   );

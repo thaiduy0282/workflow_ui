@@ -1,0 +1,9 @@
+.tooltip__syntax{
+    position: absolute;
+    right: 30px;
+    top: 10px;
+}
+
+.icon__info > svg {
+    color: var(--grek-blue-primary-6)
+}

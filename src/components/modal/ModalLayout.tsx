@@ -33,6 +33,7 @@ const ModalLayout: React.FC<Props> = ({ ...props }) => {
       onCancel={onCancel}
       okText={okText}
       okButtonProps={okButtonProps}
+      destroyOnClose
     >
       {children}
     </Modal>

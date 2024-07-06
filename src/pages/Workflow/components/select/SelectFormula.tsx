@@ -9,13 +9,14 @@ import { v4 as uuid } from "uuid";
 type Props = {
   formula: any;
   setFormula: (value: any) => void;
+  step: any;
+  setStep: (value: any) => void;
 };
 
 const SelectFormula: React.FC<Props> = (props) => {
-  const { formula, setFormula } = props;
+  const { formula, setFormula, step, setStep } = props;
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-  const [step, setStep] = useState("metadata");
 
   const { data }: any = handleGetMetadata();
 
@@ -69,14 +70,16 @@ const SelectFormula: React.FC<Props> = (props) => {
   };
 
   const onDeselect = (deletedValue: any) => {
-    if (formula.length === 1) {
-      setFormula(["("]);
-    }
     if (deletedValue.key === "(" || deletedValue.key === ")") {
       setFormula((prevValue: any) => {
         const updatedFormula = prevValue.slice(0, -1);
         return updatedFormula;
       });
+    }
+    if (formula.length == 1) {
+      console.log("formula", formula);
+
+      setFormula(["("]);
     }
     getPrevStep();
   };
@@ -85,9 +88,19 @@ const SelectFormula: React.FC<Props> = (props) => {
     setValue(value);
   };
 
+  const handleBlur = () => {
+    setOpen(false);
+  };
+
+  const handleFocus = () => {
+    setOpen(true);
+  };
+
   return (
     <Select
-      open={open}
+      open={step == "value" ? true : open}
+      onBlur={handleBlur}
+      onFocus={handleFocus}
       labelInValue
       showSearch
       allowClear

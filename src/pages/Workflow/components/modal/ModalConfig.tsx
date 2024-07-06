@@ -1,11 +1,21 @@
-import { Checkbox, Flex, Form, Select, message } from "antd";
+import "./style.css";
+
+import {
+  Checkbox,
+  CheckboxProps,
+  Flex,
+  Form,
+  Select,
+  Tooltip,
+  message,
+} from "antd";
+import { InfoCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 import Button from "../../../../components/custom/Button";
 import Collapse from "../../../../components/custom/Collapse";
 import Input from "../../../../components/custom/Input";
 import ModalLayout from "../../../../components/modal/ModalLayout";
-import { PlusCircleOutlined } from "@ant-design/icons";
 import SelectFormula from "../select/SelectFormula";
 import { handleGetMetadata } from "../../../../components/metadata/handleAPI";
 import { useForm } from "antd/es/form/Form";
@@ -24,20 +34,39 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
 
   const [form] = useForm();
   const [formula, setFormula] = useState<any>(["("]);
+  const [step, setStep] = useState("metadata");
   const [collapseList, setCollapseList] = useState(["field-1"]);
-
+  const [isShowSyntax, setShowSyntax] = useState(false);
   const { getNodes, setNodes } = useReactFlow();
 
-  // useEffect(() => {
-  //   const { data } = currentNode;
-  //   switch (data.typeNode) {
-  //     case "If":
-  //       form.setFieldValue("displayName", data.displayName);
-  //       setFormula(data.formula);
-  //       break;
-  //   }
-  //   form.setFieldsValue(data);
-  // }, []);
+  useEffect(() => {
+    const { data } = currentNode;
+    form.setFieldValue("displayName", data.displayName);
+    console.log("data", data);
+    switch (data.typeNode) {
+      case "If":
+        setFormula(data.formula ? data.formula : formula);
+        setStep(data.step ? data.step : step);
+        setShowSyntax(data.showSyntax ? data.showSyntax : isShowSyntax);
+        break;
+      case "Action":
+        let fieldsArray: any = [];
+        data.fields.forEach((field: any, index: any) => {
+          fieldsArray.push({ [`field-${index + 1}`]: field });
+        });
+
+        fieldsArray.map((field: any) => {
+          console.log(field);
+          Object.keys(field).map((key: string) => {
+            form.setFieldValue(key, field[key]);
+          });
+        });
+        break;
+    }
+    form.setFieldsValue(data);
+  }, [isOpen]);
+
+  console.log(form.getFieldsValue());
 
   const addMoreCollapse = () => {
     const cloneList = collapseList;
@@ -134,6 +163,7 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
 
   const onFinish = () => {
     const currentformValues = { ...form.getFieldsValue() };
+    console.log("currentformValues", currentformValues);
     if (currentNode.data.typeNode === "Action")
       setNodes(editNode(formatValue(currentformValues)));
     else if (currentNode.data.typeNode === "If") {
@@ -141,6 +171,7 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
         editNode({
           displayName: currentformValues.displayName,
           showSyntax: currentformValues.showSyntax,
+          step: step,
           ...formatFormula(),
         })
       );
@@ -177,6 +208,10 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
     }
   };
 
+  const onChangeCheckbox: CheckboxProps["onChange"] = (e) => {
+    setShowSyntax(e.target.checked);
+  };
+
   return (
     <ModalLayout
       title={getModalTitle()}
@@ -201,10 +236,53 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
           {currentNode.data.typeNode === "If" && (
             <>
               <Form.Item name="formula" label="Formula">
-                <SelectFormula formula={formula} setFormula={setFormula} />
+                <SelectFormula
+                  formula={formula}
+                  setFormula={setFormula}
+                  step={step}
+                  setStep={setStep}
+                />
+                <Tooltip
+                  className="tooltip__syntax"
+                  color="blue"
+                  title={
+                    <>
+                      <div>
+                        Syntax: <b>Field - Operator - Value + Keyword</b>
+                      </div>
+                      <div>
+                        <b>Field</b> – Different types of information include
+                        accounttype, accountid, etc.
+                      </div>
+                      <div>
+                        <b>Operator</b>
+                        {
+                          " – Are the heart of the query include equals (==), not equals (!=), less than (<), etc."
+                        }
+                      </div>
+                      <div>
+                        <b>Value</b> – Are the actual data in the query.
+                      </div>
+                      <div>
+                        <b>Keyword</b> – AND, OR.
+                      </div>
+                      <div>
+                        <b>Example</b>: (Accounttype == Admin) OR (Accountid ==
+                        2016)
+                      </div>
+                    </>
+                  }
+                >
+                  <InfoCircleOutlined
+                    style={{ display: isShowSyntax ? "block" : "none" }}
+                    className="icon__info"
+                  />
+                </Tooltip>
               </Form.Item>
               <Form.Item name="showSyntax" valuePropName="checked">
-                <Checkbox>Show syntax help</Checkbox>
+                <Checkbox onChange={onChangeCheckbox}>
+                  Show syntax help
+                </Checkbox>
               </Form.Item>
             </>
           )}

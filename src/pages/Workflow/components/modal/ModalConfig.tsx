@@ -34,7 +34,6 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
 
   const [form] = useForm();
   const [formula, setFormula] = useState<any>([]);
-  const [step, setStep] = useState("metadata");
   const [collapseList, setCollapseList] = useState(["field-1"]);
   const [isShowSyntax, setShowSyntax] = useState(false);
   const { getNodes, setNodes } = useReactFlow();
@@ -45,7 +44,6 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
     switch (data.typeNode) {
       case "If":
         setFormula(data.formula ? data.formula : formula);
-        setStep(data.step ? data.step : step);
         setShowSyntax(data.showSyntax ? data.showSyntax : isShowSyntax);
         break;
       case "Action":
@@ -166,7 +164,6 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
         editNode({
           displayName: currentformValues.displayName,
           showSyntax: currentformValues.showSyntax,
-          step: step,
           ...formatFormula(),
         })
       );
@@ -231,12 +228,7 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
           {currentNode.data.typeNode === "If" && (
             <>
               <Form.Item name="formula" label="Formula">
-                <SelectFormula
-                  formula={formula}
-                  setFormula={setFormula}
-                  step={step}
-                  setStep={setStep}
-                />
+                <SelectFormula formula={formula} setFormula={setFormula} />
                 <Tooltip
                   className="tooltip__syntax"
                   color="blue"

@@ -9,12 +9,10 @@ import { v4 as uuid } from "uuid";
 type Props = {
   formula: any;
   setFormula: (value: any) => void;
-  step: any;
-  setStep: (value: any) => void;
 };
 
 const SelectFormula: React.FC<Props> = (props) => {
-  const { formula, setFormula, step, setStep } = props;
+  const { formula, setFormula } = props;
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
@@ -35,43 +33,14 @@ const SelectFormula: React.FC<Props> = (props) => {
     }
   };
 
-  const getPrevStep = (stepGroup: any) => {
-    switch (stepGroup) {
-      case "metadata":
-        if (formula.length > 1) return "next";
-        break;
-      case "operator":
-        return "metadata";
-      case "value":
-        return "operator";
-      case "next":
-        return "value";
-      default:
-        return "metadata";
-    }
-  };
-
   const onChange = (value: any) => {
     setFormula(value);
-  };
-
-  const onSelect = () => {
-    // getNextStep();
   };
 
   const validateCalculationChar = (char: string) => {
     const allowedChars = "+-*/";
 
     return allowedChars.includes(char);
-  };
-
-  const onDeselect = (deletedValue: any) => {
-    // if (
-    //   deletedValue.key !== "(" &&
-    //   deletedValue.key !== ")" &&
-    //   !validateCalculationChar(deletedValue.key)
-    // )
-    //   getPrevStep();
   };
 
   const onSearch = (value: string) => {
@@ -113,10 +82,6 @@ const SelectFormula: React.FC<Props> = (props) => {
 
   const getOptions: any = () => {
     const stepGroup = getStepGroup();
-    console.log("stepGroup", stepGroup);
-    // if (value === "(" || value === ")" || validateCalculationChar(value)) {
-    //   return [];
-    // } else {
     switch (stepGroup) {
       case "metadata":
         return [
@@ -177,7 +142,6 @@ const SelectFormula: React.FC<Props> = (props) => {
       default:
         return [];
     }
-    // }
   };
 
   return (
@@ -199,8 +163,6 @@ const SelectFormula: React.FC<Props> = (props) => {
       onClick={() => setOpen(!open)}
       onChange={onChange}
       onSearch={onSearch}
-      onSelect={onSelect}
-      onDeselect={onDeselect}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
           if (validateCalculationChar(value)) {
@@ -215,7 +177,6 @@ const SelectFormula: React.FC<Props> = (props) => {
           } else {
             if (getStepGroup() === "value") {
               setFormula((prevValue: any) => [...prevValue, value]);
-              // getNextStep();
             }
           }
           setValue("");

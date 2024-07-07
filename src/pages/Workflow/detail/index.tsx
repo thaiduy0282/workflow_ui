@@ -963,22 +963,37 @@ const ReactFlowMain = () => {
       eventTopic: filteredTriggerNode.data.eventTopic,
     };
 
-    const handleReplaceExpression = (
-      expression: string,
-      referenceObjects: any
-    ) => {
-      let clonedExpression: any = expression;
-      referenceObjects.forEach((obj: any) => {
-        if (clonedExpression.includes(obj.label)) {
-          clonedExpression = clonedExpression.replace(obj.label, obj.apiName);
-        }
-      });
-      return clonedExpression;
+    const handleReplaceExpression = (node: any) => {
+      const referenceObjects = node.data.referenceObjects?.map(
+        (referenceObject: any) => referenceObject.apiName
+      );
+      const expression = node.data.expression;
+      return expression
+        .split(" ")
+        .map((text: any) => {
+          if (referenceObjects.includes(text)) return `['${text}']`;
+          switch (text) {
+            case "and":
+              return "&&";
+            case "or":
+              return "||";
+            case "equal":
+              return "==";
+            case "notEqual":
+              return "!=";
+            case "isGreaterOrEqual":
+              return ">=";
+            case "isLessOrEqual":
+              return "<=";
+          }
+          return text;
+        })
+        .join(" ");
     };
 
     const collectCondition = (node: any) => ({
       displayName: node.data.displayName,
-      expression: node.data.expression,
+      expression: handleReplaceExpression(node),
       referenceObjects: node.data.referenceObjects?.map(
         (referenceObject: any) => referenceObject.apiName
       ),

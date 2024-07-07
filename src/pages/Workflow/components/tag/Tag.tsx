@@ -1,7 +1,13 @@
 import { Flex, Tag, Tooltip, theme } from "antd";
 
+import { truncate } from "cypress/types/lodash";
+
 const TagComponent = ({ data }: any) => {
   const { token }: any = theme.useToken();
+
+  const formatText = (text: string) =>
+    text.replaceAll("(a-z)([A-Z]+)", "$1 $2");
+
   switch (data.typeNode) {
     case "ConditionSetup":
       return (
@@ -54,30 +60,22 @@ const TagComponent = ({ data }: any) => {
         </Tooltip>
       ));
     case "If":
-      return data.formulaItems.map((item: any) => (
+      return (
         <Tooltip
           title={
             <>
-              <span>{item.expression}</span>
-              <span style={{ color: token.colorPink }}> {item.condition} </span>
-              <span style={{ color: token.colorPrimary }}>
-                {item.comparisonValue}
-              </span>
+              <span>{formatText(data.expression)}</span>
             </>
           }
           placement="bottom"
         >
-          <Tag style={{ width: "fit-content" }}>
+          <Tag className={"truncate"} style={{ width: "100%" }}>
             <Flex gap={5}>
-              <span>{item.expression}</span>
-              <span style={{ color: token.colorPink }}> {item.condition} </span>
-              <span className="truncate" style={{ color: token.colorPrimary }}>
-                {item.comparisonValue}
-              </span>
+              <span>{formatText(data.expression)}</span>
             </Flex>
           </Tag>
         </Tooltip>
-      ));
+      );
   }
 };
 

@@ -33,7 +33,7 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
   const { data }: any = handleGetMetadata();
 
   const [form] = useForm();
-  const [formula, setFormula] = useState<any>(["("]);
+  const [formula, setFormula] = useState<any>([]);
   const [step, setStep] = useState("metadata");
   const [collapseList, setCollapseList] = useState(["field-1"]);
   const [isShowSyntax, setShowSyntax] = useState(false);

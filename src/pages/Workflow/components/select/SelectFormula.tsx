@@ -1,9 +1,9 @@
 import "./style.css";
 
 import { Select, Tag } from "antd";
+import { useEffect, useState } from "react";
 
 import { handleGetMetadata } from "../../../../components/metadata/handleAPI";
-import { useState } from "react";
 import { v4 as uuid } from "uuid";
 
 type Props = {
@@ -20,44 +20,34 @@ const SelectFormula: React.FC<Props> = (props) => {
 
   const { data }: any = handleGetMetadata();
 
-  const getNextStep = () => {
-    switch (step) {
+  const getNextStep = (stepGroup: any) => {
+    switch (stepGroup) {
       case "metadata":
-        setStep("operator");
-        break;
+        return "operator";
       case "operator":
-        setStep("value");
-        break;
+        return "value";
       case "value":
-        setStep("next");
-        setFormula((prevValue: any) => [...prevValue, ")"]);
-
-        break;
+        return "next";
       case "next":
-        setStep("metadata");
-        setFormula((prevValue: any) => [...prevValue, "("]);
-        break;
+        return "metadata";
       default:
-        setStep("metadata");
+        return "metadata";
     }
   };
 
-  const getPrevStep = () => {
-    switch (step) {
+  const getPrevStep = (stepGroup: any) => {
+    switch (stepGroup) {
       case "metadata":
-        if (formula.length > 1) setStep("next");
+        if (formula.length > 1) return "next";
         break;
       case "operator":
-        setStep("metadata");
-        break;
+        return "metadata";
       case "value":
-        setStep("operator");
-        break;
+        return "operator";
       case "next":
-        setStep("value");
-        break;
+        return "value";
       default:
-        setStep("metadata");
+        return "metadata";
     }
   };
 
@@ -66,20 +56,22 @@ const SelectFormula: React.FC<Props> = (props) => {
   };
 
   const onSelect = () => {
-    getNextStep();
+    // getNextStep();
+  };
+
+  const validateCalculationChar = (char: string) => {
+    const allowedChars = "+-*/";
+
+    return allowedChars.includes(char);
   };
 
   const onDeselect = (deletedValue: any) => {
-    if (deletedValue.key === "(" || deletedValue.key === ")") {
-      setFormula((prevValue: any) => {
-        const updatedFormula = prevValue.slice(0, -1);
-        return updatedFormula;
-      });
-    }
-    if (formula.length == 1) {
-      setFormula(["("]);
-    }
-    getPrevStep();
+    // if (
+    //   deletedValue.key !== "(" &&
+    //   deletedValue.key !== ")" &&
+    //   !validateCalculationChar(deletedValue.key)
+    // )
+    //   getPrevStep();
   };
 
   const onSearch = (value: string) => {
@@ -94,9 +86,104 @@ const SelectFormula: React.FC<Props> = (props) => {
     setOpen(true);
   };
 
+  const getStepGroup = () => {
+    let stepGroup = "value";
+    if (value !== "(" && value !== ")" && !validateCalculationChar(value)) {
+      if (formula.length > 0) {
+        if (formula[formula.length - 1].value) {
+          stepGroup = getNextStep(
+            formula[formula.length - 1].value.split("#")[0]
+          );
+        } else {
+          if (formula[formula.length - 1] == "(") {
+            stepGroup = "metadata";
+          } else if (
+            formula[formula.length - 1] == ")" ||
+            !validateCalculationChar(formula[formula.length - 1])
+          ) {
+            stepGroup = "next";
+          }
+        }
+      } else {
+        stepGroup = "metadata";
+      }
+    }
+    return stepGroup;
+  };
+
+  const getOptions: any = () => {
+    const stepGroup = getStepGroup();
+    console.log("stepGroup", stepGroup);
+    // if (value === "(" || value === ")" || validateCalculationChar(value)) {
+    //   return [];
+    // } else {
+    switch (stepGroup) {
+      case "metadata":
+        return [
+          {
+            label: <span>Metadata</span>,
+            title: "metadata",
+            options: data?.data?.fieldDefinitions.map((field: any) => {
+              return {
+                value: "metadata#" + JSON.stringify(field) + "#" + uuid(),
+                label: field.label,
+                displayName: field.label,
+              };
+            }),
+          },
+        ];
+      case "operator":
+        return [
+          {
+            label: <span>Operator</span>,
+            title: "operator",
+            options: [
+              {
+                value: "operator#" + "equal" + "#" + uuid(),
+                label: "is equal to (==)",
+                displayName: "==",
+              },
+              {
+                value: "operator#" + "notEqual" + "#" + uuid(),
+                label: "is not equal to (!=)",
+                displayName: "!=",
+              },
+              {
+                value: "operator#" + "isGreaterOrEqual" + "#" + uuid(),
+                label: "is greater than or equal to (>=)",
+                displayName: ">=",
+              },
+              {
+                value: "operator#" + "isLessOrEqual" + "#" + uuid(),
+                label: "is less than or equal to (<=)",
+                displayName: "<=",
+              },
+            ],
+          },
+        ];
+      case "next":
+        return [
+          {
+            value: "next#" + "or" + "#" + uuid(),
+            label: "OR",
+            displayName: "OR",
+          },
+          {
+            value: "next#" + "and" + "#" + uuid(),
+            label: "AND",
+            displayName: "AND",
+          },
+        ];
+      default:
+        return [];
+    }
+    // }
+  };
+
   return (
     <Select
-      open={step == "value" ? true : open}
+      optionLabelProp="displayName"
+      open={getStepGroup() == "value" ? true : open}
       onBlur={handleBlur}
       onFocus={handleFocus}
       labelInValue
@@ -105,10 +192,10 @@ const SelectFormula: React.FC<Props> = (props) => {
       removeIcon
       searchValue={value}
       suffixIcon={<></>}
-      notFoundContent={step === "value" && <></>}
+      notFoundContent={getStepGroup() === "value" && <></>}
       value={formula}
       mode="multiple"
-      placeholder="Select a person"
+      placeholder="Write Condition"
       onClick={() => setOpen(!open)}
       onChange={onChange}
       onSearch={onSearch}
@@ -116,9 +203,20 @@ const SelectFormula: React.FC<Props> = (props) => {
       onDeselect={onDeselect}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
-          if (step === "value") {
+          if (validateCalculationChar(value)) {
+            setFormula((prevValue: any) => {
+              if (validateCalculationChar(prevValue[formula.length - 1])) {
+                return prevValue;
+              }
+              return [...prevValue, value];
+            });
+          } else if (value === "(" || value === ")") {
             setFormula((prevValue: any) => [...prevValue, value]);
-            getNextStep();
+          } else {
+            if (getStepGroup() === "value") {
+              setFormula((prevValue: any) => [...prevValue, value]);
+              // getNextStep();
+            }
           }
           setValue("");
         }
@@ -138,47 +236,7 @@ const SelectFormula: React.FC<Props> = (props) => {
           {props.label}
         </Tag>
       )}
-      options={
-        step === "metadata"
-          ? [
-              {
-                label: <span>Metadata</span>,
-                title: "metadata",
-                options: data?.data?.fieldDefinitions.map((field: any) => {
-                  return {
-                    value: "metadata#" + JSON.stringify(field) + "#" + uuid(),
-                    label: field.label,
-                  };
-                }),
-              },
-            ]
-          : step === "operator"
-          ? [
-              {
-                label: <span>Operator</span>,
-                title: "operator",
-                options: [
-                  {
-                    value: "operator#" + "equals" + "#" + uuid(),
-                    label: "Equals",
-                  },
-                  {
-                    value: "operator#" + "notEquals" + "#" + uuid(),
-                    label: "Not Equals",
-                  },
-                ],
-              },
-            ]
-          : step === "next"
-          ? [
-              {
-                value: "next#" + "or" + "#" + uuid(),
-                label: "OR",
-              },
-              { value: "next#" + "and" + "#" + uuid(), label: "AND" },
-            ]
-          : []
-      }
+      options={getOptions()}
     />
   );
 };

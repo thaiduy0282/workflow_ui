@@ -1005,7 +1005,7 @@ const ReactFlowMain = () => {
             case "isLessOrEqual":
               return "<=";
           }
-          return text;
+          return `'${text}'`;
         })
         .join(" ");
     };

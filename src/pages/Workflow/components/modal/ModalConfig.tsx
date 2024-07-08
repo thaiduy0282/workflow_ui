@@ -95,18 +95,14 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
   const formatFormula = () => {
     let referenceObjects: any = [];
     let formulaItems: any = [];
-    const collectFormula = formula.map((item: any) => {
-      if (typeof item === "string") {
-        return item;
-      } else {
-        return item?.value?.split("#")[1]
-          ? item?.value?.split("#")[1]
-          : item?.value;
-      }
-    });
+    console.log("formula", formula);
+    const collectFormula = JSON.parse(JSON.stringify(formula)).map(
+      (item: any) =>
+        typeof item === "string" ? item : item.value?.split("#")[1] || item
+    );
 
     let formulaItem: any = {};
-    formula.forEach((item: any) => {
+    formula.forEach((item: any, index: any) => {
       if (typeof item === "string") {
         if (item === ")") {
           formulaItems.push(formulaItem);
@@ -127,8 +123,18 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
             formulaItem.expression = item.label;
           } else if (item?.value?.split("#")[0] === "operator") {
             formulaItem.condition = item.label;
+          } else if (item?.value?.split("#")[0] === "next") {
+            formulaItems.push(formulaItem);
+            formulaItem = {};
           }
         }
+      }
+      if (
+        index === formula.length - 1 &&
+        Object.keys(formulaItem).length != 0
+      ) {
+        formulaItems.push(formulaItem);
+        formulaItem = {};
       }
     });
 

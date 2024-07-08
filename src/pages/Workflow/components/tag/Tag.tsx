@@ -70,14 +70,14 @@ const TagComponent = ({ data }: any) => {
     case "If":
       const expressionTag = data.formula
         .map((item: any) => {
-          if (
-            item.label === "(" ||
-            item.label === ")" ||
-            validateCalculationChar(item.label)
-          ) {
-            return `<span class="bracket">${item.label}</span>`;
-          } else {
-            if (item.value) {
+          if (item.value) {
+            if (
+              item.value === "(" ||
+              item.value === ")" ||
+              validateCalculationChar(item.value)
+            ) {
+              return `<span class="bracket">${item.value}</span>`;
+            } else {
               switch (item.value.split("#")[0]) {
                 case "metadata":
                   return `<span class="${item.value.split("#")[0]}">${
@@ -94,18 +94,26 @@ const TagComponent = ({ data }: any) => {
                 default:
                   return `<span class="value">${item.label}</span>`;
               }
-            } else {
-              return `<span class="value">${item}</span>`;
             }
+          } else {
+            return `<span class=${
+              item === "(" || item === ")" || validateCalculationChar(item)
+                ? "bracket"
+                : "value"
+            }>${item}</span>`;
           }
         })
         .join(" ");
+      console.log("expressionTag", expressionTag);
       return (
         <Tooltip
           title={<span dangerouslySetInnerHTML={{ __html: expressionTag }} />}
           placement="bottom"
         >
-          <Tag className={"truncate"} style={{ width: "100%" }}>
+          <Tag
+            className={"truncate"}
+            style={{ width: "fit-content", maxWidth: "100%" }}
+          >
             <Flex gap={5}>
               {<span dangerouslySetInnerHTML={{ __html: expressionTag }} />}
             </Flex>

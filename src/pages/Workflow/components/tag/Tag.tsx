@@ -104,7 +104,6 @@ const TagComponent = ({ data }: any) => {
           }
         })
         .join(" ");
-      console.log("expressionTag", expressionTag);
       return (
         <Tooltip
           title={<span dangerouslySetInnerHTML={{ __html: expressionTag }} />}

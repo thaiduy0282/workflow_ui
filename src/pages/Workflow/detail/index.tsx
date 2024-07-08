@@ -846,6 +846,11 @@ const ReactFlowMain = () => {
         const deleteActionGroupNode = getNodes().filter(
           (n) => currentActionGroup.id === n.id
         );
+        const incomers = getIncomers(
+          deleteActionGroupNode[0],
+          getNodes(),
+          getEdges()
+        )[0];
         deleteElements({
           nodes: deleteActionGroupNode,
         });
@@ -878,8 +883,15 @@ const ReactFlowMain = () => {
                     ? {
                         parentId: currentActionGroup.data.parentId,
                         isFalseNode: currentActionGroup.data.isFalseNode,
+                        ...(incomers.data && incomers.data.typeNode === "If"
+                          ? { isAfterConditionNode: true, isNoCase: true }
+                          : {}),
                       }
-                    : {}),
+                    : {
+                        ...(incomers.data && incomers.data.typeNode === "If"
+                          ? { isAfterConditionNode: true, isYesCase: true }
+                          : {}),
+                      }),
                 },
               }
             : {
@@ -901,8 +913,15 @@ const ReactFlowMain = () => {
                     ? {
                         parentId: currentActionGroup.data.parentId,
                         isFalseNode: currentActionGroup.data.isFalseNode,
+                        ...(incomers.data && incomers.data.typeNode === "If"
+                          ? { isAfterConditionNode: true, isNoCase: true }
+                          : {}),
                       }
-                    : {}),
+                    : {
+                        ...(incomers.data && incomers.data.typeNode === "If"
+                          ? { isAfterConditionNode: true, isYesCase: true }
+                          : {}),
+                      }),
                   typeNode: getTypeNode(typeNode),
                   label: node.data.label,
                 },

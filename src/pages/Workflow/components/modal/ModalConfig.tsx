@@ -95,7 +95,6 @@ const ModalConfig: React.FC<Props> = ({ ...props }) => {
   const formatFormula = () => {
     let referenceObjects: any = [];
     let formulaItems: any = [];
-    console.log("formula", formula);
     const collectFormula = JSON.parse(JSON.stringify(formula)).map(
       (item: any) =>
         typeof item === "string" ? item : item.value?.split("#")[1] || item

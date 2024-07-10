@@ -12,8 +12,7 @@ import { useState } from "react";
 const options = [
   { label: "By event", value: "E" },
   { label: "By scheduler", value: "S" },
-  { label: "By manual", value: "M" },
-  { label: "By ...", value: "..." },
+  { label: "By manual", value: "M" }
 ];
 
 const ModalCreateWorkflow = () => {

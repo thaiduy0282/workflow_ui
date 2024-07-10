@@ -1022,7 +1022,6 @@ const ReactFlowMain = () => {
       displayName: node.data.displayName,
       fields: node.data.fields?.map((item: any) => ({
         key: item.field.apiName,
-        existingValue: "",
         newValue: item.value,
       })),
     });
